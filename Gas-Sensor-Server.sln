@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gas-Sensor-Server", "Gas-Sensor-Server\Gas-Sensor-Server.csproj", "{E84B2D9B-6678-49C2-AC80-A4D2218ADD74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gss.Infrastructure", "Gss.Infrastructure\Gss.Infrastructure.csproj", "{8C53FC60-2200-48AA-80D4-27FC9F8A23A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gss.Web", "Gss.Web\Gss.Web.csproj", "{C4789E44-64C6-4F81-B891-3B772AEC701B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gss.Core", "Gss.Core\Gss.Core.csproj", "{73A1237E-9660-4DC5-A03C-360DF8820434}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E84B2D9B-6678-49C2-AC80-A4D2218ADD74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E84B2D9B-6678-49C2-AC80-A4D2218ADD74}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E84B2D9B-6678-49C2-AC80-A4D2218ADD74}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E84B2D9B-6678-49C2-AC80-A4D2218ADD74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C53FC60-2200-48AA-80D4-27FC9F8A23A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C53FC60-2200-48AA-80D4-27FC9F8A23A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C53FC60-2200-48AA-80D4-27FC9F8A23A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C53FC60-2200-48AA-80D4-27FC9F8A23A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4789E44-64C6-4F81-B891-3B772AEC701B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4789E44-64C6-4F81-B891-3B772AEC701B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4789E44-64C6-4F81-B891-3B772AEC701B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4789E44-64C6-4F81-B891-3B772AEC701B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73A1237E-9660-4DC5-A03C-360DF8820434}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73A1237E-9660-4DC5-A03C-360DF8820434}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73A1237E-9660-4DC5-A03C-360DF8820434}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73A1237E-9660-4DC5-A03C-360DF8820434}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
