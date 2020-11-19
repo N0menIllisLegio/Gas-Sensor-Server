@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gss.Core.Entities
 {
-    public class User
-    {
-        public Guid ID { get; set; }
-        public string Email { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+  public class User : IdentityUser<Guid>
+  {
+    // ------ RELATIONSHIPS
 
-
-        // ------ RELATIONSHIPS
-
-        public ICollection<Microcontroller> Microcontrollers { get; set; }
-    }
+    public ICollection<Microcontroller> Microcontrollers { get; set; }
+  }
 }
