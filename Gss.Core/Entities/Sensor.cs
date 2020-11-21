@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gss.Core.Entities
@@ -9,5 +10,7 @@ namespace Gss.Core.Entities
 
     [MaxLength(200)]
     public string Name { get; set; }
+
+    public IList<MicrocontrollerSensor> SensorMicrocontrollers { get; set; }
   }
 }

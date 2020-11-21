@@ -16,5 +16,12 @@ namespace Gss.Infrastructure
     public DbSet<Sensor> Sensors { get; set; }
     public DbSet<SensorData> SensorsData { get; set; }
     public DbSet<Microcontroller> Microcontrollers { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+      base.OnModelCreating(builder);
+      builder.Entity<SensorData>().HasKey(e =>
+        new { e.MicrocontrollerID, e.SensorID, e.ValueReadTime });
+    }
   }
 }
