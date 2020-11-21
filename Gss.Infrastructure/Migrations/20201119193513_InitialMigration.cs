@@ -274,7 +274,14 @@ namespace Gss.Infrastructure.Migrations
                 table: "Sensors",
                 unique: true,
                 column: "Name");
-        }
+
+            var administratorID = Guid.NewGuid();
+
+            migrationBuilder.Sql(
+              $"INSERT INTO [AspNetRoles]([Id], [Name], [NormalizedName], [ConcurrencyStamp]) VALUES" +
+              $" ('{administratorID}', 'Administrator', 'ADMINISTRATOR', '{Guid.NewGuid()}')," +
+              $" ('{Guid.NewGuid()}', 'User', 'USER', '{Guid.NewGuid()}')");
+    }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

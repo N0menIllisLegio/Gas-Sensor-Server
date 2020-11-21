@@ -350,4 +350,6 @@ MigrationBackup/
 .ionide/
 
 appsettings.Development.json
-CodeStyle/*
+.editorconfig
+stylecop.json
+Softteco.ruleset
