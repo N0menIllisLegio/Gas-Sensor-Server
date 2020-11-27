@@ -20,7 +20,7 @@ namespace Gss.Infrastructure.Repositories
       _appDbContext.RefreshTokens.Add(new RefreshToken
       {
         Token = refreshToken,
-        ExpirationDate = DateTime.UtcNow.AddDays(Settings.JwtRefreshTokenLifetimeDays),
+        ExpirationDate = DateTime.UtcNow.AddDays(Settings.JWT.RefreshTokenLifetimeDays),
         User = user
       });
 

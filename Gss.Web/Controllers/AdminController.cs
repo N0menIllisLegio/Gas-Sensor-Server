@@ -76,7 +76,7 @@ namespace Gss.Web.Controllers
 
       var result = await _userManager.UpdateAsync(user);
 
-      if (result.Succeeded)
+      if (!result.Succeeded)
       {
         return BadRequest(result.Errors);
       }

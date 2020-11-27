@@ -45,22 +45,22 @@ namespace Gss.Core.Services
         claim.Type == ClaimsIdentity.DefaultNameClaimType)?.Value;
     }
 
-    public async Task<TokenDto> GenerateAccessTokenAsync(User user)
+    public async Task<TokenDto> GenerateTokenAsync(User user)
     {
       var identity = await GetIdentityAsync(user);
 
       var issueTime = DateTime.UtcNow;
       var expirationTime = issueTime.Add(
-        TimeSpan.FromMinutes(Settings.JwtAccessTokenLifetimeMinutes));
+        TimeSpan.FromMinutes(Settings.JWT.AccessTokenLifetimeMinutes));
 
       var jwt = new JwtSecurityToken(
-        issuer: Settings.JwtIssuer,
-        audience: Settings.JwtAudience,
+        issuer: Settings.JWT.Issuer,
+        audience: Settings.JWT.Audience,
         notBefore: issueTime,
         claims: identity.Claims,
         expires: expirationTime,
         signingCredentials: new SigningCredentials(
-          Settings.JwtKey,
+          Settings.JWT.Key,
           SecurityAlgorithms.HmacSha256));
 
       return new TokenDto

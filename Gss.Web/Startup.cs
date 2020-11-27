@@ -32,13 +32,16 @@ namespace Gss.Web
     public void ConfigureServices(IServiceCollection services)
     {
       #region Load Settings
-      Settings.JwtIssuer = Configuration["JwtIssuer"];
-      Settings.JwtAudience = Configuration["JwtAudience"];
-      Settings.JwtKey = new SymmetricSecurityKey(
-                          Encoding.UTF8.GetBytes(Configuration["JwtKey"]));
+      var jwtSection =
+              Configuration.GetSection("Authentication:JWT");
 
-      Settings.JwtAccessTokenLifetimeMinutes = Int32.Parse(Configuration["JwtAccessTokenLifetimeMinutes"]);
-      Settings.JwtRefreshTokenLifetimeDays = Int32.Parse(Configuration["JwtRefreshTokenLifetimeDays"]);
+      Settings.JWT.Issuer = jwtSection["Issuer"];
+      Settings.JWT.Audience = jwtSection["Audience"];
+      Settings.JWT.Key = new SymmetricSecurityKey(
+                          Encoding.UTF8.GetBytes(jwtSection["Key"]));
+
+      Settings.JWT.AccessTokenLifetimeMinutes = Int32.Parse(jwtSection["AccessTokenLifetimeMinutes"]);
+      Settings.JWT.RefreshTokenLifetimeDays = Int32.Parse(jwtSection["RefreshTokenLifetimeDays"]);
       #endregion
 
       services.AddDbContext<AppDbContext>(options =>
@@ -73,13 +76,20 @@ namespace Gss.Web
           options.TokenValidationParameters = new TokenValidationParameters
           {
             ValidateIssuer = true,
-            ValidIssuer = Settings.JwtIssuer,
+            ValidIssuer = Settings.JWT.Issuer,
             ValidateAudience = true,
-            ValidAudience = Settings.JwtAudience,
+            ValidAudience = Settings.JWT.Audience,
             ValidateLifetime = true,
-            IssuerSigningKey = Settings.JwtKey,
+            IssuerSigningKey = Settings.JWT.Key,
             ValidateIssuerSigningKey = true,
           };
+        })
+        .AddGoogle(options =>
+        {
+          var googleAuthNSection = Configuration.GetSection("Authentication:Google");
+
+          options.ClientId = googleAuthNSection["ClientID"];
+          options.ClientSecret = googleAuthNSection["ClientSecret"];
         });
 
       services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();

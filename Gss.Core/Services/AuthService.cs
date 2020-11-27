@@ -37,7 +37,7 @@ namespace Gss.Core.Services
         return null;
       }
 
-      var token = await _tokenService.GenerateAccessTokenAsync(user);
+      var token = await _tokenService.GenerateTokenAsync(user);
       await _refreshTokenRepository.AddRefreshTokenAsync(user, token.RefreshToken);
 
       return token;
@@ -55,7 +55,7 @@ namespace Gss.Core.Services
 
       await _refreshTokenRepository.DeleteRefreshTokenAsync(token);
       var user = await _userManager.FindByEmailAsync(accountEmail);
-      var newToken = await _tokenService.GenerateAccessTokenAsync(user);
+      var newToken = await _tokenService.GenerateTokenAsync(user);
       await _refreshTokenRepository.AddRefreshTokenAsync(user, newToken.RefreshToken);
 
       return newToken;

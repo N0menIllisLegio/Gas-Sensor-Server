@@ -26,7 +26,7 @@ namespace Gss.Web.Controllers
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByID(string id)
     {
-      if (!ValidateGuidString(id))
+      if (!Guid.TryParse(id, out var result))
       {
         return BadRequest(Messages.InvalidGuidErrorString);
       }
@@ -50,6 +50,33 @@ namespace Gss.Web.Controllers
       };
 
       return Ok(userInfoDto);
+    }
+
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto newUserInfo)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+
+      user.FirstName = newUserInfo.FirstName;
+      user.LastName = newUserInfo.LastName;
+      user.Gender = newUserInfo.Gender;
+      user.Birthday = newUserInfo.Birthday;
+      user.PhoneNumber = newUserInfo.PhoneNumber;
+
+      var result = await _userManager.UpdateAsync(user);
+
+      if (!result.Succeeded)
+      {
+        return BadRequest(result.Errors);
+      }
+
+      return Ok();
     }
 
     [HttpPost]
@@ -125,11 +152,6 @@ namespace Gss.Web.Controllers
       await _authService.LogOutAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
 
       return Ok();
-    }
-
-    private bool ValidateGuidString(string guid)
-    {
-      return Guid.TryParse(guid, out var result);
     }
   }
 }

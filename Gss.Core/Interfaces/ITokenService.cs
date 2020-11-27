@@ -6,7 +6,7 @@ namespace Gss.Core.Interfaces
 {
   public interface ITokenService
   {
-    public Task<TokenDto> GenerateAccessTokenAsync(User user);
+    public Task<TokenDto> GenerateTokenAsync(User user);
     public string GetEmailFromAccessToken(string accessToken);
   }
 }
