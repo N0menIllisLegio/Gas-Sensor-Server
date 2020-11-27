@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gss.Web.ViewModels
+namespace Gss.Core.DTOs
 {
-  public class RoleViewModel
+  public class RoleDto
   {
     [Required]
     [MinLength(3, ErrorMessage = "Role length can't be less than 3.")]

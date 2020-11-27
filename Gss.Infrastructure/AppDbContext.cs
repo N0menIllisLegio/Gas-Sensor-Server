@@ -16,6 +16,7 @@ namespace Gss.Infrastructure
     public DbSet<Sensor> Sensors { get; set; }
     public DbSet<SensorData> SensorsData { get; set; }
     public DbSet<Microcontroller> Microcontrollers { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

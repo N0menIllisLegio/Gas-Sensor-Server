@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Gss.Core.DTOs;
 using Gss.Web.Resources;
-using Gss.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,8 +28,8 @@ namespace Gss.Web.Controllers
       return Ok(allRoles);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetRoleById(string id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetRoleByID(string id)
     {
       if (!ValidateGuidString(id))
       {
@@ -38,42 +38,40 @@ namespace Gss.Web.Controllers
 
       var role = await _roleManager.FindByIdAsync(id);
 
-      return Ok(role);
+      return role is null ? NotFound() : Ok(role);
     }
 
-    [HttpGet]
+    [HttpGet("{name}")]
     public async Task<IActionResult> GetRoleByName(string name)
     {
       if (String.IsNullOrEmpty(name))
       {
-        return BadRequest(Messages.InvalidRoleNameErrorString);
+        return BadRequest(String.Format(Messages.EmptyOrNullErrorString, "Role", "name"));
       }
 
       var role = await _roleManager.FindByNameAsync(name);
 
-      return Ok(role);
+      return role is null ? NotFound() : Ok(role);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRole([FromBody] RoleViewModel role)
+    public async Task<IActionResult> CreateRole([FromBody] RoleDto roleModel)
     {
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
       }
 
-      var result = await _roleManager.CreateAsync(new IdentityRole<Guid> { Name = role.Name });
+      var role = new IdentityRole<Guid> { Name = roleModel.Name };
+      var result = await _roleManager.CreateAsync(role);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(result.Errors);
-      }
-
-      return Ok();
+      return result.Succeeded
+        ? Ok(role)
+        : BadRequest(result.Errors);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleViewModel newRoleModel)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleDto newRoleModel)
     {
       if (!ValidateGuidString(id))
       {
@@ -96,15 +94,12 @@ namespace Gss.Web.Controllers
 
       var result = await _roleManager.UpdateAsync(oldRole);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(result.Errors);
-      }
-
-      return Ok();
+      return result.Succeeded
+        ? Ok(oldRole)
+        : BadRequest(result.Errors);
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRole(string id)
     {
       if (!ValidateGuidString(id))
@@ -121,12 +116,7 @@ namespace Gss.Web.Controllers
 
       var result = await _roleManager.DeleteAsync(role);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(result.Errors);
-      }
-
-      return Ok();
+      return result.Succeeded ? Ok() : BadRequest(result.Errors);
     }
 
     private bool ValidateGuidString(string guid)

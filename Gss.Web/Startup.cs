@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Gss.Core.Entities;
+using Gss.Core.Helpers;
+using Gss.Core.Interfaces;
+using Gss.Core.Services;
 using Gss.Infrastructure;
+using Gss.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,14 +31,24 @@ namespace Gss.Web
 
     public void ConfigureServices(IServiceCollection services)
     {
+      #region Load Settings
+      Settings.JwtIssuer = Configuration["JwtIssuer"];
+      Settings.JwtAudience = Configuration["JwtAudience"];
+      Settings.JwtKey = new SymmetricSecurityKey(
+                          Encoding.UTF8.GetBytes(Configuration["JwtKey"]));
+
+      Settings.JwtAccessTokenLifetimeMinutes = Int32.Parse(Configuration["JwtAccessTokenLifetimeMinutes"]);
+      Settings.JwtRefreshTokenLifetimeDays = Int32.Parse(Configuration["JwtRefreshTokenLifetimeDays"]);
+      #endregion
+
       services.AddDbContext<AppDbContext>(options =>
           options.UseSqlServer(Configuration.GetConnectionString("LocalDB")));
 
       services.AddDefaultIdentity<User>(options =>
       {
         // TODO config for prod
-        options.SignIn.RequireConfirmedAccount = true;
-        options.SignIn.RequireConfirmedEmail = true;
+        //options.SignIn.RequireConfirmedAccount = true;
+        //options.SignIn.RequireConfirmedEmail = true;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 4;
         options.Password.RequireLowercase = false;
@@ -43,31 +57,34 @@ namespace Gss.Web
                   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
         options.User.RequireUniqueEmail = true;
       })
-          .AddRoles<IdentityRole<Guid>>()
-          .AddEntityFrameworkStores<AppDbContext>()
-          .AddUserManager<UserManager<User>>()
-          .AddSignInManager<SignInManager<User>>()
-          .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
-          .AddDefaultTokenProviders();
+        .AddRoles<IdentityRole<Guid>>()
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddUserManager<UserManager>()
+        .AddSignInManager<SignInManager<User>>()
+        .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+        .AddDefaultTokenProviders();
 
       services.AddControllers();
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-          .AddJwtBearer(options =>
+        .AddJwtBearer(options =>
+        {
+          options.RequireHttpsMetadata = false;
+          options.TokenValidationParameters = new TokenValidationParameters
           {
-            options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-              ValidateIssuer = true,
-              ValidIssuer = Configuration["JwtIssuer"],
-              ValidateAudience = true,
-              ValidAudience = Configuration["JwtAudience"],
-              ValidateLifetime = true,
-              IssuerSigningKey = new SymmetricSecurityKey(
-                          Encoding.ASCII.GetBytes(Configuration["JwtKey"])),
-              ValidateIssuerSigningKey = true,
-            };
-          });
+            ValidateIssuer = true,
+            ValidIssuer = Settings.JwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = Settings.JwtAudience,
+            ValidateLifetime = true,
+            IssuerSigningKey = Settings.JwtKey,
+            ValidateIssuerSigningKey = true,
+          };
+        });
+
+      services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+      services.AddTransient<ITokenService, TokenService>();
+      services.AddScoped<IAuthService, AuthService>();
 
       services.AddSpaStaticFiles(configuration =>
       {

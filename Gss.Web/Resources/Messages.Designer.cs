@@ -61,6 +61,33 @@ namespace Gss.Web.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} already exist..
+        /// </summary>
+        internal static string AlreadyExistsErrorString {
+            get {
+                return ResourceManager.GetString("AlreadyExistsErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} {1} must not be null or empty..
+        /// </summary>
+        internal static string EmptyOrNullErrorString {
+            get {
+                return ResourceManager.GetString("EmptyOrNullErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid email address..
+        /// </summary>
+        internal static string InvalidEmailAddressErrorString {
+            get {
+                return ResourceManager.GetString("InvalidEmailAddressErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Guid should contain 32 digits with 4 dashes (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)..
         /// </summary>
         internal static string InvalidGuidErrorString {
@@ -70,11 +97,38 @@ namespace Gss.Web.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Role name is invalid.
+        ///   Looks up a localized string similar to Invalid login or password..
         /// </summary>
-        internal static string InvalidRoleNameErrorString {
+        internal static string InvalidLoginOrPasswordErrorString {
             get {
-                return ResourceManager.GetString("InvalidRoleNameErrorString", resourceCulture);
+                return ResourceManager.GetString("InvalidLoginOrPasswordErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid password..
+        /// </summary>
+        internal static string InvalidPasswordErrorString {
+            get {
+                return ResourceManager.GetString("InvalidPasswordErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid email or username..
+        /// </summary>
+        internal static string InvalidUsernameOrEmailErrorString {
+            get {
+                return ResourceManager.GetString("InvalidUsernameOrEmailErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} not found..
+        /// </summary>
+        internal static string NotFoundErrorString {
+            get {
+                return ResourceManager.GetString("NotFoundErrorString", resourceCulture);
             }
         }
     }
