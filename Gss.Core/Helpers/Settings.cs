@@ -4,6 +4,9 @@ namespace Gss.Core.Helpers
 {
   public static class Settings
   {
+    public static int MaximumItemsPerPage { get; set; } = 10;
+    public static int MinimumItemsPerPage { get; set; } = 2;
+
     public static class JWT
     {
       public static string Issuer { get; set; }

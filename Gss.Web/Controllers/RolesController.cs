@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Web.Filters;
 using Gss.Web.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +22,23 @@ namespace Gss.Web.Controllers
       _roleManager = roleManager;
     }
 
+    [Pagination]
     [HttpGet]
-    public async Task<IActionResult> GetAllRoles()
+    public async Task<IActionResult> GetAllRoles(int pageNumber, int pageSize,
+      bool orderAsc, string filter)
     {
-      var allRoles = await _roleManager.Roles.ToListAsync();
+      var filteredRoles = _roleManager.Roles
+        .Where(r => r.Name.Contains(filter));
+
+      var allRoles = orderAsc
+        ? await filteredRoles.OrderBy(r => r.Name)
+          .Skip((pageNumber - 1) * pageSize)
+          .Take(pageSize)
+          .ToListAsync()
+        : await filteredRoles.OrderByDescending(r => r.Name)
+          .Skip((pageNumber - 1) * pageSize)
+          .Take(pageSize)
+          .ToListAsync();
 
       return Ok(allRoles);
     }

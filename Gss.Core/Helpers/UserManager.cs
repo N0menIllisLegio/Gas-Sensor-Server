@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Gss.Core.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Gss.Core.Helpers
 {
+  // TODO Move to Infrastructure
   public class UserManager: UserManager<User>
   {
     private const string StandardRoleName = "User";
@@ -31,6 +35,39 @@ namespace Gss.Core.Helpers
       }
 
       return await AddToRoleAsync(user, StandardRoleName);
+    }
+
+    public async Task<IEnumerable<User>> GetPage(int pageSize, int pageNumber,
+      bool orderAsc, string orderBy, string filterBy = null, string filterStr = null)
+    {
+      var filter = filterBy switch
+      {
+        "Email" => (Expression<Func<User, bool>>)((user) => user.Email.Contains(filterStr)),
+        "FirstName" => (Expression<Func<User, bool>>)((user) => user.FirstName.Contains(filterStr)),
+        "LastName" => (Expression<Func<User, bool>>)((user) => user.LastName.Contains(filterStr)),
+        "Gender" => (Expression<Func<User, bool>>)((user) => user.Gender.Contains(filterStr)),
+        _ => (Expression<Func<User, bool>>)((user) => true)
+      };
+
+      return await GetPage(Users.Where(filter), pageSize, pageNumber, orderAsc, orderBy);
+    }
+
+    private async Task<IEnumerable<User>> GetPage(IQueryable<User> users, int pageSize, int pageNumber,
+      bool orderAsc, string orderBy)
+    {
+      var order = orderBy switch
+      {
+        "FirstName" => (Expression<Func<User, string>>)((user) => user.FirstName),
+        "LastName" => (Expression<Func<User, string>>)((user) => user.LastName),
+        "Gender" => (Expression<Func<User, string>>)((user) => user.Gender),
+        _ => (Expression<Func<User, string>>)((user) => user.Email)
+      };
+
+      users = orderAsc
+        ? users.OrderBy(order)
+        : users.OrderByDescending(order);
+
+      return await users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }
   }
 }

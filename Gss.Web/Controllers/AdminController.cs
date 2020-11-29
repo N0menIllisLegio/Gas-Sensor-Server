@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
+using Gss.Web.Filters;
 using Gss.Web.Resources;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Web.Controllers
 {
@@ -176,10 +177,13 @@ namespace Gss.Web.Controllers
         : BadRequest(result.Errors);
     }
 
+    [Pagination]
     [HttpGet]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsers(int pageNumber, int pageSize,
+      bool orderAsc, string orderBy, string filterBy, string filter)
     {
-      var users = await _userManager.Users.ToListAsync();
+      var users = await _userManager
+        .GetPage(pageSize, pageNumber, orderAsc, orderBy, filterBy, filter);
 
       return Ok(users);
     }
