@@ -23,6 +23,7 @@ namespace Gss.Web.Controllers
       _authService = authService;
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByID(string id)
     {
@@ -148,6 +149,20 @@ namespace Gss.Web.Controllers
       }
 
       await _authService.LogOutAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
+
+      return Ok();
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> LogOutFromAllDevices([FromBody] RequestTokenRefreshDto requestTokens)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      await _authService.RevokeAccessFromAllDevicesAsync(requestTokens.AccessToken);
 
       return Ok();
     }
