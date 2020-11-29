@@ -40,7 +40,6 @@ namespace Gss.Web.Controllers
 
       var userInfoDto = new UserInfoDto
       {
-        Username = user.UserName,
         Email = user.Email,
         FirstName = user.FirstName,
         LastName = user.LastName,
@@ -89,7 +88,6 @@ namespace Gss.Web.Controllers
 
       var user = new User
       {
-        UserName = registerModel.Username,
         Email = registerModel.Email,
         FirstName = registerModel.FirstName,
         LastName = registerModel.LastName,

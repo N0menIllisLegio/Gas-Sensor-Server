@@ -22,6 +22,7 @@ namespace Gss.Core.Helpers
 
     public override async Task<IdentityResult> CreateAsync(User user)
     {
+      user.UserName = user.Email.Split('@')[0];
       var result = await base.CreateAsync(user);
 
       if (!result.Succeeded)

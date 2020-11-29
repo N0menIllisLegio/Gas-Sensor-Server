@@ -31,7 +31,6 @@ namespace Gss.Web.Controllers
 
       var user = new User
       {
-        UserName = userModel.Username,
         Email = userModel.Email,
         PhoneNumber = userModel.PhoneNumber,
         FirstName = userModel.FirstName,
@@ -67,7 +66,6 @@ namespace Gss.Web.Controllers
         return NotFound();
       }
 
-      user.UserName = userModel.Username;
       user.FirstName = userModel.FirstName;
       user.LastName = userModel.LastName;
       user.Gender = userModel.Gender;
@@ -184,19 +182,6 @@ namespace Gss.Web.Controllers
       var users = await _userManager.Users.ToListAsync();
 
       return Ok(users);
-    }
-
-    [HttpGet("{name}")]
-    public async Task<IActionResult> GetUserByName(string name)
-    {
-      if (String.IsNullOrEmpty(name))
-      {
-        return BadRequest(String.Format(Messages.EmptyOrNullErrorString, "User", "name"));
-      }
-
-      var user = await _userManager.FindByNameAsync(name);
-
-      return user is null ? NotFound() : Ok(user);
     }
 
     [HttpGet("{email}")]

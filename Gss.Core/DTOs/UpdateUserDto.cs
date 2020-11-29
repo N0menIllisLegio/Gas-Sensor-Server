@@ -9,10 +9,6 @@ namespace Gss.Core.DTOs
     [EmailAddress]
     public string Email { get; set; }
 
-    [Required]
-    [StringLength(20, MinimumLength = 4)]
-    public string Username { get; set; }
-
     [Phone]
     public string PhoneNumber { get; set; }
 

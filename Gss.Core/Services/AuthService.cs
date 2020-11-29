@@ -27,9 +27,7 @@ namespace Gss.Core.Services
 
     public async Task<TokenDto> LogInAsync(string login, string password)
     {
-      var user = await _userManager.FindByEmailAsync(login)
-        ?? await _userManager.FindByNameAsync(login);
-
+      var user = await _userManager.FindByEmailAsync(login);
       var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
       if (!result.Succeeded)

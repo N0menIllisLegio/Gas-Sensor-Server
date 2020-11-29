@@ -6,8 +6,8 @@ namespace Gss.Core.DTOs
   public class CreateUserDto
   {
     [Required]
-    [StringLength(20, MinimumLength = 4)]
-    public string Username { get; set; }
+    [EmailAddress]
+    public string Email { get; set; }
 
     [Required]
     [StringLength(20, MinimumLength = 4)]
@@ -17,10 +17,6 @@ namespace Gss.Core.DTOs
     [Compare("Password")]
     [StringLength(20, MinimumLength = 4)]
     public string ConfirmPassword { get; set; }
-
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
 
     [Phone]
     public string PhoneNumber { get; set; }

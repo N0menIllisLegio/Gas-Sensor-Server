@@ -56,8 +56,6 @@ namespace Gss.Web
         options.Password.RequiredLength = 4;
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
-        options.User.AllowedUserNameCharacters =
-                  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
         options.User.RequireUniqueEmail = true;
       })
         .AddRoles<IdentityRole<Guid>>()
