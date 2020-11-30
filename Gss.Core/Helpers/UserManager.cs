@@ -26,7 +26,7 @@ namespace Gss.Core.Helpers
 
     public override async Task<IdentityResult> CreateAsync(User user)
     {
-      user.UserName = user.Email.Split('@')[0];
+      user.UserName = user.Email;
       var result = await base.CreateAsync(user);
 
       if (!result.Succeeded)
@@ -49,12 +49,17 @@ namespace Gss.Core.Helpers
         _ => (Expression<Func<User, bool>>)((user) => true)
       };
 
-      return await GetPage(Users.Where(filter), pageSize, pageNumber, orderAsc, orderBy);
+      return await GetPage(pageSize, pageNumber, orderAsc, orderBy, Users.Where(filter));
     }
 
-    private async Task<IEnumerable<User>> GetPage(IQueryable<User> users, int pageSize, int pageNumber,
-      bool orderAsc, string orderBy)
+    public async Task<IEnumerable<User>> GetPage(int pageSize, int pageNumber,
+      bool orderAsc, string orderBy, IQueryable<User> users = null)
     {
+      if (users is null)
+      {
+        users = Users;
+      }
+
       var order = orderBy switch
       {
         "FirstName" => (Expression<Func<User, string>>)((user) => user.FirstName),

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,7 +68,16 @@ namespace Gss.Web
         .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
         .AddDefaultTokenProviders();
 
-      services.AddControllers();
+      services.AddControllers().ConfigureApiBehaviorOptions(options =>
+      {
+        options.InvalidModelStateResponseFactory = actionContext =>
+        {
+          string[] errors = actionContext.ModelState.Values.SelectMany(v =>
+            v.Errors.Select(b => b.ErrorMessage)).ToArray();
+
+          return new BadRequestObjectResult(new Response<object>(errors));
+        };
+      });
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>

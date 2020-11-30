@@ -2,15 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Core.Helpers;
 using Gss.Web.Filters;
 using Gss.Web.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Web.Controllers
 {
-  //[Authorize]
+  //TODO [Authorize]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class RolesController : ControllerBase
@@ -25,22 +25,20 @@ namespace Gss.Web.Controllers
     [Pagination]
     [HttpGet]
     public async Task<IActionResult> GetAllRoles(int pageNumber, int pageSize,
-      bool orderAsc, string filter)
+      bool orderAsc = false, string filter = "")
     {
-      var filteredRoles = _roleManager.Roles
-        .Where(r => r.Name.Contains(filter));
+      var pagedRoles = await _roleManager.GetPage(pageNumber, pageSize, orderAsc, filter);
 
-      var allRoles = orderAsc
-        ? await filteredRoles.OrderBy(r => r.Name)
-          .Skip((pageNumber - 1) * pageSize)
-          .Take(pageSize)
-          .ToListAsync()
-        : await filteredRoles.OrderByDescending(r => r.Name)
-          .Skip((pageNumber - 1) * pageSize)
-          .Take(pageSize)
-          .ToListAsync();
+      var response = new PagedResponse<IdentityRole<Guid>>(pagedRoles, pageNumber, pageSize)
+      {
+        TotalRecords = _roleManager.Roles.Count(),
+        OrderedBy = "Name",
+        OrderedByAscendind = orderAsc,
+        Filter = filter,
+        FilteredBy = "Name"
+      };
 
-      return Ok(allRoles);
+      return Ok(response);
     }
 
     [HttpGet("{id}")]
@@ -48,41 +46,44 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var role = await _roleManager.FindByIdAsync(id);
 
-      return role is null ? NotFound() : Ok(role);
+      if (role is null)
+      {
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, "Role")));
+      }
+
+      return Ok(new Response<IdentityRole<Guid>>(role));
     }
 
     [HttpGet("{name}")]
     public async Task<IActionResult> GetRoleByName(string name)
     {
-      if (String.IsNullOrEmpty(name))
-      {
-        return BadRequest(String.Format(Messages.EmptyOrNullErrorString, "Role", "name"));
-      }
-
       var role = await _roleManager.FindByNameAsync(name);
 
-      return role is null ? NotFound() : Ok(role);
+      if (role is null)
+      {
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, "Role")));
+      }
+
+      return Ok(new Response<IdentityRole<Guid>>(role));
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateRole([FromBody] RoleDto roleModel)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
       var role = new IdentityRole<Guid> { Name = roleModel.Name };
       var result = await _roleManager.CreateAsync(role);
 
       return result.Succeeded
-        ? Ok(role)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<IdentityRole<Guid>>(role))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPut("{id}")]
@@ -90,19 +91,16 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
-      }
-
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var oldRole = await _roleManager.FindByIdAsync(id);
 
       if (oldRole is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, "Role")));
       }
 
       oldRole.Name = newRoleModel.Name;
@@ -110,8 +108,8 @@ namespace Gss.Web.Controllers
       var result = await _roleManager.UpdateAsync(oldRole);
 
       return result.Succeeded
-        ? Ok(oldRole)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<IdentityRole<Guid>>(oldRole))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpDelete("{id}")]
@@ -119,19 +117,23 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var role = await _roleManager.FindByIdAsync(id);
 
       if (role is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, "Role")));
       }
 
       var result = await _roleManager.DeleteAsync(role);
 
-      return result.Succeeded ? Ok() : BadRequest(result.Errors);
+      return result.Succeeded
+        ? Ok(new Response<IdentityRole<Guid>> { Succeeded = true })
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     private bool ValidateGuidString(string guid)
