@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Helpers;
+using Gss.Core.Resources;
 using Gss.Web.Filters;
-using Gss.Web.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +15,7 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class RolesController : ControllerBase
   {
+    private const string _role = "Role";
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
     public RolesController(RoleManager<IdentityRole<Guid>> roleManager)
@@ -55,7 +56,7 @@ namespace Gss.Web.Controllers
       if (role is null)
       {
         return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, "Role")));
+          String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       return Ok(new Response<IdentityRole<Guid>>(role));
@@ -69,7 +70,7 @@ namespace Gss.Web.Controllers
       if (role is null)
       {
         return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, "Role")));
+          String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       return Ok(new Response<IdentityRole<Guid>>(role));
@@ -100,7 +101,7 @@ namespace Gss.Web.Controllers
       if (oldRole is null)
       {
         return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, "Role")));
+          String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       oldRole.Name = newRoleModel.Name;
@@ -126,7 +127,7 @@ namespace Gss.Web.Controllers
       if (role is null)
       {
         return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, "Role")));
+          String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       var result = await _roleManager.DeleteAsync(role);

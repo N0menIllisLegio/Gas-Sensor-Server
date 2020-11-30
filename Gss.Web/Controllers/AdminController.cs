@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Linq.Expressions;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
+using Gss.Core.Resources;
 using Gss.Web.Filters;
-using Gss.Web.Resources;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gss.Web.Controllers
@@ -15,6 +16,7 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class AdminController: ControllerBase
   {
+    private const string _user = "User";
     private readonly UserManager _userManager;
 
     public AdminController(UserManager userManager)
@@ -25,11 +27,6 @@ namespace Gss.Web.Controllers
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userModel)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
       var user = new User
       {
         Email = userModel.Email,
@@ -43,8 +40,8 @@ namespace Gss.Web.Controllers
       var result = await _userManager.CreateAsync(user, userModel.Password);
 
       return result.Succeeded
-        ? Ok(user)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPut("{id}")]
@@ -52,19 +49,16 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
-      }
-
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, _user)));
       }
 
       user.FirstName = userModel.FirstName;
@@ -77,15 +71,16 @@ namespace Gss.Web.Controllers
 
       if (!result.Succeeded)
       {
-        return BadRequest(result.Errors);
+        return BadRequest(new Response<object>(
+          result.Errors.Select(r => r.Description)));
       }
 
       string token = await _userManager.GenerateChangeEmailTokenAsync(user, userModel.Email);
       result = await _userManager.ChangeEmailAsync(user, userModel.Email, token);
 
       return result.Succeeded
-        ? Ok(user)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPatch("{id}/{newPassword}")]
@@ -93,22 +88,24 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, _user)));
       }
 
       string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
       var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
 
       return result.Succeeded
-        ? Ok(user)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPatch("{id}/{roleName}")]
@@ -116,21 +113,23 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, _user)));
       }
 
       var result = await _userManager.AddToRoleAsync(user, roleName);
 
       return result.Succeeded
-        ? Ok(user)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPatch("{id}/{roleName}")]
@@ -138,21 +137,23 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, _user)));
       }
 
       var result = await _userManager.RemoveFromRoleAsync(user, roleName);
 
       return result.Succeeded
-        ? Ok(user)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpDelete("{id}")]
@@ -160,45 +161,53 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, _user)));
       }
 
       var result = await _userManager.DeleteAsync(user);
 
       return result.Succeeded
-        ? Ok(user)
-        : BadRequest(result.Errors);
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [Pagination]
     [HttpGet]
     public async Task<IActionResult> GetAllUsers(int pageNumber, int pageSize,
-      bool orderAsc, string orderBy, string filterBy, string filter)
+      bool orderAsc = false, string orderBy = "", string filterBy = null, string filter = "")
     {
       var users = await _userManager
         .GetPage(pageSize, pageNumber, orderAsc, orderBy, filterBy, filter);
 
-      return Ok(users);
+      var response = new PagedResponse<IEnumerable<User>>(users, pageNumber, pageSize)
+      {
+        TotalRecords = _userManager.Users.Count(),
+        OrderedBy = orderBy,
+        OrderedByAscendind = orderAsc,
+        Filter = filter,
+        FilteredBy = filterBy
+      };
+
+      return Ok(response);
     }
 
     [HttpGet("{email}")]
     public async Task<IActionResult> GetUserByEmail(string email)
     {
-      if (String.IsNullOrEmpty(email))
-      {
-        return BadRequest(String.Format(Messages.EmptyOrNullErrorString, "User", "email"));
-      }
-
       var user = await _userManager.FindByEmailAsync(email);
 
-      return user is null ? NotFound() : Ok(user);
+      return user is not null
+        ? Ok(new Response<User>(user))
+        : NotFound(new Response<object>(String.Format(Messages.NotFoundErrorString, _user)));
     }
 
     private bool ValidateGuidString(string guid)

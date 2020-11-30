@@ -117,28 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AlreadyExistsErrorString" xml:space="preserve">
-    <value>{0} already exist.</value>
+  <data name="EmailNotConfirmedErrorString" xml:space="preserve">
+    <value>Email is not confirmed.</value>
   </data>
-  <data name="EmptyOrNullErrorString" xml:space="preserve">
-    <value>{0} {1} must not be null or empty.</value>
-  </data>
-  <data name="InvalidEmailAddressErrorString" xml:space="preserve">
-    <value>Invalid email address.</value>
+  <data name="InvalidEmailOrPasswordErrorString" xml:space="preserve">
+    <value>Invalid email or password.</value>
   </data>
   <data name="InvalidGuidErrorString" xml:space="preserve">
     <value>Guid should contain 32 digits with 4 dashes (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).</value>
   </data>
-  <data name="InvalidLoginOrPasswordErrorString" xml:space="preserve">
-    <value>Invalid login or password.</value>
-  </data>
-  <data name="InvalidPasswordErrorString" xml:space="preserve">
-    <value>Invalid password.</value>
-  </data>
-  <data name="InvalidUsernameOrEmailErrorString" xml:space="preserve">
-    <value>Invalid email or username.</value>
-  </data>
   <data name="NotFoundErrorString" xml:space="preserve">
     <value>{0} not found.</value>
+  </data>
+  <data name="RefreshTokenExpiredErrorString" xml:space="preserve">
+    <value>Refresh token expired.</value>
+  </data>
+  <data name="RefreshTokenNotExistsErrorString" xml:space="preserve">
+    <value>Refresh token doesn't exist.</value>
+  </data>
+  <data name="UserIsLockedOutErrorString" xml:space="preserve">
+    <value>User is locked out.</value>
   </data>
 </root>

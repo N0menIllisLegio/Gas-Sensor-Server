@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
-using Gss.Web.Resources;
+using Gss.Core.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,14 +30,16 @@ namespace Gss.Web.Controllers
     {
       if (!Guid.TryParse(id, out var result))
       {
-        return BadRequest(Messages.InvalidGuidErrorString);
+        return BadRequest(new Response<object>(
+          Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound();
+        return NotFound(new Response<object>(
+          String.Format(Messages.NotFoundErrorString, "User")));
       }
 
       var userInfoDto = new UserInfoDto
@@ -49,18 +52,13 @@ namespace Gss.Web.Controllers
         AvatarPath = user.AvatarPath
       };
 
-      return Ok(userInfoDto);
+      return Ok(new Response<UserInfoDto>(userInfoDto));
     }
 
     [Authorize]
     [HttpPut]
     public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto newUserInfo)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
       var user = await _userManager.FindByEmailAsync(User.Identity.Name);
 
       user.FirstName = newUserInfo.FirstName;
@@ -71,22 +69,14 @@ namespace Gss.Web.Controllers
 
       var result = await _userManager.UpdateAsync(user);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(result.Errors);
-      }
-
-      return Ok();
+      return result.Succeeded
+        ? Ok(new Response<User> { Succeeded = true })
+        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
       var user = new User
       {
         Email = registerModel.Email,
@@ -101,70 +91,52 @@ namespace Gss.Web.Controllers
 
       if (!result.Succeeded)
       {
-        return BadRequest(result.Errors);
+        return BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
       }
 
-      var token = await _authService.LogInAsync(user.Email, registerModel.Password);
+      var response = await _authService.LogInAsync(user.Email, registerModel.Password);
 
-      return token is not null ? Ok(token) : BadRequest();
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
     }
 
     [HttpPost]
     public async Task<IActionResult> LogIn([FromBody] LoginDto loginModel)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
+      var response = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
 
-      var token = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
-
-      return token is not null
-        ? Ok(token)
-        : BadRequest(Messages.InvalidPasswordErrorString);
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
     }
 
     [HttpPost]
     public async Task<IActionResult> RefreshToken([FromBody] RequestTokenRefreshDto requestTokens)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
+      var response = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
 
-      var result = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
-
-      return result is null
-        ? BadRequest()
-        : Ok(result);
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> LogOut([FromBody] RequestTokenRefreshDto requestTokens)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
       await _authService.LogOutAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
 
-      return Ok();
+      return Ok(new Response<TokenDto>() { Succeeded = true });
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> LogOutFromAllDevices([FromBody] RequestTokenRefreshDto requestTokens)
     {
-      if (!ModelState.IsValid)
-      {
-        return BadRequest(ModelState);
-      }
-
       await _authService.RevokeAccessFromAllDevicesAsync(requestTokens.AccessToken);
 
-      return Ok();
+      return Ok(new Response<TokenDto>() { Succeeded = true });
     }
   }
 }

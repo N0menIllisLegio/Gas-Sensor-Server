@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Gss.Web.Resources {
+namespace Gss.Core.Resources {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace Gss.Web.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Messages {
+    public class Messages {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace Gss.Web.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Gss.Web.Resources.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Gss.Core.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace Gss.Web.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,74 +61,65 @@ namespace Gss.Web.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} already exist..
+        ///   Looks up a localized string similar to Email is not confirmed..
         /// </summary>
-        internal static string AlreadyExistsErrorString {
+        public static string EmailNotConfirmedErrorString {
             get {
-                return ResourceManager.GetString("AlreadyExistsErrorString", resourceCulture);
+                return ResourceManager.GetString("EmailNotConfirmedErrorString", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} {1} must not be null or empty..
+        ///   Looks up a localized string similar to Invalid email or password..
         /// </summary>
-        internal static string EmptyOrNullErrorString {
+        public static string InvalidEmailOrPasswordErrorString {
             get {
-                return ResourceManager.GetString("EmptyOrNullErrorString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid email address..
-        /// </summary>
-        internal static string InvalidEmailAddressErrorString {
-            get {
-                return ResourceManager.GetString("InvalidEmailAddressErrorString", resourceCulture);
+                return ResourceManager.GetString("InvalidEmailOrPasswordErrorString", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Guid should contain 32 digits with 4 dashes (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)..
         /// </summary>
-        internal static string InvalidGuidErrorString {
+        public static string InvalidGuidErrorString {
             get {
                 return ResourceManager.GetString("InvalidGuidErrorString", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid login or password..
-        /// </summary>
-        internal static string InvalidLoginOrPasswordErrorString {
-            get {
-                return ResourceManager.GetString("InvalidLoginOrPasswordErrorString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid password..
-        /// </summary>
-        internal static string InvalidPasswordErrorString {
-            get {
-                return ResourceManager.GetString("InvalidPasswordErrorString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid email or username..
-        /// </summary>
-        internal static string InvalidUsernameOrEmailErrorString {
-            get {
-                return ResourceManager.GetString("InvalidUsernameOrEmailErrorString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} not found..
         /// </summary>
-        internal static string NotFoundErrorString {
+        public static string NotFoundErrorString {
             get {
                 return ResourceManager.GetString("NotFoundErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh token expired..
+        /// </summary>
+        public static string RefreshTokenExpiredErrorString {
+            get {
+                return ResourceManager.GetString("RefreshTokenExpiredErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh token doesn&apos;t exist..
+        /// </summary>
+        public static string RefreshTokenNotExistsErrorString {
+            get {
+                return ResourceManager.GetString("RefreshTokenNotExistsErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User is locked out..
+        /// </summary>
+        public static string UserIsLockedOutErrorString {
+            get {
+                return ResourceManager.GetString("UserIsLockedOutErrorString", resourceCulture);
             }
         }
     }

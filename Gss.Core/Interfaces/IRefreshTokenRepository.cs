@@ -5,12 +5,12 @@ namespace Gss.Core.Interfaces
 {
   public interface IRefreshTokenRepository
   {
-    public Task AddRefreshTokenAsync(User user, string refreshToken);
+    Task AddRefreshTokenAsync(User user, string refreshToken);
 
-    public Task<RefreshToken> GetRefreshTokenAsync(string email, string seekedRefreshToken);
+    Task<RefreshToken> GetRefreshTokenAsync(string email, string seekedRefreshToken);
 
-    public Task DeleteRefreshTokenAsync(RefreshToken refreshToken);
+    Task DeleteRefreshTokenAsync(RefreshToken refreshToken);
 
-    public Task DeleteAllUsersRefreshTokens(User user);
+    Task DeleteAllUsersRefreshTokens(User user);
   }
 }
