@@ -5,7 +5,7 @@ namespace Gss.Core.Interfaces
 {
   public interface IAuthService
   {
-    Task<Response<object>> SendEmailConfirmationAsync(string userID, string confirmationUrl);
+    Task<Response<object>> SendEmailConfirmationAsync(string email, string confirmationUrl);
 
     Task<Response<object>> ConfirmEmailAsync(string userID, string token);
 

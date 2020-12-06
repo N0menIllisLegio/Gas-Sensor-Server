@@ -34,9 +34,9 @@ namespace Gss.Core.Services
       _emailService = emailService;
     }
 
-    public async Task<Response<object>> SendEmailConfirmationAsync(string userID, string confirmationUrl)
+    public async Task<Response<object>> SendEmailConfirmationAsync(string email, string confirmationUrl)
     {
-      var user = await _userManager.FindByIdAsync(userID);
+      var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
@@ -51,7 +51,7 @@ namespace Gss.Core.Services
       }
 
       string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-      confirmationUrl = $"{confirmationUrl}/{HttpUtility.UrlEncode(token)}";
+      confirmationUrl = $"{confirmationUrl}/{user.Id}/{HttpUtility.UrlEncode(token)}";
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailConfirmationSubject, confirmationUrl);
 
       return sendSuccessfully

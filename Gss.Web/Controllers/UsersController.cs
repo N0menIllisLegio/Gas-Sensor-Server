@@ -126,24 +126,18 @@ namespace Gss.Web.Controllers
       return Ok(new Response<TokenDto>() { Succeeded = true });
     }
 
-    [HttpPost("{userID}")]
-    public async Task<IActionResult> SendConfirmationEmail(string userID)
+    [HttpPost("{email}")]
+    public async Task<IActionResult> SendEmailConfirmation(string email)
     {
-      if (!Guid.TryParse(userID, out var result))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
-      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID, token = String.Empty }, Request.Scheme);
-      var response = await _authService.SendEmailConfirmationAsync(userID, url);
+      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
+      var response = await _authService.SendEmailConfirmationAsync(email, url);
 
       return response.Succeeded
         ? Ok(response)
         : BadRequest(response);
     }
 
-    [HttpGet("{userID}/{token?}", Name = _emailConfirmationRouteName)]
+    [HttpGet("{userID?}/{token?}", Name = _emailConfirmationRouteName)]
     public async Task<IActionResult> ConfirmEmail(string userID, string token)
     {
       if (!Guid.TryParse(userID, out var result))
