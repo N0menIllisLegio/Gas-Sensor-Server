@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -34,18 +35,7 @@ namespace Gss.Web
 
     public void ConfigureServices(IServiceCollection services)
     {
-      #region Load Settings
-      var jwtSection =
-              Configuration.GetSection("Authentication:JWT");
-
-      Settings.JWT.Issuer = jwtSection["Issuer"];
-      Settings.JWT.Audience = jwtSection["Audience"];
-      Settings.JWT.Key = new SymmetricSecurityKey(
-                          Encoding.UTF8.GetBytes(jwtSection["Key"]));
-
-      Settings.JWT.AccessTokenLifetimeMinutes = Int32.Parse(jwtSection["AccessTokenLifetimeMinutes"]);
-      Settings.JWT.RefreshTokenLifetimeDays = Int32.Parse(jwtSection["RefreshTokenLifetimeDays"]);
-      #endregion
+      LoadSettings();
 
       services.AddDbContext<AppDbContext>(options =>
           options.UseSqlServer(Configuration.GetConnectionString("LocalDB")));
@@ -72,10 +62,11 @@ namespace Gss.Web
       {
         options.InvalidModelStateResponseFactory = actionContext =>
         {
-          string[] errors = actionContext.ModelState.Values.SelectMany(v =>
-            v.Errors.Select(b => b.ErrorMessage)).ToArray();
+          var errors = actionContext.ModelState.Values.SelectMany(v =>
+            v.Errors.Select(b => b.ErrorMessage));
 
-          return new BadRequestObjectResult(new Response<object>(errors));
+          return new BadRequestObjectResult(new Response<object>()
+            .AddErrors(errors));
         };
       });
 
@@ -105,6 +96,7 @@ namespace Gss.Web
       services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
       services.AddTransient<ITokenService, TokenService>();
       services.AddScoped<IAuthService, AuthService>();
+      services.AddTransient<IEmailService, EmailService>();
 
       services.AddSpaStaticFiles(configuration =>
       {
@@ -179,6 +171,40 @@ namespace Gss.Web
       //        spa.UseReactDevelopmentServer(npmScript: "start");
       //    }
       //});
+    }
+
+    private void LoadSettings()
+    {
+      var jwtSection =
+              Configuration.GetSection("Authentication:JWT");
+
+      Settings.JWT.Issuer = jwtSection["Issuer"];
+      Settings.JWT.Audience = jwtSection["Audience"];
+      Settings.JWT.Key = new SymmetricSecurityKey(
+                          Encoding.UTF8.GetBytes(jwtSection["Key"]));
+
+      Settings.JWT.AccessTokenLifetimeMinutes = Int32.Parse(jwtSection["AccessTokenLifetimeMinutes"]);
+      Settings.JWT.RefreshTokenLifetimeDays = Int32.Parse(jwtSection["RefreshTokenLifetimeDays"]);
+
+      var emailSection = Configuration.GetSection("Email");
+      string emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+        + @"@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z";
+
+      Settings.Email.Address = emailSection["Address"];
+      Settings.Email.Password = emailSection["Password"];
+      Settings.Email.SmtpServer = emailSection["SmtpServer"];
+
+      if (Int32.TryParse(emailSection["SmtpPort"], out int port)
+        && Regex.IsMatch(Settings.Email.Address, emailRegex, RegexOptions.IgnoreCase))
+      {
+        Settings.Email.SmtpPort = port;
+        Settings.Email.SmtpUseSsl = emailSection["SmtpUseSsl"].ToUpper() == "TRUE";
+        Settings.Email.Configured = true;
+      }
+      else
+      {
+        Settings.Email.Configured = false;
+      }
     }
   }
 }

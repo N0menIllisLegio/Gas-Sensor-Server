@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Helpers;
+using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Gss.Web.Filters;
 using Microsoft.AspNetCore.Identity;
@@ -17,10 +18,12 @@ namespace Gss.Web.Controllers
   {
     private const string _role = "Role";
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+    private readonly IEmailService _emailService;
 
-    public RolesController(RoleManager<IdentityRole<Guid>> roleManager)
+    public RolesController(RoleManager<IdentityRole<Guid>> roleManager, IEmailService emailService)
     {
       _roleManager = roleManager;
+      _emailService = emailService;
     }
 
     [Pagination]
@@ -47,16 +50,16 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(new Response<object>(
-          Messages.InvalidGuidErrorString));
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var role = await _roleManager.FindByIdAsync(id);
 
       if (role is null)
       {
-        return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, _role)));
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       return Ok(new Response<IdentityRole<Guid>>(role));
@@ -69,8 +72,8 @@ namespace Gss.Web.Controllers
 
       if (role is null)
       {
-        return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, _role)));
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       return Ok(new Response<IdentityRole<Guid>>(role));
@@ -84,7 +87,8 @@ namespace Gss.Web.Controllers
 
       return result.Succeeded
         ? Ok(new Response<IdentityRole<Guid>>(role))
-        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPut("{id}")]
@@ -92,16 +96,16 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(new Response<object>(
-          Messages.InvalidGuidErrorString));
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var oldRole = await _roleManager.FindByIdAsync(id);
 
       if (oldRole is null)
       {
-        return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, _role)));
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       oldRole.Name = newRoleModel.Name;
@@ -110,7 +114,8 @@ namespace Gss.Web.Controllers
 
       return result.Succeeded
         ? Ok(new Response<IdentityRole<Guid>>(oldRole))
-        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
     [HttpDelete("{id}")]
@@ -118,23 +123,24 @@ namespace Gss.Web.Controllers
     {
       if (!ValidateGuidString(id))
       {
-        return BadRequest(new Response<object>(
-          Messages.InvalidGuidErrorString));
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var role = await _roleManager.FindByIdAsync(id);
 
       if (role is null)
       {
-        return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, _role)));
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
       }
 
       var result = await _roleManager.DeleteAsync(role);
 
       return result.Succeeded
         ? Ok(new Response<IdentityRole<Guid>> { Succeeded = true })
-        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
     private bool ValidateGuidString(string guid)

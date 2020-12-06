@@ -117,8 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="EmailAlreadyConfirmedErrorString" xml:space="preserve">
+    <value>Email already confirmed.</value>
+  </data>
   <data name="EmailNotConfirmedErrorString" xml:space="preserve">
     <value>Email is not confirmed.</value>
+  </data>
+  <data name="FailedToSendEmailConfirmationErrorString" xml:space="preserve">
+    <value>Failed to send email confirmation.</value>
+  </data>
+  <data name="InvalidEmailConfirmationTokenErrorString" xml:space="preserve">
+    <value>Invalid email confirmation token.</value>
   </data>
   <data name="InvalidEmailOrPasswordErrorString" xml:space="preserve">
     <value>Invalid email or password.</value>

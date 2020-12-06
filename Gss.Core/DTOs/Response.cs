@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Gss.Core.DTOs
 {
@@ -6,12 +7,6 @@ namespace Gss.Core.DTOs
   {
     public Response()
     { }
-
-    public Response(params string[] errors)
-    {
-      Succeeded = false;
-      Errors = new List<string>(errors);
-    }
 
     public Response(IEnumerable<T> data)
     {
@@ -31,5 +26,18 @@ namespace Gss.Core.DTOs
     public IEnumerable<T> Data { get; set; }
     public bool Succeeded { get; set; }
     public List<string> Errors { get; set; }
+
+    public Response<T> AddErrors(params string[] errors)
+    {
+      Succeeded = false;
+      Errors = new List<string>(errors);
+
+      return this;
+    }
+
+    public Response<T> AddErrors(IEnumerable<string> errors)
+    {
+      return AddErrors(errors.ToArray());
+    }
   }
 }

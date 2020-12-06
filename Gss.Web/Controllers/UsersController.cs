@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -15,6 +16,8 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class UsersController : ControllerBase
   {
+    private const string _emailConfirmationRouteName = "EmailConfirmation";
+
     private readonly UserManager _userManager;
     private readonly IAuthService _authService;
 
@@ -30,16 +33,16 @@ namespace Gss.Web.Controllers
     {
       if (!Guid.TryParse(id, out var result))
       {
-        return BadRequest(new Response<object>(
-          Messages.InvalidGuidErrorString));
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var user = await _userManager.FindByIdAsync(id);
 
       if (user is null)
       {
-        return NotFound(new Response<object>(
-          String.Format(Messages.NotFoundErrorString, "User")));
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User")));
       }
 
       var userInfoDto = new UserInfoDto
@@ -71,34 +74,18 @@ namespace Gss.Web.Controllers
 
       return result.Succeeded
         ? Ok(new Response<User> { Succeeded = true })
-        : BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)
     {
-      var user = new User
-      {
-        Email = registerModel.Email,
-        FirstName = registerModel.FirstName,
-        LastName = registerModel.LastName,
-        Gender = registerModel.Gender,
-        Birthday = registerModel.Birthday,
-        PhoneNumber = registerModel.PhoneNumber
-      };
+      var result = await _authService.RegisterAsync(registerModel);
 
-      var result = await _userManager.CreateAsync(user, registerModel.Password);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result.Errors.Select(r => r.Description)));
-      }
-
-      var response = await _authService.LogInAsync(user.Email, registerModel.Password);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return result.Succeeded
+        ? Ok(result)
+        : BadRequest(result);
     }
 
     [HttpPost]
@@ -137,6 +124,46 @@ namespace Gss.Web.Controllers
       await _authService.RevokeAccessFromAllDevicesAsync(requestTokens.AccessToken);
 
       return Ok(new Response<TokenDto>() { Succeeded = true });
+    }
+
+    [HttpPost("{userID}")]
+    public async Task<IActionResult> SendConfirmationEmail(string userID)
+    {
+      if (!Guid.TryParse(userID, out var result))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID, token = String.Empty }, Request.Scheme);
+      var response = await _authService.SendEmailConfirmationAsync(userID, url);
+
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
+    }
+
+    [HttpGet("{userID}/{token?}", Name = _emailConfirmationRouteName)]
+    public async Task<IActionResult> ConfirmEmail(string userID, string token)
+    {
+      if (!Guid.TryParse(userID, out var result))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      if (String.IsNullOrEmpty(token))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidEmailConfirmationTokenErrorString));
+      }
+
+      token = HttpUtility.UrlDecode(token).Replace(' ', '+');
+      var response = await _authService.ConfirmEmailAsync(userID, token);
+
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
     }
   }
 }

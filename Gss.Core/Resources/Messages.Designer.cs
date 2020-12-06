@@ -61,11 +61,38 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email already confirmed..
+        /// </summary>
+        public static string EmailAlreadyConfirmedErrorString {
+            get {
+                return ResourceManager.GetString("EmailAlreadyConfirmedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email is not confirmed..
         /// </summary>
         public static string EmailNotConfirmedErrorString {
             get {
                 return ResourceManager.GetString("EmailNotConfirmedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to send email confirmation..
+        /// </summary>
+        public static string FailedToSendEmailConfirmationErrorString {
+            get {
+                return ResourceManager.GetString("FailedToSendEmailConfirmationErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid email confirmation token..
+        /// </summary>
+        public static string InvalidEmailConfirmationTokenErrorString {
+            get {
+                return ResourceManager.GetString("InvalidEmailConfirmationTokenErrorString", resourceCulture);
             }
         }
         

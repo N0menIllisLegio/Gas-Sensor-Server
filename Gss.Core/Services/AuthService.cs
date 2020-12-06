@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -11,19 +13,89 @@ namespace Gss.Core.Services
 {
   public class AuthService: IAuthService
   {
+    private const string _emailConfirmationSubject = "Email Confirmation";
+
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager _userManager;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IEmailService _emailService;
 
     public AuthService(ITokenService tokenService,
-      SignInManager<User> signInManager, UserManager userManager,
-      IRefreshTokenRepository refreshTokenRepository)
+      SignInManager<User> signInManager,
+      UserManager userManager,
+      IRefreshTokenRepository refreshTokenRepository,
+      IEmailService emailService)
     {
       _tokenService = tokenService;
       _signInManager = signInManager;
       _userManager = userManager;
       _refreshTokenRepository = refreshTokenRepository;
+      _emailService = emailService;
+    }
+
+    public async Task<Response<object>> SendEmailConfirmationAsync(string userID, string confirmationUrl)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+      }
+
+      if (user.EmailConfirmed)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.EmailAlreadyConfirmedErrorString));
+      }
+
+      string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+      confirmationUrl = $"{confirmationUrl}/{HttpUtility.UrlEncode(token)}";
+      bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailConfirmationSubject, confirmationUrl);
+
+      return sendSuccessfully
+        ? new Response<object> { Succeeded = true }
+        : new Response<object>()
+          .AddErrors(Messages.FailedToSendEmailConfirmationErrorString);
+    }
+
+    public async Task<Response<object>> ConfirmEmailAsync(string userID, string token)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+      }
+
+      var result = await _userManager.ConfirmEmailAsync(user, token);
+
+      return result.Succeeded
+          ? new Response<object>() { Succeeded = true }
+          : new Response<object>()
+            .AddErrors(result.Errors.Select(r => r.Description));
+    }
+
+    public async Task<Response<object>> RegisterAsync(CreateUserDto newUserDto)
+    {
+      var user = new User
+      {
+        Email = newUserDto.Email,
+        FirstName = newUserDto.FirstName,
+        LastName = newUserDto.LastName,
+        Gender = newUserDto.Gender,
+        Birthday = newUserDto.Birthday,
+        PhoneNumber = newUserDto.PhoneNumber
+      };
+
+      var result = await _userManager.CreateAsync(user, newUserDto.Password);
+
+      return result.Succeeded
+          ? new Response<object>() { Succeeded = true }
+          : new Response<object>()
+            .AddErrors(result.Errors.Select(r => r.Description));
     }
 
     public async Task<Response<TokenDto>> LogInAsync(string login, string password)
@@ -39,7 +111,8 @@ namespace Gss.Core.Services
           ? Messages.UserIsLockedOutErrorString
           : Messages.InvalidEmailOrPasswordErrorString;
 
-        return new Response<TokenDto>(errorMessage);
+        return new Response<TokenDto>()
+          .AddErrors(errorMessage);
       }
 
       var token = await _tokenService.GenerateTokenAsync(user);
@@ -55,12 +128,14 @@ namespace Gss.Core.Services
 
       if (token is null)
       {
-        return new Response<TokenDto>(Messages.RefreshTokenNotExistsErrorString);
+        return new Response<TokenDto>()
+          .AddErrors(Messages.RefreshTokenNotExistsErrorString);
       }
 
       if (token.ExpirationDate < DateTime.UtcNow)
       {
-        return new Response<TokenDto>(Messages.RefreshTokenExpiredErrorString);
+        return new Response<TokenDto>()
+          .AddErrors(Messages.RefreshTokenExpiredErrorString);
       }
 
       await _refreshTokenRepository.DeleteRefreshTokenAsync(token);

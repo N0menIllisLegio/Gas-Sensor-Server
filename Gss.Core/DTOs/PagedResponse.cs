@@ -7,10 +7,6 @@ namespace Gss.Core.DTOs
     public PagedResponse()
     { }
 
-    public PagedResponse(params string[] errors)
-      : base(errors)
-    { }
-
     public PagedResponse(T data, int pageNumber, int pageSize)
       : base(data)
     {
