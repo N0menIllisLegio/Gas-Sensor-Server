@@ -13,7 +13,9 @@ namespace Gss.Core.Services
 {
   public class AuthService: IAuthService
   {
-    private const string _emailConfirmationSubject = "Email Confirmation";
+    private const string _emailConfirmationSubject = "Email confirmation";
+    private const string _emailChangeSubject = "Email change";
+    private const string _passwordResetSubject = "Password reset";
 
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
@@ -76,6 +78,94 @@ namespace Gss.Core.Services
           ? new Response<object>() { Succeeded = true }
           : new Response<object>()
             .AddErrors(result.Errors.Select(r => r.Description));
+    }
+
+    public async Task<Response<object>> SendResetPasswordConfirmationAsync(string email, string redirectUrl)
+    {
+      var user = await _userManager.FindByEmailAsync(email);
+
+      if (user is null)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+      }
+
+      if (!user.EmailConfirmed)
+      {
+        return new Response<object>()
+          .AddErrors(Messages.EmailNotConfirmedErrorString);
+      }
+
+      string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+      redirectUrl = $"{redirectUrl}/{user.Id}/{HttpUtility.UrlEncode(token)}";
+      bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _passwordResetSubject, redirectUrl);
+
+      return sendSuccessfully
+        ? new Response<object> { Succeeded = true }
+        : new Response<object>()
+          .AddErrors(Messages.FailedToSendEmailConfirmationErrorString);
+    }
+
+    public async Task<Response<object>> ResetPasswordAsync(string userID, string token, string newPassword)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+      }
+
+      var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+      return result.Succeeded
+         ? new Response<object>() { Succeeded = true }
+         : new Response<object>()
+           .AddErrors(result.Errors.Select(r => r.Description));
+    }
+
+    public async Task<Response<object>> SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl)
+    {
+      var user = await _userManager.FindByEmailAsync(email);
+
+      if (user is null)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+      }
+
+      if (!user.EmailConfirmed)
+      {
+        return new Response<object>()
+          .AddErrors(Messages.EmailNotConfirmedErrorString);
+      }
+
+      string token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+      confirmationUrl = $"{confirmationUrl}/{user.Id}/{newEmail}/{HttpUtility.UrlEncode(token)}";
+      bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailChangeSubject, confirmationUrl);
+
+      return sendSuccessfully
+        ? new Response<object> { Succeeded = true }
+        : new Response<object>()
+          .AddErrors(Messages.FailedToSendEmailConfirmationErrorString);
+    }
+
+    public async Task<Response<object>> ChangeEmailAsync(string userID, string newEmail, string token)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+      }
+
+      var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+
+      return result.Succeeded
+         ? new Response<object>() { Succeeded = true }
+         : new Response<object>()
+           .AddErrors(result.Errors.Select(r => r.Description));
     }
 
     public async Task<Response<object>> RegisterAsync(CreateUserDto newUserDto)

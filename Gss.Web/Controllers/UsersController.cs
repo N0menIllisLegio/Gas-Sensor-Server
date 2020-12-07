@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -126,9 +127,13 @@ namespace Gss.Web.Controllers
       return Ok(new Response<TokenDto>() { Succeeded = true });
     }
 
-    [HttpPost("{email}")]
+    // EMAILS
+
+    [HttpGet("{email}")]
     public async Task<IActionResult> SendEmailConfirmation(string email)
     {
+      // TODO actually this url should lead to front which will call API
+      // this may lead to change in AuthService url params generation (in that case remove '?' from attribute below)
       string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       var response = await _authService.SendEmailConfirmationAsync(email, url);
 
@@ -154,6 +159,98 @@ namespace Gss.Web.Controllers
 
       token = HttpUtility.UrlDecode(token).Replace(' ', '+');
       var response = await _authService.ConfirmEmailAsync(userID, token);
+
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
+    }
+
+    [HttpGet("{email}")]
+    public async Task<IActionResult> SendResetPasswordConfirmation(string email)
+    {
+      // TODO actually this url should lead to front which will call API
+      // this may lead to change in AuthService url params generation
+      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
+      var response = await _authService.SendResetPasswordConfirmationAsync(email, url);
+
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
+    }
+
+    [HttpPost("{userID}/{token}")]
+    public async Task<IActionResult> ChangePassword(string userID, string token, [FromBody] ChangePasswordDto dto)
+    {
+      if (!Guid.TryParse(userID, out var result))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      if (String.IsNullOrEmpty(token))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidPasswordResetTokenErrorString));
+      }
+
+      token = HttpUtility.UrlDecode(token).Replace(' ', '+');
+      var response = await _authService.ResetPasswordAsync(userID, token, dto.Password);
+
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
+    }
+
+    [Authorize]
+    [HttpGet("{newEmail}")]
+    public async Task<IActionResult> SendEmailChangeConfirmation(string newEmail)
+    {
+      var emailValidator = new EmailAddressAttribute();
+
+      if (!emailValidator.IsValid(newEmail))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidEmailErrorString));
+      }
+
+      string email = User.Identity.Name;
+
+      // TODO actually this url should lead to front which will call API
+      // this may lead to change in AuthService url params generation
+      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
+      var response = await _authService.SendEmailChangeConfirmationAsync(email, newEmail, url);
+
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
+    }
+
+    [Authorize]
+    [HttpGet("{userID}/{newEmail}/{token}")]
+    public async Task<IActionResult> ChangeEmail(string userID, string newEmail, string token)
+    {
+      var emailValidator = new EmailAddressAttribute();
+
+      if (!emailValidator.IsValid(newEmail))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidEmailErrorString));
+      }
+
+      if (!Guid.TryParse(userID, out var result))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      if (String.IsNullOrEmpty(token))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidPasswordResetTokenErrorString));
+      }
+
+      token = HttpUtility.UrlDecode(token).Replace(' ', '+');
+      var response = await _authService.ChangeEmailAsync(userID, token, newEmail);
 
       return response.Succeeded
         ? Ok(response)

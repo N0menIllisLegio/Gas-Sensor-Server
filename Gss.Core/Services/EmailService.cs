@@ -12,23 +12,19 @@ namespace Gss.Core.Services
 
     public async Task<bool> SendEmailAsync(MimeMessage emailMessage)
     {
-      bool sendSuccessfully = Settings.Email.Configured;
+      bool sendSuccessfully = true;
+      using var client = new SmtpClient();
 
-      if (Settings.Email.Configured)
+      try
       {
-        using var client = new SmtpClient();
-
-        try
-        {
-          await client.ConnectAsync(Settings.Email.SmtpServer, Settings.Email.SmtpPort, Settings.Email.SmtpUseSsl);
-          await client.AuthenticateAsync(Settings.Email.Address, Settings.Email.Password);
-          await client.SendAsync(emailMessage);
-          await client.DisconnectAsync(true);
-        }
-        catch
-        {
-          sendSuccessfully = false;
-        }
+        await client.ConnectAsync(Settings.Email.SmtpServer, Settings.Email.SmtpPort, Settings.Email.SmtpUseSsl);
+        await client.AuthenticateAsync(Settings.Email.Address, Settings.Email.Password);
+        await client.SendAsync(emailMessage);
+        await client.DisconnectAsync(true);
+      }
+      catch
+      {
+        sendSuccessfully = false;
       }
 
       return sendSuccessfully;

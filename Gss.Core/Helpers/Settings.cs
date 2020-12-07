@@ -9,7 +9,6 @@ namespace Gss.Core.Helpers
 
     public static class Email
     {
-      public static bool Configured { get; set; }
       public static string Address { get; set; }
       public static string Password { get; set; }
       public static string SmtpServer { get; set; }

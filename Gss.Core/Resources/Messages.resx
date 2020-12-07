@@ -129,11 +129,20 @@
   <data name="InvalidEmailConfirmationTokenErrorString" xml:space="preserve">
     <value>Invalid email confirmation token.</value>
   </data>
+  <data name="InvalidEmailErrorString" xml:space="preserve">
+    <value>Invalid email.</value>
+  </data>
   <data name="InvalidEmailOrPasswordErrorString" xml:space="preserve">
     <value>Invalid email or password.</value>
   </data>
   <data name="InvalidGuidErrorString" xml:space="preserve">
     <value>Guid should contain 32 digits with 4 dashes (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).</value>
+  </data>
+  <data name="InvalidPasswordResetTokenErrorString" xml:space="preserve">
+    <value>Invalid password reset token.</value>
+  </data>
+  <data name="InvalidSettingsErrorString" xml:space="preserve">
+    <value>Invalid settings.</value>
   </data>
   <data name="NotFoundErrorString" xml:space="preserve">
     <value>{0} not found.</value>

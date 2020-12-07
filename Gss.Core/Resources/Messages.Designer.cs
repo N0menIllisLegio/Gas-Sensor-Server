@@ -97,6 +97,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid email..
+        /// </summary>
+        public static string InvalidEmailErrorString {
+            get {
+                return ResourceManager.GetString("InvalidEmailErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid email or password..
         /// </summary>
         public static string InvalidEmailOrPasswordErrorString {
@@ -111,6 +120,24 @@ namespace Gss.Core.Resources {
         public static string InvalidGuidErrorString {
             get {
                 return ResourceManager.GetString("InvalidGuidErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid password reset token..
+        /// </summary>
+        public static string InvalidPasswordResetTokenErrorString {
+            get {
+                return ResourceManager.GetString("InvalidPasswordResetTokenErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid settings..
+        /// </summary>
+        public static string InvalidSettingsErrorString {
+            get {
+                return ResourceManager.GetString("InvalidSettingsErrorString", resourceCulture);
             }
         }
         

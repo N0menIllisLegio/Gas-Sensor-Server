@@ -7,6 +7,7 @@ using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
+using Gss.Core.Resources;
 using Gss.Core.Services;
 using Gss.Infrastructure;
 using Gss.Infrastructure.Repositories;
@@ -199,11 +200,10 @@ namespace Gss.Web
       {
         Settings.Email.SmtpPort = port;
         Settings.Email.SmtpUseSsl = emailSection["SmtpUseSsl"].ToUpper() == "TRUE";
-        Settings.Email.Configured = true;
       }
       else
       {
-        Settings.Email.Configured = false;
+        throw new ApplicationException(Messages.InvalidSettingsErrorString);
       }
     }
   }
