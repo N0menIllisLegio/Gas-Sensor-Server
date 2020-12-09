@@ -51,7 +51,7 @@ namespace Gss.Infrastructure.Migrations
                 $"INSERT INTO [AspNetUsers]([Id],[UserName],[NormalizedUserName]," +
                 $"[Email],[NormalizedEmail],[EmailConfirmed],[PasswordHash],[SecurityStamp],[ConcurrencyStamp]" +
                 $",[PhoneNumberConfirmed],[TwoFactorEnabled],[LockoutEnabled],[AccessFailedCount]) VALUES('{administratorID}'," +
-                $"'Administrator','ADMINISTRATOR','example@example.com','EXAMPLE@EXAMPLE.COM',0," +
+                $"'Administrator','ADMINISTRATOR','example@example.com','EXAMPLE@EXAMPLE.COM',1," +
                 $"'AQAAAAEAACcQAAAAEJpwAoOfq+3/ufQifs4EKrtqIDq2tGczMd5qti8XAn46phFUIGx6/Ps547tFcegTzA==','{Guid.NewGuid()}'," +
                 $"'{Guid.NewGuid()}',0,0,1,0)");
 

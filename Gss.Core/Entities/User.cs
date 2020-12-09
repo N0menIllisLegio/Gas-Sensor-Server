@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace Gss.Core.Entities
@@ -12,6 +13,9 @@ namespace Gss.Core.Entities
 
     public string Gender { get; set; }
     public DateTime? Birthday { get; set; }
+
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime CreationDate { get; set; }
 
     // ------ RELATIONSHIPS
 
