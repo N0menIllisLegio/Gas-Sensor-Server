@@ -39,7 +39,7 @@ namespace Gss.Web
       LoadSettings();
 
       services.AddDbContext<AppDbContext>(options =>
-          options.UseSqlServer(Configuration.GetConnectionString("LocalDB")));
+          options.UseSqlServer(Configuration.GetConnectionString("AzureDB")));
 
       services.AddDefaultIdentity<User>(options =>
       {

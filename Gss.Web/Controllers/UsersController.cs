@@ -32,7 +32,7 @@ namespace Gss.Web.Controllers
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByID(string id)
     {
-      if (!Guid.TryParse(id, out var result))
+      if (!ValidateGuidString(id))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
@@ -145,7 +145,7 @@ namespace Gss.Web.Controllers
     [HttpGet("{userID?}/{token?}", Name = _emailConfirmationRouteName)]
     public async Task<IActionResult> ConfirmEmail(string userID, string token)
     {
-      if (!Guid.TryParse(userID, out var result))
+      if (!ValidateGuidString(userID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
@@ -181,7 +181,7 @@ namespace Gss.Web.Controllers
     [HttpPost("{userID}/{token}")]
     public async Task<IActionResult> ChangePassword(string userID, string token, [FromBody] ChangePasswordDto dto)
     {
-      if (!Guid.TryParse(userID, out var result))
+      if (!ValidateGuidString(userID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
@@ -237,7 +237,7 @@ namespace Gss.Web.Controllers
           .AddErrors(Messages.InvalidEmailErrorString));
       }
 
-      if (!Guid.TryParse(userID, out var result))
+      if (!ValidateGuidString(userID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
@@ -255,6 +255,11 @@ namespace Gss.Web.Controllers
       return response.Succeeded
         ? Ok(response)
         : BadRequest(response);
+    }
+
+    private bool ValidateGuidString(string guid)
+    {
+      return Guid.TryParse(guid, out _);
     }
   }
 }

@@ -219,7 +219,7 @@ namespace Gss.Web.Controllers
 
     private bool ValidateGuidString(string guid)
     {
-      return Guid.TryParse(guid, out var result);
+      return Guid.TryParse(guid, out _);
     }
   }
 }
