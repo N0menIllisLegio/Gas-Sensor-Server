@@ -25,5 +25,13 @@ namespace Gss.Core.Helpers
       public static int AccessTokenLifetimeMinutes { get; set; }
       public static int RefreshTokenLifetimeDays { get; set; }
     }
+
+    public static class AzureImages
+    {
+      public static string AccountName { get; set; }
+      public static string AccountKey { get; set; }
+      public static string ImagesContainer { get; set; }
+      public static string ThumbnailsContainer { get; set; }
+    }
   }
 }

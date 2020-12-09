@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -98,6 +99,7 @@ namespace Gss.Web
       services.AddTransient<ITokenService, TokenService>();
       services.AddScoped<IAuthService, AuthService>();
       services.AddTransient<IEmailService, EmailService>();
+      services.AddTransient<IAzureImagesRepository, AzureImagesRepository>();
 
       services.AddSpaStaticFiles(configuration =>
       {
@@ -205,6 +207,13 @@ namespace Gss.Web
       {
         throw new ApplicationException(Messages.InvalidSettingsErrorString);
       }
+
+      var azureImagesSection = Configuration.GetSection("AzureImages");
+
+      Settings.AzureImages.AccountName = azureImagesSection["AccountName"];
+      Settings.AzureImages.AccountKey = azureImagesSection["AccountKey"];
+      Settings.AzureImages.ImagesContainer = azureImagesSection["ImagesContainer"];
+      Settings.AzureImages.ThumbnailsContainer = azureImagesSection["ThumbnailsContainer"];
     }
   }
 }
