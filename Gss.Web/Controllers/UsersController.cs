@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,16 +9,19 @@ using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
+using Gss.Web.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
+  // TODO 200 -> 201
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class UsersController : ControllerBase
   {
-    private const string _emailConfirmationRouteName = "EmailConfirmation";
+    private const string _user = "User";
 
     private readonly UserManager _userManager;
     private readonly IAuthService _authService;
@@ -29,21 +33,25 @@ namespace Gss.Web.Controllers
     }
 
     [Authorize]
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserByID(string id)
+    [HttpGet("{userID}")]
+    [SwaggerOperation("Authorized Only")]
+    [SwaggerResponse(200, type: typeof(Response<UserInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> GetUserByID(string userID)
     {
-      if (!ValidateGuidString(id))
+      if (!ValidateGuidString(userID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      var user = await _userManager.FindByIdAsync(id);
+      var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User")));
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
       }
 
       var userInfoDto = new UserInfoDto
@@ -59,17 +67,249 @@ namespace Gss.Web.Controllers
       return Ok(new Response<UserInfoDto>(userInfoDto));
     }
 
+    //[Authorize] Role = Administrator
+    [HttpGet("{email}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> GetUserByEmail(string email)
+    {
+      var user = await _userManager.FindByEmailAsync(email);
+
+      return user is not null
+        ? Ok(new Response<User>(user))
+        : NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+    }
+
+    //[Authorize] Role = Administrator
+    [Pagination]
+    [HttpGet]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<User>>))]
+    public async Task<IActionResult> GetAllUsers(int pageNumber, int pageSize,
+      bool orderAsc = false, string orderBy = "", string filterBy = null, string filter = "")
+    {
+      var users = await _userManager
+        .GetPage(pageSize, pageNumber, orderAsc, orderBy, filterBy, filter);
+
+      var response = new PagedResponse<IEnumerable<User>>(users, pageNumber, pageSize)
+      {
+        TotalRecords = _userManager.Users.Count(),
+        OrderedBy = orderBy,
+        OrderedByAscendind = orderAsc,
+        Filter = filter,
+        FilteredBy = filterBy
+      };
+
+      return Ok(response);
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpPost]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+    {
+      var user = new User
+      {
+        Email = dto.Email,
+        PhoneNumber = dto.PhoneNumber,
+        FirstName = dto.FirstName,
+        LastName = dto.LastName,
+        Gender = dto.Gender,
+        Birthday = dto.Birthday
+      };
+
+      var result = await _userManager.CreateAsync(user, dto.Password);
+
+      return result.Succeeded
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpPut("{id}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto dto)
+    {
+      if (!ValidateGuidString(id))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      var user = await _userManager.FindByIdAsync(id);
+
+      if (user is null)
+      {
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+      }
+
+      user.FirstName = dto.FirstName;
+      user.LastName = dto.LastName;
+      user.Gender = dto.Gender;
+      user.Birthday = dto.Birthday;
+      user.PhoneNumber = dto.PhoneNumber;
+
+      var result = await _userManager.UpdateAsync(user);
+
+      if (!result.Succeeded)
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+      }
+
+      string token = await _userManager.GenerateChangeEmailTokenAsync(user, dto.Email);
+      result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
+
+      return result.Succeeded
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpPatch("{userID}/{newPassword}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> UpdateUserPassword(string userID, string newPassword)
+    {
+      if (!ValidateGuidString(userID))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+      }
+
+      string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+      var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
+
+      return result.Succeeded
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpPatch("{userID}/{roleName}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> AddUserRole(string userID, string roleName)
+    {
+      if (!ValidateGuidString(userID))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+      }
+
+      var result = await _userManager.AddToRoleAsync(user, roleName);
+
+      return result.Succeeded
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpPatch("{userID}/{roleName}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> RemoveUserRole(string userID, string roleName)
+    {
+      if (!ValidateGuidString(userID))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+      }
+
+      var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+
+      return result.Succeeded
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpDelete("{userID}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> DeleteUser(string userID)
+    {
+      if (!ValidateGuidString(userID))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        return NotFound(new Response<object>()
+          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+      }
+
+      var result = await _userManager.DeleteAsync(user);
+
+      return result.Succeeded
+        ? Ok(new Response<User>(user))
+        : BadRequest(new Response<object>()
+          .AddErrors(result.Errors.Select(r => r.Description)));
+    }
+
     [Authorize]
     [HttpPut]
-    public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto newUserInfo)
+    [SwaggerOperation("Authorized Only")]
+    [SwaggerResponse(200, type: typeof(Response<User>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto dto)
     {
       var user = await _userManager.FindByEmailAsync(User.Identity.Name);
 
-      user.FirstName = newUserInfo.FirstName;
-      user.LastName = newUserInfo.LastName;
-      user.Gender = newUserInfo.Gender;
-      user.Birthday = newUserInfo.Birthday;
-      user.PhoneNumber = newUserInfo.PhoneNumber;
+      user.FirstName = dto.FirstName;
+      user.LastName = dto.LastName;
+      user.Gender = dto.Gender;
+      user.Birthday = dto.Birthday;
+      user.PhoneNumber = dto.PhoneNumber;
 
       var result = await _userManager.UpdateAsync(user);
 
@@ -79,70 +319,9 @@ namespace Gss.Web.Controllers
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)
-    {
-      var result = await _authService.RegisterAsync(registerModel);
-
-      return result.Succeeded
-        ? Ok(result)
-        : BadRequest(result);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> LogIn([FromBody] LoginDto loginModel)
-    {
-      var response = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> RefreshToken([FromBody] RequestTokenRefreshDto requestTokens)
-    {
-      var response = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
-    }
-
-    [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> LogOut([FromBody] RequestTokenRefreshDto requestTokens)
-    {
-      await _authService.LogOutAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
-
-      return Ok(new Response<TokenDto>() { Succeeded = true });
-    }
-
-    [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> LogOutFromAllDevices([FromBody] RequestTokenRefreshDto requestTokens)
-    {
-      await _authService.RevokeAccessFromAllDevicesAsync(requestTokens.AccessToken);
-
-      return Ok(new Response<TokenDto>() { Succeeded = true });
-    }
-
-    // EMAILS
-
-    [HttpGet("{email}")]
-    public async Task<IActionResult> SendEmailConfirmation(string email)
-    {
-      // TODO actually this url should lead to front which will call API
-      // this may lead to change in AuthService url params generation (in that case remove '?' from attribute below)
-      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
-      var response = await _authService.SendEmailConfirmationAsync(email, url);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
-    }
-
-    [HttpGet("{userID?}/{token?}", Name = _emailConfirmationRouteName)]
+    [HttpPost("{userID?}/{token?}")]
+    [SwaggerResponse(200, type: typeof(Response<object>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ConfirmEmail(string userID, string token)
     {
       if (!ValidateGuidString(userID))
@@ -165,20 +344,9 @@ namespace Gss.Web.Controllers
         : BadRequest(response);
     }
 
-    [HttpGet("{email}")]
-    public async Task<IActionResult> SendResetPasswordConfirmation(string email)
-    {
-      // TODO actually this url should lead to front which will call API
-      // this may lead to change in AuthService url params generation
-      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
-      var response = await _authService.SendResetPasswordConfirmationAsync(email, url);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
-    }
-
     [HttpPost("{userID}/{token}")]
+    [SwaggerResponse(200, type: typeof(Response<object>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangePassword(string userID, string token, [FromBody] ChangePasswordDto dto)
     {
       if (!ValidateGuidString(userID))
@@ -202,31 +370,10 @@ namespace Gss.Web.Controllers
     }
 
     [Authorize]
-    [HttpGet("{newEmail}")]
-    public async Task<IActionResult> SendEmailChangeConfirmation(string newEmail)
-    {
-      var emailValidator = new EmailAddressAttribute();
-
-      if (!emailValidator.IsValid(newEmail))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidEmailErrorString));
-      }
-
-      string email = User.Identity.Name;
-
-      // TODO actually this url should lead to front which will call API
-      // this may lead to change in AuthService url params generation
-      string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
-      var response = await _authService.SendEmailChangeConfirmationAsync(email, newEmail, url);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
-    }
-
-    [Authorize]
-    [HttpGet("{userID}/{newEmail}/{token}")]
+    [HttpPost("{userID}/{newEmail}/{token}")]
+    [SwaggerOperation("Authorized Only")]
+    [SwaggerResponse(200, type: typeof(Response<object>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangeEmail(string userID, string newEmail, string token)
     {
       var emailValidator = new EmailAddressAttribute();

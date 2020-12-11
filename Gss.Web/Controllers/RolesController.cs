@@ -3,31 +3,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Gss.Web.Filters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  //TODO [Authorize]
+  // TODO [Authorize] Role = Administrator
+  // TODO 200 -> 201
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class RolesController : ControllerBase
   {
     private const string _role = "Role";
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
-    private readonly IEmailService _emailService;
 
-    public RolesController(RoleManager<IdentityRole<Guid>> roleManager, IEmailService emailService)
+    public RolesController(RoleManager<IdentityRole<Guid>> roleManager)
     {
       _roleManager = roleManager;
-      _emailService = emailService;
     }
 
     [Pagination]
     [HttpGet]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(PagedResponse<IdentityRole<Guid>>))]
     public async Task<IActionResult> GetAllRoles(int pageNumber, int pageSize,
       bool orderAsc = false, string filter = "")
     {
@@ -45,16 +46,20 @@ namespace Gss.Web.Controllers
       return Ok(response);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetRoleByID(string id)
+    [HttpGet("{roleID}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> GetRoleByID(string roleID)
     {
-      if (!ValidateGuidString(id))
+      if (!ValidateGuidString(roleID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      var role = await _roleManager.FindByIdAsync(id);
+      var role = await _roleManager.FindByIdAsync(roleID);
 
       if (role is null)
       {
@@ -65,10 +70,13 @@ namespace Gss.Web.Controllers
       return Ok(new Response<IdentityRole<Guid>>(role));
     }
 
-    [HttpGet("{name}")]
-    public async Task<IActionResult> GetRoleByName(string name)
+    [HttpGet("{roleName}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> GetRoleByName(string roleName)
     {
-      var role = await _roleManager.FindByNameAsync(name);
+      var role = await _roleManager.FindByNameAsync(roleName);
 
       if (role is null)
       {
@@ -80,9 +88,13 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRole([FromBody] RoleDto roleModel)
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> CreateRole([FromBody] RoleDto dto)
     {
-      var role = new IdentityRole<Guid> { Name = roleModel.Name };
+      var role = new IdentityRole<Guid> { Name = dto.Name };
       var result = await _roleManager.CreateAsync(role);
 
       return result.Succeeded
@@ -91,16 +103,20 @@ namespace Gss.Web.Controllers
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleDto newRoleModel)
+    [HttpPut("{roleID}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> UpdateRole(string roleID, [FromBody] RoleDto dto)
     {
-      if (!ValidateGuidString(id))
+      if (!ValidateGuidString(roleID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      var oldRole = await _roleManager.FindByIdAsync(id);
+      var oldRole = await _roleManager.FindByIdAsync(roleID);
 
       if (oldRole is null)
       {
@@ -108,7 +124,7 @@ namespace Gss.Web.Controllers
           .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
       }
 
-      oldRole.Name = newRoleModel.Name;
+      oldRole.Name = dto.Name;
 
       var result = await _roleManager.UpdateAsync(oldRole);
 
@@ -118,16 +134,20 @@ namespace Gss.Web.Controllers
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteRole(string id)
+    [HttpDelete("{roleID}")]
+    [SwaggerOperation("Administrator Only")]
+    [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    [SwaggerResponse(404, type: typeof(Response<object>))]
+    public async Task<IActionResult> DeleteRole(string roleID)
     {
-      if (!ValidateGuidString(id))
+      if (!ValidateGuidString(roleID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      var role = await _roleManager.FindByIdAsync(id);
+      var role = await _roleManager.FindByIdAsync(roleID);
 
       if (role is null)
       {
