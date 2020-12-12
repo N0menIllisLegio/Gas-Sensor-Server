@@ -24,7 +24,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpGet("{newEmail}")]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Sends message to specified email with email change confirmation token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> SendEmailChangeConfirmation(string newEmail)
@@ -51,6 +51,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{email}")]
+    [SwaggerOperation(description: "Sends message to specified email with reset password token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> SendResetPasswordConfirmation(string email)
@@ -67,6 +68,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{email}")]
+    [SwaggerOperation(description: "Sends message to specified email with email confirmation token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> SendEmailConfirmation(string email)
