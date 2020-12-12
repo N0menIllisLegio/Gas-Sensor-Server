@@ -19,6 +19,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
+    [SwaggerOperation(description: "Adds new user to database.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)
@@ -31,6 +32,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
+    [SwaggerOperation(description: "Generates access/refresh token pair.")]
     [SwaggerResponse(200, type: typeof(Response<TokenDto>))]
     [SwaggerResponse(400, type: typeof(Response<TokenDto>))]
     public async Task<IActionResult> LogIn([FromBody] LoginDto loginModel)
@@ -43,6 +45,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
+    [SwaggerOperation(description: "Refreshes access token.")]
     [SwaggerResponse(200, type: typeof(Response<TokenDto>))]
     [SwaggerResponse(400, type: typeof(Response<TokenDto>))]
     public async Task<IActionResult> RefreshToken([FromBody] RequestTokenRefreshDto requestTokens)
@@ -56,7 +59,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Removes specified refresh token from database.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> LogOut([FromBody] RequestTokenRefreshDto requestTokens)
@@ -68,7 +71,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Removes all refresh tokens of user from database.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> LogOutFromAllDevices([FromBody] RequestTokenRefreshDto requestTokens)
