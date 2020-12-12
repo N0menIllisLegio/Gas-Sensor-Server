@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
@@ -13,7 +12,7 @@ namespace Gss.Web.Controllers
   // TODO [Authorize] all controller?
   [Route("api/[controller]/[action]")]
   [ApiController]
-  public class FilesController : ControllerBase
+  public class FilesController: ControllerBase
   {
     private readonly IAzureImagesRepository _azureImagesRepository;
     public FilesController(IAzureImagesRepository azureImagesRepository)
@@ -48,6 +47,29 @@ namespace Gss.Web.Controllers
     public IActionResult MicrocontrollerDataUpload([FromForm] FilesUploadDto dto)
     {
       return Ok();
+    }
+
+    //[Authorize] Role = Administrator
+    [HttpDelete("{userID}")]
+    [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
+    [SwaggerResponse(200, type: typeof(Response<object>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> DeleteUserAvatar(string userID)
+    {
+      if (!ValidateGuidString(userID))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      await _azureImagesRepository.DeleteImage(userID);
+
+      return Ok();
+    }
+
+    private bool ValidateGuidString(string guid)
+    {
+      return Guid.TryParse(guid, out _);
     }
   }
 }
