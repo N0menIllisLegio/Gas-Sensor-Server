@@ -32,9 +32,32 @@ namespace Gss.Web.Controllers
       _authService = authService;
     }
 
+    //[Authorize] Role = Administrator
+    [Pagination]
+    [HttpGet]
+    [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
+    [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<User>>))]
+    public async Task<IActionResult> GetAllUsers(int pageNumber, int pageSize,
+      bool orderAsc = false, string orderBy = "", string filterBy = null, string filter = "")
+    {
+      var users = await _userManager
+        .GetPage(pageSize, pageNumber, orderAsc, orderBy, filterBy, filter);
+
+      var response = new PagedResponse<IEnumerable<User>>(users, pageNumber, pageSize)
+      {
+        TotalRecords = _userManager.Users.Count(),
+        OrderedBy = orderBy,
+        OrderedByAscendind = orderAsc,
+        Filter = filter,
+        FilteredBy = filterBy
+      };
+
+      return Ok(response);
+    }
+
     [Authorize]
     [HttpGet("{userID}")]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<UserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -69,7 +92,7 @@ namespace Gss.Web.Controllers
 
     //[Authorize] Role = Administrator
     [HttpGet("{email}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Gets user by email.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetUserByEmail(string email)
@@ -83,31 +106,8 @@ namespace Gss.Web.Controllers
     }
 
     //[Authorize] Role = Administrator
-    [Pagination]
-    [HttpGet]
-    [SwaggerOperation("Administrator Only")]
-    [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<User>>))]
-    public async Task<IActionResult> GetAllUsers(int pageNumber, int pageSize,
-      bool orderAsc = false, string orderBy = "", string filterBy = null, string filter = "")
-    {
-      var users = await _userManager
-        .GetPage(pageSize, pageNumber, orderAsc, orderBy, filterBy, filter);
-
-      var response = new PagedResponse<IEnumerable<User>>(users, pageNumber, pageSize)
-      {
-        TotalRecords = _userManager.Users.Count(),
-        OrderedBy = orderBy,
-        OrderedByAscendind = orderAsc,
-        Filter = filter,
-        FilteredBy = filterBy
-      };
-
-      return Ok(response);
-    }
-
-    //[Authorize] Role = Administrator
     [HttpPost]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Creates user.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
@@ -132,7 +132,7 @@ namespace Gss.Web.Controllers
 
     //[Authorize] Role = Administrator
     [HttpPut("{id}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Updates user.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -177,7 +177,7 @@ namespace Gss.Web.Controllers
 
     //[Authorize] Role = Administrator
     [HttpPatch("{userID}/{newPassword}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Updates user's password.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -208,7 +208,7 @@ namespace Gss.Web.Controllers
 
     //[Authorize] Role = Administrator
     [HttpPatch("{userID}/{roleName}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Adds role to user.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -238,7 +238,7 @@ namespace Gss.Web.Controllers
 
     //[Authorize] Role = Administrator
     [HttpPatch("{userID}/{roleName}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Removes role from user.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -268,7 +268,7 @@ namespace Gss.Web.Controllers
 
     //[Authorize] Role = Administrator
     [HttpDelete("{userID}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Deletes user.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -298,7 +298,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPut]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Updates user info.")]
     [SwaggerResponse(200, type: typeof(Response<User>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto dto)
@@ -320,6 +320,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost("{userID?}/{token?}")]
+    [SwaggerOperation(description: "Confirms user's email. Token sends to unconirmed email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ConfirmEmail(string userID, string token)
@@ -345,6 +346,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost("{userID}/{token}")]
+    [SwaggerOperation(description: "Changes user's password. Token sends to confirmed email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangePassword(string userID, string token, [FromBody] ChangePasswordDto dto)
@@ -371,7 +373,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost("{userID}/{newEmail}/{token}")]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Changes user's email. Token sends to old email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangeEmail(string userID, string newEmail, string token)
