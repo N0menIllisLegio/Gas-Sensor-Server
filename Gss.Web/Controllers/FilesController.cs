@@ -10,14 +10,14 @@ namespace Gss.Web.Controllers
   public class FilesController : ControllerBase
   {
     [HttpPost]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Uploads user's avatar in cloud storage.")]
     public IActionResult AvatarUpload([FromForm] FilesUploadDto dto)
     {
       return Ok();
     }
 
     [HttpPost]
-    [SwaggerOperation("Authorized Only")]
+    [SwaggerOperation("Authorized Only", "Loads data from files in database.")]
     public IActionResult MicrocontrollerDataUpload([FromForm] FilesUploadDto dto)
     {
       return Ok();
