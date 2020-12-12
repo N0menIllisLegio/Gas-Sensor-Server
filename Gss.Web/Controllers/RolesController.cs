@@ -27,7 +27,7 @@ namespace Gss.Web.Controllers
 
     [Pagination]
     [HttpGet]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Gets all roles existing in database. Paged.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<IdentityRole<Guid>>))]
     public async Task<IActionResult> GetAllRoles(int pageNumber, int pageSize,
       bool orderAsc = false, string filter = "")
@@ -47,7 +47,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{roleID}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Gets role by id.")]
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -71,7 +71,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{roleName}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Gets role by name.")]
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
     public async Task<IActionResult> GetRoleByName(string roleName)
@@ -88,7 +88,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Creates role.")]
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -104,7 +104,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPut("{roleID}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Updates role.")]
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -135,7 +135,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpDelete("{roleID}")]
-    [SwaggerOperation("Administrator Only")]
+    [SwaggerOperation("Administrator Only", "Deletes role.")]
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
