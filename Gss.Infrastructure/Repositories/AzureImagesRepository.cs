@@ -3,8 +3,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage;
 using Azure.Storage.Blobs;
+using Gss.Core.DTOs;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
+using Gss.Core.Resources;
 
 namespace Gss.Infrastructure.Repositories
 {
@@ -25,18 +27,33 @@ namespace Gss.Infrastructure.Repositories
         new StorageSharedKeyCredential(Settings.AzureImages.AccountName, Settings.AzureImages.AccountKey);
     }
 
-    public async Task<Uri> UploadImage(Stream imageStream, string userID = null)
+    public async Task<Response<Uri>> UploadImage(Stream imageStream, string imageExtension, string userID = null)
     {
-      var blobUri = new Uri(_imageContainerPath + userID ?? Guid.NewGuid().ToString());
+      if (!Settings.AzureImages.SupportedExtensions.Contains(imageExtension))
+      {
+        string error = String.Format(Messages.UnsupportedImageExtensionErrorString,
+          String.Join(", ", Settings.AzureImages.SupportedExtensions));
+
+        return new Response<Uri>()
+          .AddErrors(error);
+      }
+
+      var blobUri = new Uri($"{_imageContainerPath}{userID ?? Guid.NewGuid().ToString()}.{imageExtension}");
       var blobClient = new BlobClient(blobUri, _storageCredentials);
 
-      await blobClient.DeleteIfExistsAsync();
+      try
+      {
+        await blobClient.DeleteIfExistsAsync();
 
-      // TODO check if needed - imageStream.Position = 0;
+        await blobClient.UploadAsync(imageStream);
+      }
+      catch
+      {
+        return new Response<Uri>()
+          .AddErrors(Messages.AzureUploadFailedErrorString);
+      }
 
-      await blobClient.UploadAsync(imageStream);
-
-      return blobUri;
+      return new Response<Uri>(blobUri);
     }
 
     public async Task DeleteImage(string userID)
@@ -47,7 +64,6 @@ namespace Gss.Infrastructure.Repositories
       }
 
       var blobUri = new Uri(_imageContainerPath + userID);
-
       var blobClient = new BlobClient(blobUri, _storageCredentials);
 
       await blobClient.DeleteIfExistsAsync();

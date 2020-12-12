@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Gss.Core.Helpers
 {
@@ -32,6 +33,7 @@ namespace Gss.Core.Helpers
       public static string AccountKey { get; set; }
       public static string ImagesContainer { get; set; }
       public static string ThumbnailsContainer { get; set; }
+      public static List<string> SupportedExtensions { get; set; }
     }
   }
 }

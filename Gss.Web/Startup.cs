@@ -215,6 +215,7 @@ namespace Gss.Web
       Settings.AzureImages.AccountKey = azureImagesSection["AccountKey"];
       Settings.AzureImages.ImagesContainer = azureImagesSection["ImagesContainer"];
       Settings.AzureImages.ThumbnailsContainer = azureImagesSection["ThumbnailsContainer"];
+      Settings.AzureImages.SupportedExtensions = azureImagesSection.GetSection("SupportedExtensions").Get<List<string>>();
     }
   }
 }

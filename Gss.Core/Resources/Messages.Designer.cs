@@ -61,6 +61,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to upload image to cloud..
+        /// </summary>
+        public static string AzureUploadFailedErrorString {
+            get {
+                return ResourceManager.GetString("AzureUploadFailedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email already confirmed..
         /// </summary>
         public static string EmailAlreadyConfirmedErrorString {
@@ -142,6 +151,24 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File extension is missing..
+        /// </summary>
+        public static string MissingFileExtensionErrorString {
+            get {
+                return ResourceManager.GetString("MissingFileExtensionErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image extension is missing,.
+        /// </summary>
+        public static string MissingImageExtensionErrorString {
+            get {
+                return ResourceManager.GetString("MissingImageExtensionErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} not found..
         /// </summary>
         public static string NotFoundErrorString {
@@ -165,6 +192,15 @@ namespace Gss.Core.Resources {
         public static string RefreshTokenNotExistsErrorString {
             get {
                 return ResourceManager.GetString("RefreshTokenNotExistsErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported image extension. Supproted image extensions: {0}..
+        /// </summary>
+        public static string UnsupportedImageExtensionErrorString {
+            get {
+                return ResourceManager.GetString("UnsupportedImageExtensionErrorString", resourceCulture);
             }
         }
         
