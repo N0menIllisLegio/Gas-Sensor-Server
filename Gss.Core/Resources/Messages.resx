@@ -120,6 +120,12 @@
   <data name="AzureUploadFailedErrorString" xml:space="preserve">
     <value>Failed to upload image to cloud.</value>
   </data>
+  <data name="CreationFailedErrorString" xml:space="preserve">
+    <value>{0} creation failed.</value>
+  </data>
+  <data name="DeletionFailedErrorString" xml:space="preserve">
+    <value>{0} deletion failed.</value>
+  </data>
   <data name="EmailAlreadyConfirmedErrorString" xml:space="preserve">
     <value>Email already confirmed.</value>
   </data>
@@ -164,6 +170,9 @@
   </data>
   <data name="UnsupportedImageExtensionErrorString" xml:space="preserve">
     <value>Unsupported image extension. Supproted image extensions: {0}.</value>
+  </data>
+  <data name="UpdateFailedErrorString" xml:space="preserve">
+    <value>{0} update failed.</value>
   </data>
   <data name="UserIsLockedOutErrorString" xml:space="preserve">
     <value>User is locked out.</value>

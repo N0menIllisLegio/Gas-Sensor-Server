@@ -74,5 +74,12 @@ namespace Gss.Core.Helpers
 
       return await users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }
+
+    public async Task<bool> IsAdministrator(string email)
+    {
+      var user = await FindByEmailAsync(email);
+
+      return await IsInRoleAsync(user, "Administrator");
+    }
   }
 }

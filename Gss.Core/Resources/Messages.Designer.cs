@@ -70,6 +70,24 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} creation failed..
+        /// </summary>
+        public static string CreationFailedErrorString {
+            get {
+                return ResourceManager.GetString("CreationFailedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} deletion failed..
+        /// </summary>
+        public static string DeletionFailedErrorString {
+            get {
+                return ResourceManager.GetString("DeletionFailedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email already confirmed..
         /// </summary>
         public static string EmailAlreadyConfirmedErrorString {
@@ -201,6 +219,15 @@ namespace Gss.Core.Resources {
         public static string UnsupportedImageExtensionErrorString {
             get {
                 return ResourceManager.GetString("UnsupportedImageExtensionErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} update failed..
+        /// </summary>
+        public static string UpdateFailedErrorString {
+            get {
+                return ResourceManager.GetString("UpdateFailedErrorString", resourceCulture);
             }
         }
         

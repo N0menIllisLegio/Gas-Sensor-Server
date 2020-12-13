@@ -39,7 +39,7 @@ namespace Gss.Web
       LoadSettings();
 
       services.AddDbContext<AppDbContext>(options =>
-          options.UseSqlServer(Configuration.GetConnectionString("AzureDB")));
+          options.UseSqlServer(Configuration.GetConnectionString("LocalDB")));
 
       services.AddDefaultIdentity<User>(options =>
       {
@@ -99,6 +99,8 @@ namespace Gss.Web
       services.AddScoped<IAuthService, AuthService>();
       services.AddTransient<IEmailService, EmailService>();
       services.AddTransient<IAzureImagesRepository, AzureImagesRepository>();
+      services.AddScoped<IMicrocontrollerRepository, MicrocontrollerRepository>();
+      services.AddScoped<IMicrocontrollerService, MicrocontrollerService>();
 
       services.AddSpaStaticFiles(configuration =>
       {
