@@ -11,6 +11,6 @@ namespace Gss.Core.Entities
     [MaxLength(200)]
     public string Name { get; set; }
 
-    public IList<MicrocontrollerSensor> SensorMicrocontrollers { get; set; }
+    public virtual IList<MicrocontrollerSensor> SensorMicrocontrollers { get; set; }
   }
 }

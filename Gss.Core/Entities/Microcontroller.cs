@@ -20,9 +20,9 @@ namespace Gss.Core.Entities
 
     // ---- RELATIONSHIPS
 
-    public User Owner { get; set; }
+    public virtual User Owner { get; set; }
 
-    public IList<MicrocontrollerSensor> MicrocontrollerSensors { get; set; }
+    public virtual IList<MicrocontrollerSensor> MicrocontrollerSensors { get; set; }
 
     // ----- NOT IN DB
 

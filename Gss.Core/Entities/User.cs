@@ -19,7 +19,7 @@ namespace Gss.Core.Entities
 
     // ------ RELATIONSHIPS
 
-    public ICollection<Microcontroller> Microcontrollers { get; set; }
-    public ICollection<RefreshToken> RefreshTokens { get; set; }
+    public virtual ICollection<Microcontroller> Microcontrollers { get; set; }
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
   }
 }
