@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
@@ -71,7 +72,7 @@ namespace Gss.Web
           return new BadRequestObjectResult(new Response<object>()
             .AddErrors(errors));
         };
-      });
+      }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>

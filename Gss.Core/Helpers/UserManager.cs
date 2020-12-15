@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Gss.Core.Entities;
+using Gss.Core.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,42 +38,29 @@ namespace Gss.Core.Helpers
       return await AddToRoleAsync(user, StandardRoleName);
     }
 
-    public async Task<IEnumerable<User>> GetPage(int pageSize, int pageNumber,
-      bool orderAsc, string orderBy, string filterBy = null, string filterStr = null)
+    public async Task<List<User>> GetPage(int pageSize, int pageNumber,
+      SortOrder sortOrder, string sortBy,
+      string filterBy = null, string filterStr = null)
     {
       var filter = filterBy switch
       {
-        "Email" => (Expression<Func<User, bool>>)((user) => user.Email.Contains(filterStr)),
-        "FirstName" => (Expression<Func<User, bool>>)((user) => user.FirstName.Contains(filterStr)),
-        "LastName" => (Expression<Func<User, bool>>)((user) => user.LastName.Contains(filterStr)),
-        "Gender" => (Expression<Func<User, bool>>)((user) => user.Gender.Contains(filterStr)),
+        "EMAIL" => (Expression<Func<User, bool>>)((user) => user.Email.Contains(filterStr)),
+        "FIRSTNAME" => (Expression<Func<User, bool>>)((user) => user.FirstName.Contains(filterStr)),
+        "LASTNAME" => (Expression<Func<User, bool>>)((user) => user.LastName.Contains(filterStr)),
+        "GENDER" => (Expression<Func<User, bool>>)((user) => user.Gender.Contains(filterStr)),
         _ => (Expression<Func<User, bool>>)((user) => true)
       };
 
-      return await GetPage(pageSize, pageNumber, orderAsc, orderBy, Users.Where(filter));
-    }
-
-    public async Task<IEnumerable<User>> GetPage(int pageSize, int pageNumber,
-      bool orderAsc, string orderBy, IQueryable<User> users = null)
-    {
-      if (users is null)
+      var sorter = sortBy switch
       {
-        users = Users;
-      }
-
-      var order = orderBy switch
-      {
-        "FirstName" => (Expression<Func<User, string>>)((user) => user.FirstName),
-        "LastName" => (Expression<Func<User, string>>)((user) => user.LastName),
-        "Gender" => (Expression<Func<User, string>>)((user) => user.Gender),
-        _ => (Expression<Func<User, string>>)((user) => user.Email)
+        "FIRSTNAME" => (Expression<Func<User, object>>)((user) => user.FirstName),
+        "LASTNAME" => (Expression<Func<User, object>>)((user) => user.LastName),
+        "GENDER" => (Expression<Func<User, object>>)((user) => user.Gender),
+        _ => (Expression<Func<User, object>>)((user) => user.Email)
       };
 
-      users = orderAsc
-        ? users.OrderBy(order)
-        : users.OrderByDescending(order);
-
-      return await users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+      return await Users.AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
+        .AsNoTracking().ToListAsync();
     }
 
     public async Task<bool> IsAdministrator(string email)

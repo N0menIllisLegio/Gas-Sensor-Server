@@ -9,7 +9,6 @@ using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
-using Gss.Web.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -33,25 +32,24 @@ namespace Gss.Web.Controllers
     }
 
     //[Authorize] Role = Administrator
-    [Pagination]
     [HttpGet]
     [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<ExtendedUserInfoDto>>))]
-    public async Task<IActionResult> GetAllUsers(int pageNumber, int pageSize,
-      bool orderAsc = false, string orderBy = "", string filterBy = null, string filter = "")
+    public async Task<IActionResult> GetAllUsers([FromQuery] PagedRequest pagedRequest)
     {
       var users = await _userManager
-        .GetPage(pageSize, pageNumber, orderAsc, orderBy, filterBy, filter);
+        .GetPage(pagedRequest.PageSize, pagedRequest.PageNumber, pagedRequest.SortOrder,
+        pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
 
       var formattedUsers = users.Select(user => new ExtendedUserInfoDto(user));
 
-      var response = new PagedResponse<IEnumerable<ExtendedUserInfoDto>>(formattedUsers, pageNumber, pageSize)
+      var response = new PagedResponse<IEnumerable<ExtendedUserInfoDto>>(formattedUsers, pagedRequest.PageNumber, pagedRequest.PageSize)
       {
         TotalRecords = _userManager.Users.Count(),
-        OrderedBy = orderBy,
-        OrderedByAscendind = orderAsc,
-        Filter = filter,
-        FilteredBy = filterBy
+        OrderedBy = pagedRequest.SortBy,
+        SortOrder = pagedRequest.SortOrder,
+        Filter = pagedRequest.Filter,
+        FilteredBy = pagedRequest.FilterBy
       };
 
       return Ok(response);

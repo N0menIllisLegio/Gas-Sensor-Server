@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
-using Gss.Core.Entities;
-using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Authorization;
@@ -17,33 +15,16 @@ namespace Gss.Web.Controllers
   public class MicrocontrollersController : ControllerBase
   {
     private readonly IMicrocontrollerService _microcontrollerService;
-    private readonly UserManager _userManager;
 
-    public MicrocontrollersController(IMicrocontrollerService microcontrollerService, UserManager userManager)
+    public MicrocontrollersController(IMicrocontrollerService microcontrollerService)
     {
       _microcontrollerService = microcontrollerService;
-      _userManager = userManager;
     }
-
-    //[HttpGet]
-    //public async Task<IActionResult> GetAllUserMicrocontrollers()
-    //{
-    //  // var response = await _microcontrollerRepository.GetMicrocontrollersAsync(4, 1, (m) => m.Public && m.Name != null, Core.Enums.SortOrder.Ascendind, (m) => m.Name);
-    //  return Ok();
-    //}
 
     [HttpPost]
     public async Task<IActionResult> CreateMicrocontroller([FromBody] CreateMicrocontrollerDto dto)
     {
-      var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-
-      if (user is null)
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User")));
-      }
-
-      var result = await _microcontrollerService.AddMicrocontroller(dto, user);
+      var result = await _microcontrollerService.AddMicrocontroller(dto, User.Identity.Name);
 
       if (!result.Succeeded)
       {
@@ -66,24 +47,7 @@ namespace Gss.Web.Controllers
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      Response<Microcontroller> result;
-
-      if (await _userManager.IsAdministrator(User.Identity.Name))
-      {
-        result = await _microcontrollerService.UpdateMicrocontroller(dto);
-      }
-      else
-      {
-        var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-
-        if (user is null)
-        {
-          return BadRequest(new Response<object>()
-            .AddErrors(String.Format(Messages.NotFoundErrorString, "User")));
-        }
-
-        result = await _microcontrollerService.UpdateMicrocontroller(dto, user);
-      }
+      var result = await _microcontrollerService.UpdateMicrocontroller(dto, User.Identity.Name);
 
       if (!result.Succeeded)
       {
@@ -106,24 +70,8 @@ namespace Gss.Web.Controllers
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      Response<Microcontroller> result;
-
-      if (await _userManager.IsAdministrator(User.Identity.Name))
-      {
-        result = await _microcontrollerService.DeleteMicrocontroller(microcontrollerID);
-      }
-      else
-      {
-        var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-
-        if (user is null)
-        {
-          return BadRequest(new Response<object>()
-            .AddErrors(String.Format(Messages.NotFoundErrorString, "User")));
-        }
-
-        result = await _microcontrollerService.DeleteMicrocontroller(microcontrollerID, user);
-      }
+      var result = await _microcontrollerService
+        .DeleteMicrocontroller(microcontrollerID, User.Identity.Name);
 
       if (!result.Succeeded)
       {

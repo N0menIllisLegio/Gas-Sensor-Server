@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Helpers;
 using Gss.Core.Resources;
-using Gss.Web.Filters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
@@ -25,22 +25,26 @@ namespace Gss.Web.Controllers
       _roleManager = roleManager;
     }
 
-    [Pagination]
     [HttpGet]
     [SwaggerOperation("Administrator Only", "Gets all roles existing in database. Paged.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<IdentityRole<Guid>>))]
-    public async Task<IActionResult> GetAllRoles(int pageNumber, int pageSize,
-      bool orderAsc = false, string filter = "")
+    public async Task<IActionResult> GetAllRoles([FromQuery] PagedRequest pagedRequest)
     {
-      var pagedRoles = await _roleManager.GetPage(pageNumber, pageSize, orderAsc, filter);
+      var pagedRoles = await _roleManager.Roles.AsQueryable()
+        .GetPage(pagedRequest.PageNumber, pagedRequest.PageSize,
+          pagedRequest.SortOrder,
+          (role) => role.Name,
+          (role) => role.Name.Contains(pagedRequest.Filter))
+        .AsNoTracking()
+        .ToListAsync();
 
-      var response = new PagedResponse<IdentityRole<Guid>>(pagedRoles, pageNumber, pageSize)
+      var response = new PagedResponse<IdentityRole<Guid>>(pagedRoles, pagedRequest.PageNumber, pagedRequest.PageSize)
       {
         TotalRecords = _roleManager.Roles.Count(),
-        OrderedBy = "Name",
-        OrderedByAscendind = orderAsc,
-        Filter = filter,
-        FilteredBy = "Name"
+        OrderedBy = nameof(IdentityRole<Guid>.Name),
+        SortOrder = pagedRequest.SortOrder,
+        Filter = pagedRequest.Filter,
+        FilteredBy = nameof(IdentityRole<Guid>.Name)
       };
 
       return Ok(response);

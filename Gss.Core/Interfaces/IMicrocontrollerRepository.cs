@@ -10,8 +10,9 @@ namespace Gss.Core.Interfaces
   public interface IMicrocontrollerRepository
   {
     Task<List<Microcontroller>> GetMicrocontrollersAsync(int pageSize, int pageNumber,
+      SortOrder sortOrder = SortOrder.None,
       Expression<Func<Microcontroller, bool>> filter = null,
-      SortOrder sortOrder = SortOrder.None, Expression<Func<Microcontroller, object>> orderBy = null,
+      Expression<Func<Microcontroller, object>> sorter = null,
       bool notTracking = false);
 
     Task<Microcontroller> GetMicrocontrollerAsync(Guid microcontrollerID);
