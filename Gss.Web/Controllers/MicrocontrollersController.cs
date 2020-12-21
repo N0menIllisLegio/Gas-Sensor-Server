@@ -6,6 +6,7 @@ using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
@@ -23,6 +24,9 @@ namespace Gss.Web.Controllers
 
     // Admin only
     [HttpGet]
+    [SwaggerOperation("Administrator Only", "Gets all microcontrollers. Paged.")]
+    [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetAllMicrocontrollers([FromQuery] PagedRequest pagedRequest)
     {
       var (microcontrollers, microcontrollersCount) = await _microcontrollerService.GetAllMicrocontrollers(pagedRequest.PageNumber,
@@ -41,8 +45,10 @@ namespace Gss.Web.Controllers
       return Ok(response);
     }
 
-    // AllowAnonymus?
+    [AllowAnonymous]
     [HttpGet]
+    [SwaggerOperation(Description = "Gets all public microcontrollers.")]
+    [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
     public async Task<IActionResult> GetPublicMicrocontrollers([FromQuery] PagedRequest pagedRequest)
     {
       var (microcontrollers, microcontrollersCount) = await _microcontrollerService.GetPublicMicrocontrollers(pagedRequest.PageNumber,
@@ -62,6 +68,9 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{userID}")]
+    [SwaggerOperation("Authorized Only", "Gets all microcontrollers that belongs to user.")]
+    [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetUserMicrocontrollers(string userID, [FromQuery] PagedRequest pagedRequest)
     {
       if (!ValidateGuidString(userID))
@@ -92,6 +101,9 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{microcontrollerID}")]
+    [SwaggerOperation("Authorized Only", "Gets microcontroller by id.")]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetMicrocontroller(string microcontrollerID)
     {
       if (!ValidateGuidString(microcontrollerID))
@@ -115,6 +127,9 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
+    [SwaggerOperation("Authorized Only", "Creates microcontroller.")]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateMicrocontrollerDto dto)
     {
       var result = await _microcontrollerService.AddMicrocontroller(dto, User.Identity.Name);
@@ -131,6 +146,9 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPut]
+    [SwaggerOperation("Authorized Only", "Updates microcontroller.")]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateMicrocontrollerDto dto)
     {
       if (!ValidateGuidString(dto.ID))
@@ -153,6 +171,9 @@ namespace Gss.Web.Controllers
     }
 
     [HttpDelete("{microcontrollerID}")]
+    [SwaggerOperation("Authorized Only", "Deletes microcontroller.")]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Delete(string microcontrollerID)
     {
       if (!ValidateGuidString(microcontrollerID))
@@ -177,6 +198,9 @@ namespace Gss.Web.Controllers
 
     // Admin only
     [HttpPatch("{microcontrollerID}/{userID}")]
+    [SwaggerOperation("Administrator Only", "Changes microcontroller owner.")]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangeOwner(string microcontrollerID, string userID)
     {
       if (!ValidateGuidString(microcontrollerID) || !ValidateGuidString(userID))
