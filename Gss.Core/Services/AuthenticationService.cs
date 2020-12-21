@@ -11,22 +11,22 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Gss.Core.Services
 {
-  public class AuthService: IAuthService
+  public class AuthenticationService: IAuthenticationService
   {
     private const string _emailConfirmationSubject = "Email confirmation";
     private const string _emailChangeSubject = "Email change";
     private const string _passwordResetSubject = "Password reset";
 
-    private readonly ITokenService _tokenService;
+    private readonly ITokensService _tokenService;
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager _userManager;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IRefreshTokensRepository _refreshTokenRepository;
     private readonly IEmailService _emailService;
 
-    public AuthService(ITokenService tokenService,
+    public AuthenticationService(ITokensService tokenService,
       SignInManager<User> signInManager,
       UserManager userManager,
-      IRefreshTokenRepository refreshTokenRepository,
+      IRefreshTokensRepository refreshTokenRepository,
       IEmailService emailService)
     {
       _tokenService = tokenService;

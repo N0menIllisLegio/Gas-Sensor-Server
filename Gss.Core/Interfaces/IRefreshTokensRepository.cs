@@ -3,7 +3,7 @@ using Gss.Core.Entities;
 
 namespace Gss.Core.Interfaces
 {
-  public interface IRefreshTokenRepository
+  public interface IRefreshTokensRepository
   {
     Task AddRefreshTokenAsync(User user, string refreshToken);
 

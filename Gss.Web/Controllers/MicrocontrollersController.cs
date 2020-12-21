@@ -15,9 +15,9 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class MicrocontrollersController : ControllerBase
   {
-    private readonly IMicrocontrollerService _microcontrollerService;
+    private readonly IMicrocontrollersService _microcontrollerService;
 
-    public MicrocontrollersController(IMicrocontrollerService microcontrollerService)
+    public MicrocontrollersController(IMicrocontrollersService microcontrollerService)
     {
       _microcontrollerService = microcontrollerService;
     }

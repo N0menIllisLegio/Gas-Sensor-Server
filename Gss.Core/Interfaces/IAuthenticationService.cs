@@ -3,7 +3,7 @@ using Gss.Core.DTOs;
 
 namespace Gss.Core.Interfaces
 {
-  public interface IAuthService
+  public interface IAuthenticationService
   {
     Task<ServiceResultDto<object>> SendResetPasswordConfirmationAsync(string email, string redirectUrl);
     Task<ServiceResultDto<object>> ResetPasswordAsync(string userID, string token, string newPassword);

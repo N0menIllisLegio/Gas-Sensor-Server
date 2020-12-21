@@ -15,9 +15,9 @@ namespace Gss.Web.Controllers
   {
     // private const string _emailConfirmationRouteName = "EmailConfirmation";
 
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationService _authService;
 
-    public EmailsController(IAuthService authService)
+    public EmailsController(IAuthenticationService authService)
     {
       _authService = authService;
     }

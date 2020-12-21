@@ -23,9 +23,9 @@ namespace Gss.Web.Controllers
     private const string _user = "User";
 
     private readonly UserManager _userManager;
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationService _authService;
 
-    public UsersController(UserManager userManager, IAuthService authService)
+    public UsersController(UserManager userManager, IAuthenticationService authService)
     {
       _userManager = userManager;
       _authService = authService;

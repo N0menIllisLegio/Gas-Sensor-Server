@@ -5,7 +5,7 @@ using Gss.Core.Enums;
 
 namespace Gss.Core.Interfaces
 {
-  public interface IMicrocontrollerService
+  public interface IMicrocontrollersService
   {
     Task<ServiceResultDto<Microcontroller>> AddMicrocontroller(CreateMicrocontrollerDto dto, string ownerEmail);
 

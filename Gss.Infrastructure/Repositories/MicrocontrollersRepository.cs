@@ -11,11 +11,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories
 {
-  public class MicrocontrollerRepository: IMicrocontrollerRepository
+  public class MicrocontrollersRepository: IMicrocontrollersRepository
   {
     private readonly AppDbContext _appDbContext;
 
-    public MicrocontrollerRepository(AppDbContext appDbContext)
+    public MicrocontrollersRepository(AppDbContext appDbContext)
     {
       _appDbContext = appDbContext;
     }

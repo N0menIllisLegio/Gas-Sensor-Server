@@ -14,11 +14,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Gss.Core.Services
 {
-  public class TokenService: ITokenService
+  public class TokensService : ITokensService
   {
     private readonly UserManager<User> _userManager;
 
-    public TokenService(UserManager userManager)
+    public TokensService(UserManager userManager)
     {
       _userManager = userManager;
     }

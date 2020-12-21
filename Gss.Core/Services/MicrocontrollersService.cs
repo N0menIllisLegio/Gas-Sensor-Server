@@ -12,11 +12,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Core.Services
 {
-  public class MicrocontrollerService: IMicrocontrollerService
+  public class MicrocontrollersService : IMicrocontrollersService
   {
-    private readonly IMicrocontrollerRepository _microcontrollerRepository;
+    private readonly IMicrocontrollersRepository _microcontrollerRepository;
     private readonly UserManager _userManager;
-    public MicrocontrollerService(IMicrocontrollerRepository microcontrollerRepository, UserManager userManager)
+    public MicrocontrollersService(IMicrocontrollersRepository microcontrollerRepository, UserManager userManager)
     {
       _microcontrollerRepository = microcontrollerRepository;
       _userManager = userManager;

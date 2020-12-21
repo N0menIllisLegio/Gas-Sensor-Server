@@ -7,7 +7,7 @@ using Gss.Core.Enums;
 
 namespace Gss.Core.Interfaces
 {
-  public interface IMicrocontrollerRepository
+  public interface IMicrocontrollersRepository
   {
     Task<(List<Microcontroller> microcontrollers, int totalCount)> GetPublicMicrocontrollersAsync(int pageSize, int pageNumber,
       SortOrder sortOrder = SortOrder.None,

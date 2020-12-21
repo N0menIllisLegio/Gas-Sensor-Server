@@ -11,9 +11,9 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class AuthorizationController : ControllerBase
   {
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationService _authService;
 
-    public AuthorizationController(IAuthService authService)
+    public AuthorizationController(IAuthenticationService authService)
     {
       _authService = authService;
     }

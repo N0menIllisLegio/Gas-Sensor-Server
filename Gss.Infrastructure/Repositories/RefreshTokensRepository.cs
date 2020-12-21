@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories
 {
-  public class RefreshTokenRepository: IRefreshTokenRepository
+  public class RefreshTokensRepository: IRefreshTokensRepository
   {
     private readonly AppDbContext _appDbContext;
-    public RefreshTokenRepository(AppDbContext appDbContext)
+    public RefreshTokensRepository(AppDbContext appDbContext)
     {
       _appDbContext = appDbContext;
     }

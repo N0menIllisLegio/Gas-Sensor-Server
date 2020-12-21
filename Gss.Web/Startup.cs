@@ -97,13 +97,13 @@ namespace Gss.Web
           options.ClientSecret = googleAuthNSection["ClientSecret"];
         });
 
-      services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
-      services.AddTransient<ITokenService, TokenService>();
-      services.AddScoped<IAuthService, AuthService>();
+      services.AddTransient<IRefreshTokensRepository, RefreshTokensRepository>();
+      services.AddTransient<ITokensService, TokensService>();
+      services.AddScoped<IAuthenticationService, AuthenticationService>();
       services.AddTransient<IEmailService, EmailService>();
       services.AddTransient<IAzureImagesRepository, AzureImagesRepository>();
-      services.AddScoped<IMicrocontrollerRepository, MicrocontrollerRepository>();
-      services.AddScoped<IMicrocontrollerService, MicrocontrollerService>();
+      services.AddScoped<IMicrocontrollersRepository, MicrocontrollersRepository>();
+      services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
 
       services.AddSpaStaticFiles(configuration =>
       {
