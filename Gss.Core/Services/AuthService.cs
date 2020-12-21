@@ -36,20 +36,20 @@ namespace Gss.Core.Services
       _emailService = emailService;
     }
 
-    public async Task<Response<object>> SendEmailConfirmationAsync(string email, string confirmationUrl)
+    public async Task<ServiceResultDto<object>> SendEmailConfirmationAsync(string email, string confirmationUrl)
     {
       var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       if (user.EmailConfirmed)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.EmailAlreadyConfirmedErrorString));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.EmailAlreadyConfirmedErrorString);
       }
 
       string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -57,43 +57,43 @@ namespace Gss.Core.Services
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailConfirmationSubject, confirmationUrl);
 
       return sendSuccessfully
-        ? new Response<object> { Succeeded = true }
-        : new Response<object>()
-          .AddErrors(Messages.FailedToSendEmailConfirmationErrorString);
+        ? new ServiceResultDto<object>()
+        : new ServiceResultDto<object>()
+          .AddError(Messages.FailedToSendEmailConfirmationErrorString);
     }
 
-    public async Task<Response<object>> ConfirmEmailAsync(string userID, string token)
+    public async Task<ServiceResultDto<object>> ConfirmEmailAsync(string userID, string token)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       var result = await _userManager.ConfirmEmailAsync(user, token);
 
       return result.Succeeded
-          ? new Response<object>() { Succeeded = true }
-          : new Response<object>()
+          ? new ServiceResultDto<object>()
+          : new ServiceResultDto<object>()
             .AddErrors(result.Errors.Select(r => r.Description));
     }
 
-    public async Task<Response<object>> SendResetPasswordConfirmationAsync(string email, string redirectUrl)
+    public async Task<ServiceResultDto<object>> SendResetPasswordConfirmationAsync(string email, string redirectUrl)
     {
       var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       if (!user.EmailConfirmed)
       {
-        return new Response<object>()
-          .AddErrors(Messages.EmailNotConfirmedErrorString);
+        return new ServiceResultDto<object>()
+          .AddError(Messages.EmailNotConfirmedErrorString);
       }
 
       string token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -101,43 +101,43 @@ namespace Gss.Core.Services
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _passwordResetSubject, redirectUrl);
 
       return sendSuccessfully
-        ? new Response<object> { Succeeded = true }
-        : new Response<object>()
-          .AddErrors(Messages.FailedToSendEmailConfirmationErrorString);
+        ? new ServiceResultDto<object>()
+        : new ServiceResultDto<object>()
+          .AddError(Messages.FailedToSendEmailConfirmationErrorString);
     }
 
-    public async Task<Response<object>> ResetPasswordAsync(string userID, string token, string newPassword)
+    public async Task<ServiceResultDto<object>> ResetPasswordAsync(string userID, string token, string newPassword)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
 
       return result.Succeeded
-         ? new Response<object>() { Succeeded = true }
-         : new Response<object>()
+         ? new ServiceResultDto<object>()
+         : new ServiceResultDto<object>()
            .AddErrors(result.Errors.Select(r => r.Description));
     }
 
-    public async Task<Response<object>> SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl)
+    public async Task<ServiceResultDto<object>> SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl)
     {
       var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       if (!user.EmailConfirmed)
       {
-        return new Response<object>()
-          .AddErrors(Messages.EmailNotConfirmedErrorString);
+        return new ServiceResultDto<object>()
+          .AddError(Messages.EmailNotConfirmedErrorString);
       }
 
       string token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
@@ -145,30 +145,30 @@ namespace Gss.Core.Services
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailChangeSubject, confirmationUrl);
 
       return sendSuccessfully
-        ? new Response<object> { Succeeded = true }
-        : new Response<object>()
-          .AddErrors(Messages.FailedToSendEmailConfirmationErrorString);
+        ? new ServiceResultDto<object>()
+        : new ServiceResultDto<object>()
+          .AddError(Messages.FailedToSendEmailConfirmationErrorString);
     }
 
-    public async Task<Response<object>> ChangeEmailAsync(string userID, string newEmail, string token)
+    public async Task<ServiceResultDto<object>> ChangeEmailAsync(string userID, string newEmail, string token)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<object>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
 
       return result.Succeeded
-         ? new Response<object>() { Succeeded = true }
-         : new Response<object>()
+         ? new ServiceResultDto<object>()
+         : new ServiceResultDto<object>()
            .AddErrors(result.Errors.Select(r => r.Description));
     }
 
-    public async Task<Response<object>> RegisterAsync(CreateUserDto newUserDto)
+    public async Task<ServiceResultDto<object>> RegisterAsync(CreateUserDto newUserDto)
     {
       var user = new User
       {
@@ -183,12 +183,12 @@ namespace Gss.Core.Services
       var result = await _userManager.CreateAsync(user, newUserDto.Password);
 
       return result.Succeeded
-          ? new Response<object>() { Succeeded = true }
-          : new Response<object>()
+          ? new ServiceResultDto<object>()
+          : new ServiceResultDto<object>()
             .AddErrors(result.Errors.Select(r => r.Description));
     }
 
-    public async Task<Response<TokenDto>> LogInAsync(string login, string password)
+    public async Task<ServiceResultDto<TokenDto>> LogInAsync(string login, string password)
     {
       var user = await _userManager.FindByEmailAsync(login);
       var signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
@@ -201,31 +201,31 @@ namespace Gss.Core.Services
           ? Messages.UserIsLockedOutErrorString
           : Messages.InvalidEmailOrPasswordErrorString;
 
-        return new Response<TokenDto>()
-          .AddErrors(errorMessage);
+        return new ServiceResultDto<TokenDto>()
+          .AddError(errorMessage);
       }
 
       var token = await _tokenService.GenerateTokenAsync(user);
       await _refreshTokenRepository.AddRefreshTokenAsync(user, token.RefreshToken);
 
-      return new Response<TokenDto>(token);
+      return new ServiceResultDto<TokenDto>(token);
     }
 
-    public async Task<Response<TokenDto>> RefreshTokenAsync(string accessToken, string refreshToken)
+    public async Task<ServiceResultDto<TokenDto>> RefreshTokenAsync(string accessToken, string refreshToken)
     {
       string accountEmail = _tokenService.GetEmailFromAccessToken(accessToken);
       var token = await _refreshTokenRepository.GetRefreshTokenAsync(accountEmail, refreshToken);
 
       if (token is null)
       {
-        return new Response<TokenDto>()
-          .AddErrors(Messages.RefreshTokenNotExistsErrorString);
+        return new ServiceResultDto<TokenDto>()
+          .AddError(Messages.RefreshTokenNotExistsErrorString);
       }
 
       if (token.ExpirationDate < DateTime.UtcNow)
       {
-        return new Response<TokenDto>()
-          .AddErrors(Messages.RefreshTokenExpiredErrorString);
+        return new ServiceResultDto<TokenDto>()
+          .AddError(Messages.RefreshTokenExpiredErrorString);
       }
 
       await _refreshTokenRepository.DeleteRefreshTokenAsync(token);
@@ -233,7 +233,7 @@ namespace Gss.Core.Services
       var newToken = await _tokenService.GenerateTokenAsync(user);
       await _refreshTokenRepository.AddRefreshTokenAsync(user, newToken.RefreshToken);
 
-      return new Response<TokenDto>(newToken);
+      return new ServiceResultDto<TokenDto>(newToken);
     }
 
     public async Task LogOutAsync(string accessToken, string refreshToken)

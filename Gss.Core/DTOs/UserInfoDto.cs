@@ -5,6 +5,9 @@ namespace Gss.Core.DTOs
 {
   public record UserInfoDto
   {
+    public UserInfoDto()
+    { }
+
     public UserInfoDto(User user)
     {
       ID = user.Id;

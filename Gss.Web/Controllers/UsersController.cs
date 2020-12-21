@@ -74,7 +74,7 @@ namespace Gss.Web.Controllers
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
       }
 
       var userInfoDto = new UserInfoDto(user);
@@ -94,7 +94,7 @@ namespace Gss.Web.Controllers
       return user is not null
         ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
         : NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
     }
 
     //[Authorize] Role = Administrator
@@ -102,7 +102,7 @@ namespace Gss.Web.Controllers
     [SwaggerOperation("Administrator Only", "Creates user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
       var user = new User
       {
@@ -128,7 +128,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto dto)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateUserDto dto)
     {
       if (!ValidateGuidString(id))
       {
@@ -141,7 +141,7 @@ namespace Gss.Web.Controllers
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
       }
 
       user.FirstName = dto.FirstName;
@@ -173,7 +173,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> UpdateUserPassword(string userID, string newPassword)
+    public async Task<IActionResult> UpdatePassword(string userID, string newPassword)
     {
       if (!ValidateGuidString(userID))
       {
@@ -186,7 +186,7 @@ namespace Gss.Web.Controllers
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
       }
 
       string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -204,7 +204,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> AddUserRole(string userID, string roleName)
+    public async Task<IActionResult> AddRole(string userID, string roleName)
     {
       if (!ValidateGuidString(userID))
       {
@@ -217,7 +217,7 @@ namespace Gss.Web.Controllers
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
       }
 
       var result = await _userManager.AddToRoleAsync(user, roleName);
@@ -234,7 +234,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> RemoveUserRole(string userID, string roleName)
+    public async Task<IActionResult> RemoveRole(string userID, string roleName)
     {
       if (!ValidateGuidString(userID))
       {
@@ -247,7 +247,7 @@ namespace Gss.Web.Controllers
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
       }
 
       var result = await _userManager.RemoveFromRoleAsync(user, roleName);
@@ -264,7 +264,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> DeleteUser(string userID)
+    public async Task<IActionResult> Delete(string userID)
     {
       if (!ValidateGuidString(userID))
       {
@@ -277,7 +277,7 @@ namespace Gss.Web.Controllers
       if (user is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _user)));
+          .AddError(Messages.NotFoundErrorString, _user));
       }
 
       var result = await _userManager.DeleteAsync(user);
@@ -306,7 +306,7 @@ namespace Gss.Web.Controllers
       var result = await _userManager.UpdateAsync(user);
 
       return result.Succeeded
-        ? Ok(new Response<UserInfoDto> { Succeeded = true })
+        ? Ok(new Response<UserInfoDto>())
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
@@ -330,7 +330,8 @@ namespace Gss.Web.Controllers
       }
 
       token = HttpUtility.UrlDecode(token).Replace(' ', '+');
-      var response = await _authService.ConfirmEmailAsync(userID, token);
+      var result = await _authService.ConfirmEmailAsync(userID, token);
+      var response = new Response<object>(result);
 
       return response.Succeeded
         ? Ok(response)
@@ -356,7 +357,8 @@ namespace Gss.Web.Controllers
       }
 
       token = HttpUtility.UrlDecode(token).Replace(' ', '+');
-      var response = await _authService.ResetPasswordAsync(userID, token, dto.Password);
+      var result = await _authService.ResetPasswordAsync(userID, token, dto.Password);
+      var response = new Response<object>(result);
 
       return response.Succeeded
         ? Ok(response)
@@ -391,7 +393,8 @@ namespace Gss.Web.Controllers
       }
 
       token = HttpUtility.UrlDecode(token).Replace(' ', '+');
-      var response = await _authService.ChangeEmailAsync(userID, token, newEmail);
+      var result = await _authService.ChangeEmailAsync(userID, token, newEmail);
+      var response = new Response<object>(result);
 
       return response.Succeeded
         ? Ok(response)

@@ -22,14 +22,14 @@ namespace Gss.Core.Services
       _userManager = userManager;
     }
 
-    public async Task<Response<Microcontroller>> AddMicrocontroller(CreateMicrocontrollerDto dto, string ownerEmail)
+    public async Task<ServiceResultDto<Microcontroller>> AddMicrocontroller(CreateMicrocontrollerDto dto, string ownerEmail)
     {
       var user = await _userManager.FindByEmailAsync(ownerEmail);
 
       if (user is null)
       {
-        return new Response<Microcontroller>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "User");
       }
 
       var microcontroller = new Microcontroller
@@ -45,14 +45,14 @@ namespace Gss.Core.Services
 
       if (await _microcontrollerRepository.SaveAsync())
       {
-        return new Response<Microcontroller>(microcontroller);
+        return new ServiceResultDto<Microcontroller>(microcontroller);
       }
 
-      return new Response<Microcontroller>()
-        .AddErrors(String.Format(Messages.CreationFailedErrorString, "Microcontroller"));
+      return new ServiceResultDto<Microcontroller>()
+        .AddError(Messages.CreationFailedErrorString, "Microcontroller");
     }
 
-    public async Task<Response<Microcontroller>> UpdateMicrocontroller(UpdateMicrocontrollerDto dto,
+    public async Task<ServiceResultDto<Microcontroller>> UpdateMicrocontroller(UpdateMicrocontrollerDto dto,
       string ownerEmail)
     {
       var microcontrollerID = Guid.Parse(dto.ID);
@@ -69,8 +69,8 @@ namespace Gss.Core.Services
 
         if (user is null)
         {
-          return new Response<Microcontroller>()
-            .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+          return new ServiceResultDto<Microcontroller>()
+            .AddError(Messages.NotFoundErrorString, "User");
         }
 
         microcontroller = user.Microcontrollers
@@ -79,8 +79,8 @@ namespace Gss.Core.Services
 
       if (microcontroller is null)
       {
-        return new Response<Microcontroller>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "Microcontoller"));
+        return new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "Microcontoller");
       }
 
       microcontroller.Name = dto.Name;
@@ -90,20 +90,45 @@ namespace Gss.Core.Services
 
       if (await _microcontrollerRepository.SaveAsync())
       {
-        return new Response<Microcontroller>(microcontroller);
+        return new ServiceResultDto<Microcontroller>(microcontroller);
       }
 
-      return new Response<Microcontroller>()
-        .AddErrors(String.Format(Messages.UpdateFailedErrorString, "Microcontroller"));
+      return new ServiceResultDto<Microcontroller>()
+        .AddError(Messages.UpdateFailedErrorString, "Microcontroller");
     }
 
-    public Task<Response<Microcontroller>> ChangeMicrocontrollerOwner(string microcontrollerID,
+    public async Task<ServiceResultDto<Microcontroller>> ChangeMicrocontrollerOwner(string microcontrollerID,
       string newOwnerID)
     {
-      throw new NotImplementedException();
+      var microcontrollerGuid = Guid.Parse(microcontrollerID);
+      var microcontroller = await _microcontrollerRepository.GetMicrocontrollerAsync(microcontrollerGuid);
+
+      if (microcontroller is null)
+      {
+        return new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "Microcontroller");
+      }
+
+      var user = await _userManager.FindByIdAsync(newOwnerID);
+
+      if (user is null)
+      {
+        return new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "User");
+      }
+
+      microcontroller.Owner = user;
+
+      if (await _microcontrollerRepository.SaveAsync())
+      {
+        return new ServiceResultDto<Microcontroller>(microcontroller);
+      }
+
+      return new ServiceResultDto<Microcontroller>()
+        .AddError(Messages.UpdateFailedErrorString, "Microcontroller");
     }
 
-    public async Task<Response<Microcontroller>> DeleteMicrocontroller(string microcontrollerID, string ownerEmail)
+    public async Task<ServiceResultDto<Microcontroller>> DeleteMicrocontroller(string microcontrollerID, string ownerEmail)
     {
       var microcontrollerGuid = Guid.Parse(microcontrollerID);
       Microcontroller microcontroller;
@@ -118,8 +143,8 @@ namespace Gss.Core.Services
 
         if (user is null)
         {
-          return new Response<Microcontroller>()
-            .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+          return new ServiceResultDto<Microcontroller>()
+            .AddError(Messages.NotFoundErrorString, "User");
         }
 
         microcontroller = user.Microcontrollers
@@ -128,77 +153,110 @@ namespace Gss.Core.Services
 
       if (microcontroller is null)
       {
-        return new Response<Microcontroller>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "Microcontoller"));
+        return new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "Microcontoller");
       }
 
       microcontroller = _microcontrollerRepository.DeleteMicrocontroller(microcontroller);
 
       if (await _microcontrollerRepository.SaveAsync())
       {
-        return new Response<Microcontroller>(microcontroller);
+        return new ServiceResultDto<Microcontroller>(microcontroller);
       }
 
-      return new Response<Microcontroller>()
-        .AddErrors(String.Format(Messages.DeletionFailedErrorString, "Microcontroller"));
+      return new ServiceResultDto<Microcontroller>()
+        .AddError(Messages.DeletionFailedErrorString, "Microcontroller");
     }
 
-    public async Task<Response<Microcontroller>> GetMicrocontroller(string microcontrollerID)
+    public async Task<(ServiceResultDto<Microcontroller> result, bool displaySensitiveInfo)> GetMicrocontroller(string microcontrollerID,
+      string requestedByEmail)
     {
       var microcontrollerGuid = Guid.Parse(microcontrollerID);
       var microcontroller = await _microcontrollerRepository.GetMicrocontrollerAsync(microcontrollerGuid);
 
       if (microcontroller is null)
       {
-        return new Response<Microcontroller>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "Microcontroller"));
+        return (new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "Microcontroller"), false);
       }
 
-      return new Response<Microcontroller>(microcontroller);
+      if (microcontroller.Owner.Email.Equals(requestedByEmail))
+      {
+        return (new ServiceResultDto<Microcontroller>(microcontroller), true);
+      }
+
+      if (microcontroller.Public)
+      {
+        return (new ServiceResultDto<Microcontroller>(microcontroller), false);
+      }
+
+      bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
+
+      if (administratorClaim)
+      {
+        return (new ServiceResultDto<Microcontroller>(microcontroller), true);
+      }
+
+      return (new ServiceResultDto<Microcontroller>()
+        .AddError(Messages.AccessDeniedErrorString), false);
     }
 
-    public async Task<PagedResponse<Microcontroller>> GetUserMicrocontrollers(string userID,
+    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount, bool displaySensitiveInfo)> GetUserMicrocontrollers(string userID, string requestedByEmail,
       int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filter = "")
+      string filterBy = null, string filterStr = "")
     {
+      var requestedBy = await _userManager.FindByEmailAsync(requestedByEmail);
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new PagedResponse<Microcontroller>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, "User"));
+        return (new ServiceResultDto<Microcontroller>()
+          .AddError(Messages.NotFoundErrorString, "User"), 0, false);
       }
 
-      var filterExpression = GetFilter(filterBy, filter);
-      var orderExpression = GetOrderer(sortBy);
+      var sorter = GetOrderer(sortBy);
+      var filter = GetFilter(filterBy, filterStr);
+      var microcontrollersQuery = user.Microcontrollers.AsQueryable();
 
-      var userMicrocontrollers = await user.Microcontrollers.AsQueryable()
-        .GetPage(pageNumber, pageSize, sortOrder, orderExpression, filterExpression)
-        .AsNoTracking().ToListAsync();
+      bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
 
-      return new PagedResponse<Microcontroller>(userMicrocontrollers, pageNumber, pageSize)
-      {
-        TotalRecords = userMicrocontrollers.Count,
-        OrderedBy = sortBy,
-        SortOrder = sortOrder,
-        Filter = filter,
-        FilteredBy = filterBy
-      };
+      var microcontrollers = user == requestedBy || administratorClaim
+        ? await microcontrollersQuery
+          .GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
+          .ToListAsync()
+        : await microcontrollersQuery
+          .Where(mc => mc.Public)
+          .GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
+          .ToListAsync();
+
+      return (new ServiceResultDto<Microcontroller>(microcontrollers), microcontrollers.Count, user == requestedBy || administratorClaim);
     }
 
-    public Task<PagedResponse<Microcontroller>> GetAllMicrocontrollers(int pageNumber, int pageSize,
+    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount)> GetAllMicrocontrollers(int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filter = "")
+      string filterBy = null, string filterStr = "")
     {
-      throw new NotImplementedException();
+      var sorter = GetOrderer(sortBy);
+      var filter = GetFilter(filterBy, filterStr);
+
+      var (microcontrollers, totalCount) = await _microcontrollerRepository
+        .GetMicrocontrollersAsync(pageSize, pageNumber, sortOrder, filter, sorter, true);
+
+      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalCount);
     }
 
-    public Task<PagedResponse<Microcontroller>> GetPublicMicrocontrollers(int pageNumber, int pageSize,
+    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount)> GetPublicMicrocontrollers(int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filter = "")
+      string filterBy = null, string filterStr = "")
     {
-      throw new NotImplementedException();
+      var sorter = GetOrderer(sortBy);
+      var filter = GetFilter(filterBy, filterStr);
+
+      var (microcontrollers, totalCount) = await _microcontrollerRepository
+        .GetPublicMicrocontrollersAsync(pageSize, pageNumber, sortOrder, filter, sorter, true);
+
+      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalCount);
     }
 
     private Expression<Func<Microcontroller, bool>> GetFilter(string filterBy, string filter)

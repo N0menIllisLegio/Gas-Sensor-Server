@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Gss.Core.DTOs
@@ -6,31 +7,50 @@ namespace Gss.Core.DTOs
   public class Response<T>
   {
     public Response()
-    { }
+    {
+      Succeeded = true;
+      Data = new List<T>();
+      Errors = new List<string>();
+    }
 
     public Response(IEnumerable<T> data)
     {
       Succeeded = true;
-      Data = data;
+      Data = new List<T>(data);
+      Errors = new List<string>();
     }
 
     public Response(T data)
     {
       Succeeded = true;
-      Data = new List<T>
-      {
-        data
-      };
+      Data = new List<T> { data };
+      Errors = new List<string>();
     }
 
-    public IEnumerable<T> Data { get; set; }
-    public bool Succeeded { get; set; }
-    public List<string> Errors { get; set; }
+    public Response(ServiceResultDto<T> resultDto)
+    {
+      Succeeded = resultDto.Succeeded;
+      Data = resultDto.Data;
+      Errors = resultDto.Errors;
+    }
+
+    public IEnumerable<T> Data { get; protected set; }
+    public bool Succeeded { get; protected set; }
+    public List<string> Errors { get; protected set; }
+
+    public Response<T> AddError(string error, params string[] errorParams)
+    {
+      string fromattedError = String.Format(error, errorParams);
+
+      Errors.Add(fromattedError);
+
+      return this;
+    }
 
     public Response<T> AddErrors(params string[] errors)
     {
       Succeeded = false;
-      Errors = new List<string>(errors);
+      Errors.AddRange(errors);
 
       return this;
     }

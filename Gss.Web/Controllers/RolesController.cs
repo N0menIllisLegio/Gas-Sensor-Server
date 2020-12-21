@@ -68,7 +68,7 @@ namespace Gss.Web.Controllers
       if (role is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
+          .AddError(Messages.NotFoundErrorString, _role));
       }
 
       return Ok(new Response<IdentityRole<Guid>>(role));
@@ -85,7 +85,7 @@ namespace Gss.Web.Controllers
       if (role is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
+          .AddError(Messages.NotFoundErrorString, _role));
       }
 
       return Ok(new Response<IdentityRole<Guid>>(role));
@@ -96,7 +96,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> CreateRole([FromBody] RoleDto dto)
+    public async Task<IActionResult> Create([FromBody] RoleDto dto)
     {
       var role = new IdentityRole<Guid> { Name = dto.Name };
       var result = await _roleManager.CreateAsync(role);
@@ -112,7 +112,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> UpdateRole(string roleID, [FromBody] RoleDto dto)
+    public async Task<IActionResult> Update(string roleID, [FromBody] RoleDto dto)
     {
       if (!ValidateGuidString(roleID))
       {
@@ -125,7 +125,7 @@ namespace Gss.Web.Controllers
       if (oldRole is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
+          .AddError(Messages.NotFoundErrorString, _role));
       }
 
       oldRole.Name = dto.Name;
@@ -143,7 +143,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(Response<IdentityRole<Guid>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> DeleteRole(string roleID)
+    public async Task<IActionResult> Delete(string roleID)
     {
       if (!ValidateGuidString(roleID))
       {
@@ -156,13 +156,13 @@ namespace Gss.Web.Controllers
       if (role is null)
       {
         return NotFound(new Response<object>()
-          .AddErrors(String.Format(Messages.NotFoundErrorString, _role)));
+          .AddError(Messages.NotFoundErrorString, _role));
       }
 
       var result = await _roleManager.DeleteAsync(role);
 
       return result.Succeeded
-        ? Ok(new Response<IdentityRole<Guid>> { Succeeded = true })
+        ? Ok(new Response<IdentityRole<Guid>>())
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }

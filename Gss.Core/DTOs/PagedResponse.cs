@@ -34,7 +34,7 @@ namespace Gss.Core.DTOs
     public new PagedResponse<T> AddErrors(params string[] errors)
     {
       Succeeded = false;
-      Errors = new List<string>(errors);
+      Errors.AddRange(errors);
 
       return this;
     }

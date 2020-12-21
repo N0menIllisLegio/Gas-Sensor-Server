@@ -25,10 +25,11 @@ namespace Gss.Web.Controllers
     public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)
     {
       var result = await _authService.RegisterAsync(registerModel);
+      var response = new Response<object>(result);
 
-      return result.Succeeded
-        ? Ok(result)
-        : BadRequest(result);
+      return response.Succeeded
+        ? Ok(response)
+        : BadRequest(response);
     }
 
     [HttpPost]
@@ -37,7 +38,8 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<TokenDto>))]
     public async Task<IActionResult> LogIn([FromBody] LoginDto loginModel)
     {
-      var response = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
+      var result = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
+      var response = new Response<TokenDto>(result);
 
       return response.Succeeded
         ? Ok(response)
@@ -50,7 +52,8 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<TokenDto>))]
     public async Task<IActionResult> RefreshToken([FromBody] RequestTokenRefreshDto requestTokens)
     {
-      var response = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
+      var result = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
+      var response = new Response<TokenDto>(result);
 
       return response.Succeeded
         ? Ok(response)
@@ -66,7 +69,7 @@ namespace Gss.Web.Controllers
     {
       await _authService.LogOutAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
 
-      return Ok(new Response<object>() { Succeeded = true });
+      return Ok(new Response<object>());
     }
 
     [Authorize]
@@ -78,7 +81,7 @@ namespace Gss.Web.Controllers
     {
       await _authService.RevokeAccessFromAllDevicesAsync(requestTokens.AccessToken);
 
-      return Ok(new Response<object>() { Succeeded = true });
+      return Ok(new Response<object>());
     }
   }
 }

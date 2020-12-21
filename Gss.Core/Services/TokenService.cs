@@ -67,7 +67,8 @@ namespace Gss.Core.Services
       {
         AccessToken = new JwtSecurityTokenHandler().WriteToken(jwt),
         AccessTokenExpiration = expirationTime,
-        RefreshToken = GenerateRefreshToken()
+        RefreshToken = GenerateRefreshToken(),
+        UserID = user.Id
       };
     }
 

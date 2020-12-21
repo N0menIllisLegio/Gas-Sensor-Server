@@ -43,7 +43,8 @@ namespace Gss.Web.Controllers
       // this may lead to change in AuthService url params generation
       // string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       string url = $"{Request.Scheme}://{Request.Host}/api/SendEmailChangeConfirmation";
-      var response = await _authService.SendEmailChangeConfirmationAsync(email, newEmail, url);
+      var result = await _authService.SendEmailChangeConfirmationAsync(email, newEmail, url);
+      var response = new Response<object>(result);
 
       return response.Succeeded
         ? Ok(response)
@@ -60,7 +61,8 @@ namespace Gss.Web.Controllers
       // this may lead to change in AuthService url params generation
       // string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       string url = $"{Request.Scheme}://{Request.Host}/api/SendResetPasswordConfirmation";
-      var response = await _authService.SendResetPasswordConfirmationAsync(email, url);
+      var result = await _authService.SendResetPasswordConfirmationAsync(email, url);
+      var response = new Response<object>(result);
 
       return response.Succeeded
         ? Ok(response)
@@ -77,7 +79,8 @@ namespace Gss.Web.Controllers
       // this may lead to change in AuthService url params generation (in that case remove '?' from attribute below)
       // string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       string url = $"{Request.Scheme}://{Request.Host}/api/SendEmailConfirmation";
-      var response = await _authService.SendEmailConfirmationAsync(email, url);
+      var result = await _authService.SendEmailConfirmationAsync(email, url);
+      var response = new Response<object>(result);
 
       return response.Succeeded
         ? Ok(response)

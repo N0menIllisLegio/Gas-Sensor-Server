@@ -61,6 +61,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Access denied..
+        /// </summary>
+        public static string AccessDeniedErrorString {
+            get {
+                return ResourceManager.GetString("AccessDeniedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to upload image to cloud..
         /// </summary>
         public static string AzureUploadFailedErrorString {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Gss.Core.Entities;
@@ -19,21 +20,43 @@ namespace Gss.Infrastructure.Repositories
       _appDbContext = appDbContext;
     }
 
-    public async Task<List<Microcontroller>> GetMicrocontrollersAsync(int pageSize, int pageNumber,
+    public async Task<(List<Microcontroller> microcontrollers, int totalCount)> GetMicrocontrollersAsync(int pageSize, int pageNumber,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<Microcontroller, bool>> filter = null,
       Expression<Func<Microcontroller, object>> sorter = null,
       bool notTracking = false)
     {
       var query = _appDbContext.Microcontrollers
-        .AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
+        .AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter).Include(mc => mc.Owner).AsQueryable();
+
+      int totalCount = _appDbContext.Microcontrollers.Count();
 
       if (notTracking)
       {
         query = query.AsNoTracking();
       }
 
-      return await query.ToListAsync();
+      var microcontrollers = await query.ToListAsync();
+      return (microcontrollers, totalCount);
+    }
+
+    public async Task<(List<Microcontroller> microcontrollers, int totalCount)> GetPublicMicrocontrollersAsync(int pageSize, int pageNumber,
+      SortOrder sortOrder = SortOrder.None,
+      Expression<Func<Microcontroller, bool>> filter = null,
+      Expression<Func<Microcontroller, object>> sorter = null,
+      bool notTracking = false)
+    {
+      var query = _appDbContext.Microcontrollers.Where(microcontroller => microcontroller.Public);
+      int totalCount = query.Count();
+      query = query.GetPage(pageNumber, pageSize, sortOrder, sorter, filter).Include(mc => mc.Owner);
+
+      if (notTracking)
+      {
+        query = query.AsNoTracking();
+      }
+
+      var microcontrollers = await query.ToListAsync();
+      return (microcontrollers, totalCount);
     }
 
     public async Task<Microcontroller> GetMicrocontrollerAsync(Guid microcontrollerID)

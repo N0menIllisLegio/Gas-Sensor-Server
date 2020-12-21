@@ -2,10 +2,11 @@
 
 namespace Gss.Core.DTOs
 {
-  public class TokenDto
+  public record TokenDto
   {
-    public string AccessToken { get; set; }
-    public DateTime AccessTokenExpiration { get; set; }
-    public string RefreshToken { get; set; }
+    public string AccessToken { get; init; }
+    public DateTime AccessTokenExpiration { get; init; }
+    public string RefreshToken { get; init; }
+    public Guid UserID { get; init; }
   }
 }
