@@ -37,7 +37,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<ExtendedUserInfoDto>>))]
     public async Task<IActionResult> GetAllUsers([FromQuery] PagedRequest pagedRequest)
     {
-      var users = await _userManager
+      var (users, totalQueriedUsersCount) = await _userManager
         .GetPage(pagedRequest.PageSize, pagedRequest.PageNumber, pagedRequest.SortOrder,
         pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
 
@@ -45,7 +45,7 @@ namespace Gss.Web.Controllers
 
       var response = new PagedResponse<IEnumerable<ExtendedUserInfoDto>>(formattedUsers, pagedRequest.PageNumber, pagedRequest.PageSize)
       {
-        TotalRecords = _userManager.Users.Count(),
+        TotalRecords = totalQueriedUsersCount,
         OrderedBy = pagedRequest.SortBy,
         SortOrder = pagedRequest.SortOrder,
         Filter = pagedRequest.Filter,

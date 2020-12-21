@@ -7,24 +7,25 @@ namespace Gss.Core.Helpers
 {
   public static class IQueryableExtensions
   {
-    public static IQueryable<T> GetPage<T>(this IQueryable<T> collection,
+    public static (IQueryable<T> pagedItemsQuery, IQueryable<T> totalItemsQuery) GetPage<T>(
+      this IQueryable<T> collection,
       int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<T, object>> sorter = null,
       Expression<Func<T, bool>> filter = null)
     {
-      var query = collection.Where(filter ?? ((_) => true));
+      var totalItemsQuery = collection.Where(filter ?? ((_) => true));
 
       if (sortOrder == SortOrder.Ascendind && sorter is not null)
       {
-        query = query.OrderBy(sorter);
+        totalItemsQuery = totalItemsQuery.OrderBy(sorter);
       }
       else if (sortOrder == SortOrder.Descending && sorter is not null)
       {
-        query = query.OrderByDescending(sorter);
+        totalItemsQuery = totalItemsQuery.OrderByDescending(sorter);
       }
 
-      return query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+      return (totalItemsQuery.Skip((pageNumber - 1) * pageSize).Take(pageSize), totalItemsQuery);
     }
   }
 }

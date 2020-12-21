@@ -221,42 +221,45 @@ namespace Gss.Core.Services
 
       bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
 
-      var microcontrollers = user == requestedBy || administratorClaim
-        ? await microcontrollersQuery
+      var (pagedMicrocontrollersQuery, totalMicrocontrollersQuery) = user == requestedBy || administratorClaim
+        ? microcontrollersQuery
           .GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
-          .ToListAsync()
-        : await microcontrollersQuery
+        : microcontrollersQuery
           .Where(mc => mc.Public)
-          .GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
-          .ToListAsync();
+          .GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
 
-      return (new ServiceResultDto<Microcontroller>(microcontrollers), microcontrollers.Count, user == requestedBy || administratorClaim);
+      var microcontrollers = await pagedMicrocontrollersQuery.ToListAsync();
+      int totalQueriedMicrocontrollersCount = await totalMicrocontrollersQuery.CountAsync();
+
+      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount, user == requestedBy || administratorClaim);
     }
 
-    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount)> GetAllMicrocontrollers(int pageNumber, int pageSize,
+    public async Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetAllMicrocontrollers(
+      int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
       string filterBy = null, string filterStr = "")
     {
       var sorter = GetOrderer(sortBy);
       var filter = GetFilter(filterBy, filterStr);
 
-      var (microcontrollers, totalCount) = await _microcontrollerRepository
+      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _microcontrollerRepository
         .GetMicrocontrollersAsync(pageSize, pageNumber, sortOrder, filter, sorter, true);
 
-      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalCount);
+      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
     }
 
-    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount)> GetPublicMicrocontrollers(int pageNumber, int pageSize,
+    public async Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollers(
+      int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
       string filterBy = null, string filterStr = "")
     {
       var sorter = GetOrderer(sortBy);
       var filter = GetFilter(filterBy, filterStr);
 
-      var (microcontrollers, totalCount) = await _microcontrollerRepository
+      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _microcontrollerRepository
         .GetPublicMicrocontrollersAsync(pageSize, pageNumber, sortOrder, filter, sorter, true);
 
-      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalCount);
+      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
     }
 
     private Expression<Func<Microcontroller, bool>> GetFilter(string filterBy, string filter)

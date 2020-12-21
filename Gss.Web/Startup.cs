@@ -40,8 +40,7 @@ namespace Gss.Web
       LoadSettings();
 
       services.AddDbContext<AppDbContext>(options =>
-          options
-            .UseLazyLoadingProxies()
+          options.UseLazyLoadingProxies()
             .UseSqlServer(Configuration.GetConnectionString("LocalDB")));
 
       services.AddDefaultIdentity<User>(options =>
@@ -63,16 +62,14 @@ namespace Gss.Web
         .AddDefaultTokenProviders();
 
       services.AddControllers().ConfigureApiBehaviorOptions(options =>
-      {
         options.InvalidModelStateResponseFactory = actionContext =>
         {
           var errors = actionContext.ModelState.Values.SelectMany(v =>
             v.Errors.Select(b => b.ErrorMessage));
 
-          return new BadRequestObjectResult(new Response<object>()
-            .AddErrors(errors));
-        };
-      }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+          return new BadRequestObjectResult(new Response<object>().AddErrors(errors));
+        })
+        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -104,11 +101,10 @@ namespace Gss.Web
       services.AddTransient<IAzureImagesRepository, AzureImagesRepository>();
       services.AddScoped<IMicrocontrollersRepository, MicrocontrollersRepository>();
       services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
+      services.AddScoped<ISensorsRepository, SensorsRepository>();
+      services.AddScoped<ISensorsService, SensorsService>();
 
-      services.AddSpaStaticFiles(configuration =>
-      {
-        configuration.RootPath = "ClientApp/build";
-      });
+      services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
 
       services.AddSwaggerGen(c =>
       {
@@ -166,10 +162,7 @@ namespace Gss.Web
       app.UseEndpoints(endpoints => endpoints.MapControllers());
 
       app.UseSwagger();
-      app.UseSwaggerUI(c =>
-      {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-      });
+      app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 
       //app.UseSpa(spa =>
       //{

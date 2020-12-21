@@ -22,12 +22,12 @@ namespace Gss.Core.Interfaces
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
       string filterBy = null, string filterStr = "");
 
-    Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount)> GetPublicMicrocontrollers(
+    Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollers(
       int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
       string filterBy = null, string filterStr = "");
 
-    Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount)> GetAllMicrocontrollers(
+    Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetAllMicrocontrollers(
       int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
       string filterBy = null, string filterStr = "");

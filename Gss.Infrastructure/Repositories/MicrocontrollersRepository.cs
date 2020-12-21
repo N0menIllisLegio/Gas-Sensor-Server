@@ -20,43 +20,50 @@ namespace Gss.Infrastructure.Repositories
       _appDbContext = appDbContext;
     }
 
-    public async Task<(List<Microcontroller> microcontrollers, int totalCount)> GetMicrocontrollersAsync(int pageSize, int pageNumber,
+    public async Task<(List<Microcontroller> microcontrollers, int totalQueriedMicrocontrollersCount)> GetMicrocontrollersAsync(
+      int pageSize, int pageNumber,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<Microcontroller, bool>> filter = null,
       Expression<Func<Microcontroller, object>> sorter = null,
       bool notTracking = false)
     {
-      var query = _appDbContext.Microcontrollers
-        .AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter).Include(mc => mc.Owner).AsQueryable();
+      var (pagedMicrocontrollersQuery, totalMicrocontrollersQuery) = _appDbContext.Microcontrollers
+        .AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
 
-      int totalCount = _appDbContext.Microcontrollers.Count();
+      pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.Include(mc => mc.Owner).AsQueryable();
 
       if (notTracking)
       {
-        query = query.AsNoTracking();
+        pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.AsNoTracking();
       }
 
-      var microcontrollers = await query.ToListAsync();
-      return (microcontrollers, totalCount);
+      var microcontrollers = await pagedMicrocontrollersQuery.ToListAsync();
+      int totalQueriedMicrocontrollersCount = await totalMicrocontrollersQuery.CountAsync();
+
+      return (microcontrollers, totalQueriedMicrocontrollersCount);
     }
 
-    public async Task<(List<Microcontroller> microcontrollers, int totalCount)> GetPublicMicrocontrollersAsync(int pageSize, int pageNumber,
+    public async Task<(List<Microcontroller> microcontrollers, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollersAsync(
+      int pageSize, int pageNumber,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<Microcontroller, bool>> filter = null,
       Expression<Func<Microcontroller, object>> sorter = null,
       bool notTracking = false)
     {
-      var query = _appDbContext.Microcontrollers.Where(microcontroller => microcontroller.Public);
-      int totalCount = query.Count();
-      query = query.GetPage(pageNumber, pageSize, sortOrder, sorter, filter).Include(mc => mc.Owner);
+      var (pagedMicrocontrollersQuery, totalMicrocontrollersQuery) = _appDbContext.Microcontrollers.Where(microcontroller => microcontroller.Public)
+        .GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
+
+      pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.Include(mc => mc.Owner);
 
       if (notTracking)
       {
-        query = query.AsNoTracking();
+        pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.AsNoTracking();
       }
 
-      var microcontrollers = await query.ToListAsync();
-      return (microcontrollers, totalCount);
+      var microcontrollers = await pagedMicrocontrollersQuery.ToListAsync();
+      int totalQueriedMicrocontrollersCount = await totalMicrocontrollersQuery.CountAsync();
+
+      return (microcontrollers, totalQueriedMicrocontrollersCount);
     }
 
     public async Task<Microcontroller> GetMicrocontrollerAsync(Guid microcontrollerID)

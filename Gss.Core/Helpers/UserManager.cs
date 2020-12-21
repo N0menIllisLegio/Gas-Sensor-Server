@@ -38,7 +38,7 @@ namespace Gss.Core.Helpers
       return await AddToRoleAsync(user, StandardRoleName);
     }
 
-    public async Task<List<User>> GetPage(int pageSize, int pageNumber,
+    public async Task<(List<User> users, int totalQueriedUsersCount)> GetPage(int pageSize, int pageNumber,
       SortOrder sortOrder, string sortBy,
       string filterBy = null, string filterStr = null)
     {
@@ -59,8 +59,11 @@ namespace Gss.Core.Helpers
         _ => (Expression<Func<User, object>>)((user) => user.Email)
       };
 
-      return await Users.AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
-        .AsNoTracking().ToListAsync();
+      var (pagedUsersQuery, totalUsersQuery) = Users.AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
+      var users = await pagedUsersQuery.AsNoTracking().ToListAsync();
+      int totalQueriedUsersCount = await totalUsersQuery.CountAsync();
+
+      return (users, totalQueriedUsersCount);
     }
 
     public async Task<bool> IsAdministrator(string email)

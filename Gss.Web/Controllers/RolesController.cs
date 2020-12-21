@@ -30,17 +30,17 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(200, type: typeof(PagedResponse<IdentityRole<Guid>>))]
     public async Task<IActionResult> GetAllRoles([FromQuery] PagedRequest pagedRequest)
     {
-      var pagedRoles = await _roleManager.Roles.AsQueryable()
+      var (pagedRolesQuery, totalRolesQuery) = _roleManager.Roles.AsQueryable()
         .GetPage(pagedRequest.PageNumber, pagedRequest.PageSize,
           pagedRequest.SortOrder,
           (role) => role.Name,
-          (role) => role.Name.Contains(pagedRequest.Filter))
-        .AsNoTracking()
-        .ToListAsync();
+          (role) => role.Name.Contains(pagedRequest.Filter));
+
+      var pagedRoles = await pagedRolesQuery.AsNoTracking().ToListAsync();
 
       var response = new PagedResponse<IdentityRole<Guid>>(pagedRoles, pagedRequest.PageNumber, pagedRequest.PageSize)
       {
-        TotalRecords = _roleManager.Roles.Count(),
+        TotalRecords = await totalRolesQuery.CountAsync(),
         OrderedBy = nameof(IdentityRole<Guid>.Name),
         SortOrder = pagedRequest.SortOrder,
         Filter = pagedRequest.Filter,
