@@ -266,7 +266,11 @@ namespace Gss.Core.Services
     {
       return filterBy switch
       {
-        "PUBLIC" => (microcontroller) => microcontroller.Public.ToString().ToUpper() == filter.ToUpper(),
+        "PUBLIC" => filter.ToUpper() switch
+          {
+            "TRUE" => (microcontroller) => microcontroller.Public,
+            _ => (microcontroller) => !microcontroller.Public
+          },
         "IPADDRESS" => (microcontroller) => microcontroller.IPAddress.Contains(filter),
         _ => (microcontroller) => microcontroller.Name.Contains(filter)
       };
