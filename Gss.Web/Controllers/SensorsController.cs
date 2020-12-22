@@ -20,6 +20,7 @@ namespace Gss.Web.Controllers
       _sensorsService = sensorsService;
     }
 
+    // anon
     [HttpGet]
     [SwaggerOperation("Administrator Only", "Gets all sensors.")]
     [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
@@ -29,7 +30,7 @@ namespace Gss.Web.Controllers
       return await Task.Run(Ok);
     }
 
-    // Just Authorized
+    // anon, access if public
     [HttpGet("{microcontrollerID}")]
     [SwaggerOperation("Authorized Only", "Gets all sensors of microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
@@ -37,6 +38,22 @@ namespace Gss.Web.Controllers
     public async Task<IActionResult> GetMicrocontrollerSensors(string microcontrollerID)
     {
       if (!ValidateGuidString(microcontrollerID))
+      {
+        return BadRequest(new Response<object>()
+          .AddErrors(Messages.InvalidGuidErrorString));
+      }
+
+      return await Task.Run(Ok);
+    }
+
+    // anon, access if public
+    [HttpGet("{sensorID}")]
+    [SwaggerOperation("Authorized Only", "Gets sensor by id.")]
+    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> GetSensor(string sensorID)
+    {
+      if (!ValidateGuidString(sensorID))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
