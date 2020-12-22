@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,8 +13,10 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class SensorsTypesController : ControllerBase
   {
-    public SensorsTypesController()
+    private readonly ISensorsTypesService _sensorsTypesService;
+    public SensorsTypesController(ISensorsTypesService sensorsTypesService)
     {
+      _sensorsTypesService = sensorsTypesService;
     }
 
     [HttpGet]
