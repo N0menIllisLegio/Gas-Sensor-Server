@@ -19,7 +19,7 @@ namespace Gss.Infrastructure.Repositories
       _appDbContext = appDbContext;
     }
 
-    public async Task<(List<SensorType> sensors, int totalQueriedSensorsCount)> GetSensorsTypesAsync(int pageSize, int pageNumber,
+    public async Task<(List<SensorType> sensors, int totalQueriedSensorsCount)> GetSensorsTypesAsync(int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<SensorType, bool>> filter = null,
       Expression<Func<SensorType, object>> sorter = null,

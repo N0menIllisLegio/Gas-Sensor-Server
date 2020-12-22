@@ -201,7 +201,8 @@ namespace Gss.Core.Services
         .AddError(Messages.AccessDeniedErrorString), false);
     }
 
-    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount, bool displaySensitiveInfo)> GetUserMicrocontrollers(string userID, string requestedByEmail,
+    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount, bool displaySensitiveInfo)> GetUserMicrocontrollers(
+      string userID, string requestedByEmail,
       int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string sortBy = "",
       string filterBy = null, string filterStr = "")
@@ -243,7 +244,7 @@ namespace Gss.Core.Services
       var filter = GetFilter(filterBy, filterStr);
 
       var (microcontrollers, totalQueriedMicrocontrollersCount) = await _microcontrollerRepository
-        .GetMicrocontrollersAsync(pageSize, pageNumber, sortOrder, filter, sorter, true);
+        .GetMicrocontrollersAsync(pageNumber, pageSize, sortOrder, filter, sorter, true);
 
       return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
     }
@@ -257,7 +258,7 @@ namespace Gss.Core.Services
       var filter = GetFilter(filterBy, filterStr);
 
       var (microcontrollers, totalQueriedMicrocontrollersCount) = await _microcontrollerRepository
-        .GetPublicMicrocontrollersAsync(pageSize, pageNumber, sortOrder, filter, sorter, true);
+        .GetPublicMicrocontrollersAsync(pageNumber, pageSize, sortOrder, filter, sorter, true);
 
       return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
     }

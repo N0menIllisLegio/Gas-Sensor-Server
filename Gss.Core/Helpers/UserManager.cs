@@ -38,7 +38,7 @@ namespace Gss.Core.Helpers
       return await AddToRoleAsync(user, StandardRoleName);
     }
 
-    public async Task<(List<User> users, int totalQueriedUsersCount)> GetPage(int pageSize, int pageNumber,
+    public async Task<(List<User> users, int totalQueriedUsersCount)> GetPage(int pageNumber, int pageSize,
       SortOrder sortOrder, string sortBy,
       string filterBy = null, string filterStr = null)
     {

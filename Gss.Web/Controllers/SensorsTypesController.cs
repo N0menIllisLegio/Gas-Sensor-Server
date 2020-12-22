@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Interfaces;
@@ -21,11 +22,23 @@ namespace Gss.Web.Controllers
 
     [HttpGet]
     [SwaggerOperation(Description = "Gets all sensor's types.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorTypeInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetAllSensorsTypes([FromQuery] PagedRequest pagedRequest)
     {
-      return await Task.Run(Ok);
+      var (sensorsTypes, sensorsTypesCount) = await _sensorsTypesService.GetAllSensorsTypes(pagedRequest.PageNumber,
+        pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.Filter);
+
+      var microcontrollersInfos = sensorsTypes.Data.Select(type => new SensorTypeInfoDto(type)).ToList();
+      var response = new PagedResponse<SensorTypeInfoDto>(microcontrollersInfos, pagedRequest.PageNumber, pagedRequest.PageSize)
+      {
+        TotalRecords = sensorsTypesCount,
+        OrderedBy = pagedRequest.SortBy,
+        SortOrder = pagedRequest.SortOrder,
+        Filter = pagedRequest.Filter,
+        FilteredBy = pagedRequest.FilterBy
+      };
+
+      return Ok(response);
     }
 
     [HttpGet("{sensorTypeID}")]
@@ -40,7 +53,17 @@ namespace Gss.Web.Controllers
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      return await Task.Run(Ok);
+      var result = await _sensorsTypesService.GetSensorType(sensorTypeID);
+
+      if (!result.Succeeded)
+      {
+        return BadRequest(new Response<object>(result));
+      }
+
+      var sensorType = result.Data.First();
+      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
+
+      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
     }
 
     [HttpPost]

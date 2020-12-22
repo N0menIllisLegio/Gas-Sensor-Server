@@ -38,7 +38,7 @@ namespace Gss.Web.Controllers
     public async Task<IActionResult> GetAllUsers([FromQuery] PagedRequest pagedRequest)
     {
       var (users, totalQueriedUsersCount) = await _userManager
-        .GetPage(pagedRequest.PageSize, pagedRequest.PageNumber, pagedRequest.SortOrder,
+        .GetPage(pagedRequest.PageNumber, pagedRequest.PageSize, pagedRequest.SortOrder,
         pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
 
       var formattedUsers = users.Select(user => new ExtendedUserInfoDto(user));

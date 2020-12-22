@@ -21,7 +21,7 @@ namespace Gss.Infrastructure.Repositories
     }
 
     public async Task<(List<Microcontroller> microcontrollers, int totalQueriedMicrocontrollersCount)> GetMicrocontrollersAsync(
-      int pageSize, int pageNumber,
+      int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<Microcontroller, bool>> filter = null,
       Expression<Func<Microcontroller, object>> sorter = null,
@@ -44,7 +44,7 @@ namespace Gss.Infrastructure.Repositories
     }
 
     public async Task<(List<Microcontroller> microcontrollers, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollersAsync(
-      int pageSize, int pageNumber,
+      int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None,
       Expression<Func<Microcontroller, bool>> filter = null,
       Expression<Func<Microcontroller, object>> sorter = null,
