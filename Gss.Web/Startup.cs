@@ -101,7 +101,7 @@ namespace Gss.Web
       services.AddTransient<IAzureImagesRepository, AzureImagesRepository>();
       services.AddScoped<IMicrocontrollersRepository, MicrocontrollersRepository>();
       services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
-      services.AddScoped<ISensrosTypesRepository, SensrosTypesRepository>();
+      services.AddScoped<ISensorsTypesRepository, SensorsTypesRepository>();
       services.AddScoped<ISensorsTypesService, SensorsTypesService>();
       services.AddScoped<ISensorsRepository, SensorsRepository>();
       services.AddScoped<ISensorsService, SensorsService>();

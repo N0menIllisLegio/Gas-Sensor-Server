@@ -4,8 +4,8 @@ namespace Gss.Core.Services
 {
   public class SensorsTypesService : ISensorsTypesService
   {
-    private readonly ISensrosTypesRepository _sensrosTypesRepository;
-    public SensorsTypesService(ISensrosTypesRepository sensrosTypesRepository)
+    private readonly ISensorsTypesRepository _sensrosTypesRepository;
+    public SensorsTypesService(ISensorsTypesRepository sensrosTypesRepository)
     {
       _sensrosTypesRepository = sensrosTypesRepository;
     }
