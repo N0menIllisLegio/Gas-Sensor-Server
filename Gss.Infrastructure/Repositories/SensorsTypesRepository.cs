@@ -54,12 +54,12 @@ namespace Gss.Infrastructure.Repositories
       return _appDbContext.SensorsTypes.Add(sensorType).Entity;
     }
 
-    public SensorType UpdateSensor(SensorType sensorType)
+    public SensorType UpdateSensorType(SensorType sensorType)
     {
       return _appDbContext.SensorsTypes.Update(sensorType).Entity;
     }
 
-    public SensorType DeleteSensor(SensorType sensorType)
+    public SensorType DeleteSensorType(SensorType sensorType)
     {
       return _appDbContext.SensorsTypes.Remove(sensorType).Entity;
     }

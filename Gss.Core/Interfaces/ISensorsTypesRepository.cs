@@ -19,9 +19,9 @@ namespace Gss.Core.Interfaces
 
     SensorType AddSensorType(SensorType sensorType, bool generateID = true);
 
-    SensorType UpdateSensor(SensorType sensorType);
+    SensorType UpdateSensorType(SensorType sensorType);
 
-    SensorType DeleteSensor(SensorType sensorType);
+    SensorType DeleteSensorType(SensorType sensorType);
 
     Task<bool> SaveAsync();
   }
