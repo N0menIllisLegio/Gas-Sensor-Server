@@ -73,7 +73,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetUserMicrocontrollers(string userID, [FromQuery] PagedRequest pagedRequest)
     {
-      if (!ValidateGuidString(userID))
+      if (!Guid.TryParse(userID, out _))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
@@ -106,14 +106,14 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetMicrocontroller(string microcontrollerID)
     {
-      if (!ValidateGuidString(microcontrollerID))
+      if (!Guid.TryParse(microcontrollerID, out var id))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var (result, displaySensitiveInfo)
-        = await _microcontrollerService.GetMicrocontroller(microcontrollerID, User.Identity.Name);
+        = await _microcontrollerService.GetMicrocontroller(id, User.Identity.Name);
 
       if (!result.Succeeded)
       {
@@ -151,12 +151,6 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateMicrocontrollerDto dto)
     {
-      if (!ValidateGuidString(dto.ID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
       var result = await _microcontrollerService.UpdateMicrocontroller(dto, User.Identity.Name);
 
       if (!result.Succeeded)
@@ -176,14 +170,14 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Delete(string microcontrollerID)
     {
-      if (!ValidateGuidString(microcontrollerID))
+      if (!Guid.TryParse(microcontrollerID, out var id))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var result = await _microcontrollerService
-        .DeleteMicrocontroller(microcontrollerID, User.Identity.Name);
+        .DeleteMicrocontroller(id, User.Identity.Name);
 
       if (!result.Succeeded)
       {
@@ -203,14 +197,14 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangeOwner(string microcontrollerID, string userID)
     {
-      if (!ValidateGuidString(microcontrollerID) || !ValidateGuidString(userID))
+      if (!Guid.TryParse(microcontrollerID, out var id) || !Guid.TryParse(userID, out _))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
       var result = await _microcontrollerService
-        .ChangeMicrocontrollerOwner(microcontrollerID, userID);
+        .ChangeMicrocontrollerOwner(id, userID);
 
       if (!result.Succeeded)
       {
@@ -221,11 +215,6 @@ namespace Gss.Web.Controllers
       var microcontrollerInfoDto = new MicrocontrollerInfoDto(microcontroller);
 
       return Ok(new Response<MicrocontrollerInfoDto>(microcontrollerInfoDto));
-    }
-
-    private bool ValidateGuidString(string guid)
-    {
-      return Guid.TryParse(guid, out _);
     }
   }
 }

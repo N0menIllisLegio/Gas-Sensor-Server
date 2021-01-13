@@ -1,7 +1,9 @@
-﻿namespace Gss.Core.DTOs
+﻿using System;
+
+namespace Gss.Core.DTOs
 {
   public class UpdateMicrocontrollerDto : CreateMicrocontrollerDto
   {
-    public string ID { get; set; }
+    public Guid ID { get; set; }
   }
 }
