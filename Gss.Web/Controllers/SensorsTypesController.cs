@@ -47,13 +47,13 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetSensorType(string sensorTypeID)
     {
-      if (!ValidateGuidString(sensorTypeID))
+      if (!Guid.TryParse(sensorTypeID, out var id))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      var result = await _sensorsTypesService.GetSensorType(sensorTypeID);
+      var result = await _sensorsTypesService.GetSensorType(id);
 
       if (!result.Succeeded)
       {
@@ -72,7 +72,17 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateSensorTypeDto dto)
     {
-      return await Task.Run(Ok);
+      var result = await _sensorsTypesService.AddSensorType(dto);
+
+      if (!result.Succeeded)
+      {
+        return BadRequest(new Response<object>(result));
+      }
+
+      var sensorType = result.Data.First();
+      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
+
+      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
     }
 
     [HttpPut]
@@ -81,7 +91,17 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateSensorTypeDto dto)
     {
-      return await Task.Run(Ok);
+      var result = await _sensorsTypesService.UpdateSensorType(dto);
+
+      if (!result.Succeeded)
+      {
+        return BadRequest(new Response<object>(result));
+      }
+
+      var sensorType = result.Data.First();
+      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
+
+      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
     }
 
     [HttpDelete("{sensorTypeID}")]
@@ -90,18 +110,23 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Delete(string sensorTypeID)
     {
-      if (!ValidateGuidString(sensorTypeID))
+      if (!Guid.TryParse(sensorTypeID, out var id))
       {
         return BadRequest(new Response<object>()
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      return await Task.Run(Ok);
-    }
+      var result = await _sensorsTypesService.DeleteSensorType(id);
 
-    private bool ValidateGuidString(string guid)
-    {
-      return Guid.TryParse(guid, out _);
+      if (!result.Succeeded)
+      {
+        return BadRequest(new Response<object>(result));
+      }
+
+      var sensorType = result.Data.First();
+      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
+
+      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
     }
   }
 }
