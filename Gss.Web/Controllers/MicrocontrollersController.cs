@@ -136,7 +136,7 @@ namespace Gss.Web.Controllers
 
       if (!result.Succeeded)
       {
-        return BadRequest(result);
+        return BadRequest(new Response<object>(result));
       }
 
       var microcontroller = result.Data.First();
@@ -161,7 +161,7 @@ namespace Gss.Web.Controllers
 
       if (!result.Succeeded)
       {
-        return BadRequest(result);
+        return BadRequest(new Response<object>(result));
       }
 
       var microcontroller = result.Data.First();
@@ -187,7 +187,7 @@ namespace Gss.Web.Controllers
 
       if (!result.Succeeded)
       {
-        return BadRequest(result);
+        return BadRequest(new Response<object>(result));
       }
 
       var microcontroller = result.Data.First();
@@ -214,7 +214,7 @@ namespace Gss.Web.Controllers
 
       if (!result.Succeeded)
       {
-        return BadRequest(result);
+        return BadRequest(new Response<object>(result));
       }
 
       var microcontroller = result.Data.First();
