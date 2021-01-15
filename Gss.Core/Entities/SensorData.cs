@@ -1,9 +1,14 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Gss.Core.Interfaces;
 
 namespace Gss.Core.Entities
 {
-  public class SensorData
+  public class SensorData : IEntity
   {
+    [NotMapped]
+    public Guid ID { get; set; }
+
     public Guid MicrocontrollerID { get; set; }
     public virtual Microcontroller Microcontroller { get; set; }
 

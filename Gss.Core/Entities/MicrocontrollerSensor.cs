@@ -1,8 +1,9 @@
 ﻿using System;
+using Gss.Core.Interfaces;
 
 namespace Gss.Core.Entities
 {
-  public class MicrocontrollerSensor
+  public class MicrocontrollerSensor : IEntity
   {
     public Guid ID { get; set; }
 
