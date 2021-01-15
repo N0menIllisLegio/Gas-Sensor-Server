@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.Entities;
 using Gss.Core.Enums;
 using Gss.Core.Helpers;

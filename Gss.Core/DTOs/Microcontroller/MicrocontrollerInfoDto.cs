@@ -1,14 +1,14 @@
 ﻿using System;
-using Gss.Core.Entities;
+using Gss.Core.DTOs.User;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.Microcontroller
 {
-  public record MicrocontrollerInfoDto
+  public class MicrocontrollerInfoDto
   {
     public MicrocontrollerInfoDto()
     { }
 
-    public MicrocontrollerInfoDto(Microcontroller microcontroller,
+    public MicrocontrollerInfoDto(Entities.Microcontroller microcontroller,
       bool displaySensitiveInfo = true)
     {
       ID = microcontroller.ID;

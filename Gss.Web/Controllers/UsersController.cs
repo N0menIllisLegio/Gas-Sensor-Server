@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Gss.Core.DTOs;
+using Gss.Core.DTOs.Authentication;
+using Gss.Core.DTOs.User;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;

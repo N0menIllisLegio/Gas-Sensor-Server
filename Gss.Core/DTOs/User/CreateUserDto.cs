@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.User
 {
   public class CreateUserDto
   {

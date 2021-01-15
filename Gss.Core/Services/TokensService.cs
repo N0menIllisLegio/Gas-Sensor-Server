@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Gss.Core.DTOs;
+using Gss.Core.DTOs.Authentication;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;

@@ -1,11 +1,14 @@
 ﻿using System;
-using Gss.Core.Entities;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.User
 {
-  public record ExtendedUserInfoDto : UserInfoDto
+  public class ExtendedUserInfoDto: UserInfoDto
   {
-    public ExtendedUserInfoDto(User user)
+    public ExtendedUserInfoDto()
+    {
+    }
+
+    public ExtendedUserInfoDto(Entities.User user)
       : base(user)
     {
       EmailConfirmed = user.EmailConfirmed;

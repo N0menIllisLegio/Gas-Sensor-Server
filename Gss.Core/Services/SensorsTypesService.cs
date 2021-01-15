@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Core.DTOs.SensorType;
 using Gss.Core.Entities;
 using Gss.Core.Enums;
 using Gss.Core.Interfaces;

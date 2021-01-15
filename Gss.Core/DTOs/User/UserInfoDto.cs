@@ -1,14 +1,13 @@
 ﻿using System;
-using Gss.Core.Entities;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.User
 {
-  public record UserInfoDto
+  public class UserInfoDto
   {
     public UserInfoDto()
     { }
 
-    public UserInfoDto(User user)
+    public UserInfoDto(Entities.User user)
     {
       ID = user.Id;
       Email = user.Email;

@@ -1,11 +1,10 @@
 ﻿using System;
-using Gss.Core.Entities;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.SensorType
 {
-  public record SensorTypeInfoDto
+  public class SensorTypeInfoDto
   {
-    public SensorTypeInfoDto(SensorType sensorType)
+    public SensorTypeInfoDto(Entities.SensorType sensorType)
     {
       ID = sensorType.ID;
       Name = sensorType.Name;

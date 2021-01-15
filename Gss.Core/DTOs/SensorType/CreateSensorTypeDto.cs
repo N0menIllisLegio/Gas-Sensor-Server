@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.SensorType
 {
   public class CreateSensorTypeDto
   {

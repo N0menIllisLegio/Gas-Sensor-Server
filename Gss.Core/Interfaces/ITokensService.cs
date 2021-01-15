@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Gss.Core.DTOs;
+using Gss.Core.DTOs.Authentication;
 using Gss.Core.Entities;
 
 namespace Gss.Core.Interfaces

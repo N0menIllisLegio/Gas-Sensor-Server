@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Authorization;

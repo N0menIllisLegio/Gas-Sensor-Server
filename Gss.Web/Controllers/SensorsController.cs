@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
+using Gss.Core.DTOs.Sensor;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Mvc;

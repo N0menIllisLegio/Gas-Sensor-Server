@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.Sensor
 {
   public class SensorInfoDto
   {

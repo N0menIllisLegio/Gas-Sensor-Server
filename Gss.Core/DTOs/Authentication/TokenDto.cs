@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.Authentication
 {
-  public record TokenDto
+  public class TokenDto
   {
     public string AccessToken { get; init; }
     public DateTime AccessTokenExpiration { get; init; }

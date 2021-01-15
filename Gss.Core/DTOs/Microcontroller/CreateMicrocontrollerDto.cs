@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.Microcontroller
 {
   public class CreateMicrocontrollerDto
   {

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs.Sensor
 {
-  public class UpdateSensorDto
+  public class CreateSensorDto
   {
     public string Name { get; set; }
     public string Description { get; set; }
