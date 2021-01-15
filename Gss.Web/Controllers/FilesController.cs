@@ -15,10 +15,10 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class FilesController: ControllerBase
   {
-    private readonly IAzureImagesRepository _azureImagesRepository;
-    public FilesController(IAzureImagesRepository azureImagesRepository)
+    private readonly IUnitOfWork _unitOfWork;
+    public FilesController(IUnitOfWork unitOfWork)
     {
-      _azureImagesRepository = azureImagesRepository;
+      _unitOfWork = unitOfWork;
     }
 
     [HttpPost]
@@ -36,7 +36,7 @@ namespace Gss.Web.Controllers
           .AddErrors(Messages.MissingFileExtensionErrorString));
       }
 
-      var response = await _azureImagesRepository.UploadImage(file.OpenReadStream(), fileExtension);
+      var response = await _unitOfWork.AzureImages.UploadImage(file.OpenReadStream(), fileExtension);
 
       return response.Succeeded
         ? Ok(response)
@@ -63,7 +63,7 @@ namespace Gss.Web.Controllers
           .AddErrors(Messages.InvalidGuidErrorString));
       }
 
-      await _azureImagesRepository.DeleteImage(userID);
+      await _unitOfWork.AzureImages.DeleteImage(userID);
 
       return Ok();
     }

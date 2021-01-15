@@ -11,18 +11,18 @@ namespace Gss.Core.Services
 {
   public class SensorsTypesService : ISensorsTypesService
   {
-    private readonly ISensorsTypesRepository _sensorsTypesRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public SensorsTypesService(ISensorsTypesRepository sensorsTypesRepository)
+    public SensorsTypesService(IUnitOfWork unitOfWork)
     {
-      _sensorsTypesRepository = sensorsTypesRepository;
+      _unitOfWork = unitOfWork;
     }
 
     public async Task<(ServiceResultDto<SensorType> result, int totalQueriedSensorsTypesCount)> GetAllSensorsTypes(
       int pageNumber, int pageSize,
       SortOrder sortOrder = SortOrder.None, string filterStr = "")
     {
-      var (sensorsTypes, totalQueriedSensorsTypesCount) = await _sensorsTypesRepository.GetSensorsTypesAsync(
+      var (sensorsTypes, totalQueriedSensorsTypesCount) = await _unitOfWork.SensorsTypes.GetSensorsTypesAsync(
         pageNumber, pageSize, sortOrder, (type) => type.Name.Contains(filterStr), (type) => type.Name, true);
 
       return (new ServiceResultDto<SensorType>(sensorsTypes), totalQueriedSensorsTypesCount);
@@ -30,7 +30,7 @@ namespace Gss.Core.Services
 
     public async Task<ServiceResultDto<SensorType>> GetSensorType(Guid sensorTypeID)
     {
-      var sensorType = await _sensorsTypesRepository.GetSensorTypeAsync(sensorTypeID);
+      var sensorType = await _unitOfWork.SensorsTypes.GetSensorTypeAsync(sensorTypeID);
 
       if (sensorType is null)
       {
@@ -50,9 +50,9 @@ namespace Gss.Core.Services
         Icon = dto.Icon
       };
 
-      sensorType = _sensorsTypesRepository.AddSensorType(sensorType);
+      sensorType = _unitOfWork.SensorsTypes.AddSensorType(sensorType);
 
-      if (await _sensorsTypesRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<SensorType>(sensorType);
       }
@@ -63,7 +63,7 @@ namespace Gss.Core.Services
 
     public async Task<ServiceResultDto<SensorType>> UpdateSensorType(UpdateSensorTypeDto dto)
     {
-      var sensorType = await _sensorsTypesRepository.GetSensorTypeAsync(dto.ID);
+      var sensorType = await _unitOfWork.SensorsTypes.GetSensorTypeAsync(dto.ID);
 
       if (sensorType is null)
       {
@@ -75,7 +75,7 @@ namespace Gss.Core.Services
       sensorType.Units = dto.Units;
       sensorType.Icon = dto.Icon;
 
-      if (await _sensorsTypesRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<SensorType>(sensorType);
       }
@@ -86,7 +86,7 @@ namespace Gss.Core.Services
 
     public async Task<ServiceResultDto<SensorType>> DeleteSensorType(Guid sensorTypeID)
     {
-      var sensorType = await _sensorsTypesRepository.GetSensorTypeAsync(sensorTypeID);
+      var sensorType = await _unitOfWork.SensorsTypes.GetSensorTypeAsync(sensorTypeID);
 
       if (sensorType is null)
       {
@@ -94,9 +94,9 @@ namespace Gss.Core.Services
           .AddError(Messages.NotFoundErrorString, "Sensor type");
       }
 
-      sensorType = _sensorsTypesRepository.DeleteSensorType(sensorType);
+      sensorType = _unitOfWork.SensorsTypes.DeleteSensorType(sensorType);
 
-      if (await _sensorsTypesRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<SensorType>(sensorType);
       }

@@ -22,19 +22,19 @@ namespace Gss.Core.Services
     private readonly ITokensService _tokenService;
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager _userManager;
-    private readonly IRefreshTokensRepository _refreshTokenRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
 
     public AuthenticationService(ITokensService tokenService,
       SignInManager<User> signInManager,
       UserManager userManager,
-      IRefreshTokensRepository refreshTokenRepository,
+      IUnitOfWork unitOfWork,
       IEmailService emailService)
     {
       _tokenService = tokenService;
       _signInManager = signInManager;
       _userManager = userManager;
-      _refreshTokenRepository = refreshTokenRepository;
+      _unitOfWork = unitOfWork;
       _emailService = emailService;
     }
 
@@ -208,7 +208,7 @@ namespace Gss.Core.Services
       }
 
       var token = await _tokenService.GenerateTokenAsync(user);
-      await _refreshTokenRepository.AddRefreshTokenAsync(user, token.RefreshToken);
+      await _unitOfWork.RefreshTokens.AddRefreshTokenAsync(user, token.RefreshToken);
 
       return new ServiceResultDto<TokenDto>(token);
     }
@@ -216,7 +216,7 @@ namespace Gss.Core.Services
     public async Task<ServiceResultDto<TokenDto>> RefreshTokenAsync(string accessToken, string refreshToken)
     {
       string accountEmail = _tokenService.GetEmailFromAccessToken(accessToken);
-      var token = await _refreshTokenRepository.GetRefreshTokenAsync(accountEmail, refreshToken);
+      var token = await _unitOfWork.RefreshTokens.GetRefreshTokenAsync(accountEmail, refreshToken);
 
       if (token is null)
       {
@@ -230,10 +230,10 @@ namespace Gss.Core.Services
           .AddError(Messages.RefreshTokenExpiredErrorString);
       }
 
-      await _refreshTokenRepository.DeleteRefreshTokenAsync(token);
+      await _unitOfWork.RefreshTokens.DeleteRefreshTokenAsync(token);
       var user = await _userManager.FindByEmailAsync(accountEmail);
       var newToken = await _tokenService.GenerateTokenAsync(user);
-      await _refreshTokenRepository.AddRefreshTokenAsync(user, newToken.RefreshToken);
+      await _unitOfWork.RefreshTokens.AddRefreshTokenAsync(user, newToken.RefreshToken);
 
       return new ServiceResultDto<TokenDto>(newToken);
     }
@@ -241,11 +241,11 @@ namespace Gss.Core.Services
     public async Task LogOutAsync(string accessToken, string refreshToken)
     {
       string accountEmail = _tokenService.GetEmailFromAccessToken(accessToken);
-      var token = await _refreshTokenRepository.GetRefreshTokenAsync(accountEmail, refreshToken);
+      var token = await _unitOfWork.RefreshTokens.GetRefreshTokenAsync(accountEmail, refreshToken);
 
       if (token is not null)
       {
-        await _refreshTokenRepository.DeleteRefreshTokenAsync(token);
+        await _unitOfWork.RefreshTokens.DeleteRefreshTokenAsync(token);
       }
     }
 
@@ -256,7 +256,7 @@ namespace Gss.Core.Services
 
       if (user is not null && user.RefreshTokens.Count > 0)
       {
-        await _refreshTokenRepository.DeleteAllUsersRefreshTokens(user);
+        await _unitOfWork.RefreshTokens.DeleteAllUsersRefreshTokens(user);
       }
     }
   }

@@ -15,11 +15,11 @@ namespace Gss.Core.Services
 {
   public class MicrocontrollersService : IMicrocontrollersService
   {
-    private readonly IMicrocontrollersRepository _microcontrollerRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager _userManager;
-    public MicrocontrollersService(IMicrocontrollersRepository microcontrollerRepository, UserManager userManager)
+    public MicrocontrollersService(IUnitOfWork unitOfWork, UserManager userManager)
     {
-      _microcontrollerRepository = microcontrollerRepository;
+      _unitOfWork = unitOfWork;
       _userManager = userManager;
     }
 
@@ -65,7 +65,7 @@ namespace Gss.Core.Services
       var sorter = GetOrderer(sortBy);
       var filter = GetFilter(filterBy, filterStr);
 
-      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _microcontrollerRepository
+      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _unitOfWork.Microcontrollers
         .GetMicrocontrollersAsync(pageNumber, pageSize, sortOrder, filter, sorter, true);
 
       return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
@@ -79,7 +79,7 @@ namespace Gss.Core.Services
       var sorter = GetOrderer(sortBy);
       var filter = GetFilter(filterBy, filterStr);
 
-      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _microcontrollerRepository
+      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _unitOfWork.Microcontrollers
         .GetPublicMicrocontrollersAsync(pageNumber, pageSize, sortOrder, filter, sorter, true);
 
       return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
@@ -88,7 +88,7 @@ namespace Gss.Core.Services
     public async Task<(ServiceResultDto<Microcontroller> result, bool displaySensitiveInfo)> GetMicrocontroller(Guid microcontrollerID,
       string requestedByEmail)
     {
-      var microcontroller = await _microcontrollerRepository.GetMicrocontrollerAsync(microcontrollerID);
+      var microcontroller = await _unitOfWork.Microcontrollers.GetMicrocontrollerAsync(microcontrollerID);
 
       if (microcontroller is null)
       {
@@ -136,9 +136,9 @@ namespace Gss.Core.Services
         Owner = user
       };
 
-      microcontroller = _microcontrollerRepository.AddMicrocontroller(microcontroller);
+      microcontroller = _unitOfWork.Microcontrollers.AddMicrocontroller(microcontroller);
 
-      if (await _microcontrollerRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<Microcontroller>(microcontroller);
       }
@@ -154,7 +154,7 @@ namespace Gss.Core.Services
 
       if (await _userManager.IsAdministrator(ownerEmail))
       {
-        microcontroller = await _microcontrollerRepository
+        microcontroller = await _unitOfWork.Microcontrollers
           .GetMicrocontrollerAsync(dto.ID);
       }
       else
@@ -182,7 +182,7 @@ namespace Gss.Core.Services
       microcontroller.Longitude = dto.Longitude;
       microcontroller.Public = dto.Public;
 
-      if (await _microcontrollerRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<Microcontroller>(microcontroller);
       }
@@ -194,7 +194,7 @@ namespace Gss.Core.Services
     public async Task<ServiceResultDto<Microcontroller>> ChangeMicrocontrollerOwner(Guid microcontrollerID,
       string newOwnerID)
     {
-      var microcontroller = await _microcontrollerRepository.GetMicrocontrollerAsync(microcontrollerID);
+      var microcontroller = await _unitOfWork.Microcontrollers.GetMicrocontrollerAsync(microcontrollerID);
 
       if (microcontroller is null)
       {
@@ -212,7 +212,7 @@ namespace Gss.Core.Services
 
       microcontroller.Owner = user;
 
-      if (await _microcontrollerRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<Microcontroller>(microcontroller);
       }
@@ -227,7 +227,7 @@ namespace Gss.Core.Services
 
       if (await _userManager.IsAdministrator(ownerEmail))
       {
-        microcontroller = await _microcontrollerRepository.GetMicrocontrollerAsync(microcontrollerID);
+        microcontroller = await _unitOfWork.Microcontrollers.GetMicrocontrollerAsync(microcontrollerID);
       }
       else
       {
@@ -249,9 +249,9 @@ namespace Gss.Core.Services
           .AddError(Messages.NotFoundErrorString, "Microcontoller");
       }
 
-      microcontroller = _microcontrollerRepository.DeleteMicrocontroller(microcontroller);
+      microcontroller = _unitOfWork.Microcontrollers.DeleteMicrocontroller(microcontroller);
 
-      if (await _microcontrollerRepository.SaveAsync())
+      if (await _unitOfWork.SaveAsync())
       {
         return new ServiceResultDto<Microcontroller>(microcontroller);
       }

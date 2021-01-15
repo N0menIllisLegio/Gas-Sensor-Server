@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -11,7 +12,6 @@ using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Gss.Core.Services;
 using Gss.Infrastructure;
-using Gss.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -94,16 +94,13 @@ namespace Gss.Web
           options.ClientSecret = googleAuthNSection["ClientSecret"];
         });
 
-      services.AddTransient<IRefreshTokensRepository, RefreshTokensRepository>();
+      services.AddAutoMapper(typeof(AutoMapperProfile));
+      services.AddScoped<IUnitOfWork, UnitOfWork>();
       services.AddTransient<ITokensService, TokensService>();
       services.AddScoped<IAuthenticationService, AuthenticationService>();
       services.AddTransient<IEmailService, EmailService>();
-      services.AddTransient<IAzureImagesRepository, AzureImagesRepository>();
-      services.AddScoped<IMicrocontrollersRepository, MicrocontrollersRepository>();
       services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
-      services.AddScoped<ISensorsTypesRepository, SensorsTypesRepository>();
       services.AddScoped<ISensorsTypesService, SensorsTypesService>();
-      services.AddScoped<ISensorsRepository, SensorsRepository>();
       services.AddScoped<ISensorsService, SensorsService>();
 
       services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
