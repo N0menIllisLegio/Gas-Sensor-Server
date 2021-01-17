@@ -29,14 +29,16 @@ namespace Gss.Core.Services
 
     public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo)
     {
-      var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, mc => mc.Public);
+      var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
+        microcontroller => new { microcontroller.Name, microcontroller.LastResponseTime }, mc => mc.Public);
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }
 
     public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo)
     {
-      var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo);
+      var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
+        microcontroller => new { microcontroller.Name, microcontroller.LastResponseTime });
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }
@@ -54,8 +56,12 @@ namespace Gss.Core.Services
       var requestedBy = await _userManager.FindByEmailAsync(requestedByEmail);
       bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
       var pagedResultDto = user == requestedBy || administratorClaim
-        ? await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, mc => mc.Owner.ID == user.ID)
-        : await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, mc => mc.Owner.ID == user.ID && mc.Public);
+        ? await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
+          microcontroller => new { microcontroller.Name, microcontroller.LastResponseTime },
+          mc => mc.Owner.ID == user.ID)
+        : await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
+          microcontroller => new { microcontroller.Name, microcontroller.LastResponseTime },
+          mc => mc.Owner.ID == user.ID && mc.Public);
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }

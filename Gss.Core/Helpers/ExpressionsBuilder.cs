@@ -90,7 +90,7 @@ namespace Gss.Core.Helpers
         return entities;
       }
 
-      var sortOptionsList = GetValidPropertyNames(sortOptions
+      var sortOptionsList = GetValidPropertyNames<TEntity, ISortOption>(sortOptions
         .ToDictionary(sortOption => sortOption.PropertyName)).ToList();
 
       if (sortOptionsList.Count == 0)
@@ -123,7 +123,7 @@ namespace Gss.Core.Helpers
 
         switch (sortOption.Order)
         {
-          case SortOrder.Ascendind:
+          case SortOrder.Ascending:
 
             result = firstSort
               ? entities.OrderBy(orderExpression)
@@ -157,7 +157,7 @@ namespace Gss.Core.Helpers
 
       if (filterCriteria is not null)
       {
-        filterCriteriaList = GetValidPropertyNames(filterCriteriaList
+        filterCriteriaList = GetValidPropertyNames<TEntity, IFilterCriterion>(filterCriteriaList
           .ToDictionary(filter => filter.PropertyName)).ToList();
       }
 
@@ -192,14 +192,14 @@ namespace Gss.Core.Helpers
       return (Expression<Func<TEntity, bool>>)Expression.Lambda(body, parameter);
     }
 
-    private static IEnumerable<TEntity> GetValidPropertyNames<TEntity>(Dictionary<string, TEntity> items)
+    private static IEnumerable<TResult> GetValidPropertyNames<TEntity, TResult>(Dictionary<string, TResult> items)
     {
       var existingProperties = typeof(TEntity).GetProperties();
-      var result = new List<TEntity>();
+      var result = new List<TResult>();
 
       foreach (var item in items)
       {
-        if (existingProperties.Any((prop) => prop.Name.Equals(item.Key, StringComparison.InvariantCultureIgnoreCase)))
+        if (existingProperties.Any((prop) => prop.Name.Equals(item.Key)))
         {
           result.Add(item.Value);
         }

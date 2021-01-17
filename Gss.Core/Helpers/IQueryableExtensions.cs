@@ -16,7 +16,7 @@ namespace Gss.Core.Helpers
     {
       var totalItemsQuery = collection.Where(filter ?? ((_) => true));
 
-      if (sortOrder == SortOrder.Ascendind && sorter is not null)
+      if (sortOrder == SortOrder.Ascending && sorter is not null)
       {
         totalItemsQuery = totalItemsQuery.OrderBy(sorter);
       }

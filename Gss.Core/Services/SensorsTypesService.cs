@@ -24,7 +24,7 @@ namespace Gss.Core.Services
 
     public async Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo)
     {
-      var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(pagedInfo);
+      var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(pagedInfo, sensorType => new { sensorType.Name, sensorType.Units });
 
       return pagedResultDto.Convert<SensorTypeDto>(_mapper);
     }
