@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.Interfaces;
-using Gss.Core.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -24,198 +21,95 @@ namespace Gss.Web.Controllers
     }
 
     // Admin only
-    [HttpGet]
+    [HttpPost]
     [SwaggerOperation("Administrator Only", "Gets all microcontrollers. Paged.")]
-    [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetAllMicrocontrollers([FromQuery] PagedInfoDto pagedRequest)
+    public async Task<IActionResult> GetAllMicrocontrollers([FromBody] PagedInfoDto dto)
     {
-      var (microcontrollers, microcontrollersCount) = await _microcontrollerService.GetAllMicrocontrollers(pagedRequest.PageNumber,
-        pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
+      var pagedResultDto = await _microcontrollerService.GetAllMicrocontrollersAsync(dto);
 
-      var microcontrollersInfos = microcontrollers.Data.Select(microcontroller => new MicrocontrollerInfoDto(microcontroller)).ToList();
-      var response = new PagedResponse<MicrocontrollerInfoDto>(microcontrollersInfos, pagedRequest.PageNumber, pagedRequest.PageSize)
-      {
-        TotalRecords = microcontrollersCount,
-        OrderedBy = pagedRequest.SortBy,
-        SortOrder = pagedRequest.SortOrder,
-        Filter = pagedRequest.Filter,
-        FilteredBy = pagedRequest.FilterBy
-      };
-
-      return Ok(response);
+      return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
     [AllowAnonymous]
-    [HttpGet]
+    [HttpPost]
     [SwaggerOperation(Description = "Gets all public microcontrollers.")]
-    [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
-    public async Task<IActionResult> GetPublicMicrocontrollers([FromQuery] PagedInfoDto pagedRequest)
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
+    public async Task<IActionResult> GetPublicMicrocontrollers([FromBody] PagedInfoDto dto)
     {
-      var (microcontrollers, microcontrollersCount) = await _microcontrollerService.GetPublicMicrocontrollers(pagedRequest.PageNumber,
-        pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
+      var pagedResultDto = await _microcontrollerService.GetPublicMicrocontrollersAsync(dto);
 
-      var microcontrollersInfos = microcontrollers.Data.Select(microcontroller => new MicrocontrollerInfoDto(microcontroller, false));
-      var response = new PagedResponse<MicrocontrollerInfoDto>(microcontrollersInfos, pagedRequest.PageNumber, pagedRequest.PageSize)
-      {
-        TotalRecords = microcontrollersCount,
-        OrderedBy = pagedRequest.SortBy,
-        SortOrder = pagedRequest.SortOrder,
-        Filter = pagedRequest.Filter,
-        FilteredBy = pagedRequest.FilterBy
-      };
-
-      return Ok(response);
+      return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
-    [HttpGet("{userID}")]
+    [HttpPost]
     [SwaggerOperation("Authorized Only", "Gets all microcontrollers that belongs to user.")]
-    [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserMicrocontrollers(string userID, [FromQuery] PagedInfoDto pagedRequest)
+    public async Task<IActionResult> GetUserMicrocontrollers([FromQuery] IdDto dto, [FromBody] PagedInfoDto pagedInfoDto)
     {
-      if (!Guid.TryParse(userID, out _))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var pagedResultDto = await _microcontrollerService.GetUserMicrocontrollersAsync(dto.ID, User.Identity.Name, pagedInfoDto);
 
-      var (result, microcontrollersCount, displaySensitiveInfo) = await _microcontrollerService.GetUserMicrocontrollers(userID, User.Identity.Name,
-        pagedRequest.PageNumber, pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var microcontrollersInfos = result.Data.Select(microcontroller => new MicrocontrollerInfoDto(microcontroller, displaySensitiveInfo));
-      var response = new PagedResponse<MicrocontrollerInfoDto>(microcontrollersInfos, pagedRequest.PageNumber, pagedRequest.PageSize)
-      {
-        TotalRecords = microcontrollersCount,
-        OrderedBy = pagedRequest.SortBy,
-        SortOrder = pagedRequest.SortOrder,
-        Filter = pagedRequest.Filter,
-        FilteredBy = pagedRequest.FilterBy
-      };
-
-      return Ok(response);
+      return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
-    [HttpGet("{microcontrollerID}")]
+    [HttpGet]
     [SwaggerOperation("Authorized Only", "Gets microcontroller by id.")]
-    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetMicrocontroller(string microcontrollerID)
+    public async Task<IActionResult> GetMicrocontroller([FromQuery] IdDto dto)
     {
-      if (!Guid.TryParse(microcontrollerID, out var id))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var microcontrollerDto = await _microcontrollerService.GetMicrocontrollerAsync(dto.ID, User.Identity.Name);
 
-      var (result, displaySensitiveInfo)
-        = await _microcontrollerService.GetMicrocontroller(id, User.Identity.Name);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var microcontroller = result.Data.First();
-      var microcontrollerInfoDto = new MicrocontrollerInfoDto(microcontroller, displaySensitiveInfo);
-
-      return Ok(new Response<MicrocontrollerInfoDto>(microcontrollerInfoDto));
+      return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
     [HttpPost]
     [SwaggerOperation("Authorized Only", "Creates microcontroller.")]
-    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateMicrocontrollerDto dto)
     {
-      var result = await _microcontrollerService.AddMicrocontroller(dto, User.Identity.Name);
+      var microcontrollerDto = await _microcontrollerService.AddMicrocontrollerAsync(dto, User.Identity.Name);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var microcontroller = result.Data.First();
-      var microcontrollerInfoDto = new MicrocontrollerInfoDto(microcontroller);
-
-      return Ok(new Response<MicrocontrollerInfoDto>(microcontrollerInfoDto));
+      return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
     [HttpPut]
     [SwaggerOperation("Authorized Only", "Updates microcontroller.")]
-    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateMicrocontrollerDto dto)
     {
-      var result = await _microcontrollerService.UpdateMicrocontroller(dto, User.Identity.Name);
+      var microcontrollerDto = await _microcontrollerService.UpdateMicrocontrollerAsync(dto, User.Identity.Name);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var microcontroller = result.Data.First();
-      var microcontrollerInfoDto = new MicrocontrollerInfoDto(microcontroller);
-
-      return Ok(new Response<MicrocontrollerInfoDto>(microcontrollerInfoDto));
+      return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
-    [HttpDelete("{microcontrollerID}")]
+    [HttpDelete]
     [SwaggerOperation("Authorized Only", "Deletes microcontroller.")]
-    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete(string microcontrollerID)
+    public async Task<IActionResult> Delete([FromQuery] IdDto dto)
     {
-      if (!Guid.TryParse(microcontrollerID, out var id))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var microcontrollerDto = await _microcontrollerService
+        .DeleteMicrocontrollerAsync(dto.ID, User.Identity.Name);
 
-      var result = await _microcontrollerService
-        .DeleteMicrocontroller(id, User.Identity.Name);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var microcontroller = result.Data.First();
-      var microcontrollerInfoDto = new MicrocontrollerInfoDto(microcontroller);
-
-      return Ok(new Response<MicrocontrollerInfoDto>(microcontrollerInfoDto));
+      return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
     // Admin only
-    [HttpPatch("{microcontrollerID}/{userID}")]
+    [HttpPatch]
     [SwaggerOperation("Administrator Only", "Changes microcontroller owner.")]
-    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> ChangeOwner(string microcontrollerID, string userID)
+    public async Task<IActionResult> ChangeOwner([FromQuery] ChangeMicrocontrollerOwnerDto dto)
     {
-      if (!Guid.TryParse(microcontrollerID, out var id) || !Guid.TryParse(userID, out _))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var microcontrollerDto = await _microcontrollerService
+        .ChangeMicrocontrollerOwnerAsync(dto.MicrocontrollerID, dto.UserID);
 
-      var result = await _microcontrollerService
-        .ChangeMicrocontrollerOwner(id, userID);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var microcontroller = result.Data.First();
-      var microcontrollerInfoDto = new MicrocontrollerInfoDto(microcontroller);
-
-      return Ok(new Response<MicrocontrollerInfoDto>(microcontrollerInfoDto));
+      return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
   }
 }

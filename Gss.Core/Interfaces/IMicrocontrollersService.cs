@@ -2,36 +2,18 @@
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
-using Gss.Core.Entities;
-using Gss.Core.Enums;
 
 namespace Gss.Core.Interfaces
 {
   public interface IMicrocontrollersService
   {
-    Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount, bool displaySensitiveInfo)> GetUserMicrocontrollers(string userID, string requestedByEmail,
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filterStr = "");
-
-    Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollers(
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filterStr = "");
-
-    Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetAllMicrocontrollers(
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filterStr = "");
-
-    Task<(ServiceResultDto<Microcontroller> result, bool displaySensitiveInfo)> GetMicrocontroller(Guid microcontrollerID, string requestedByEmail);
-
-    Task<ServiceResultDto<Microcontroller>> AddMicrocontroller(CreateMicrocontrollerDto dto, string ownerEmail);
-
-    Task<ServiceResultDto<Microcontroller>> UpdateMicrocontroller(UpdateMicrocontrollerDto dto, string ownerEmail);
-
-    Task<ServiceResultDto<Microcontroller>> ChangeMicrocontrollerOwner(Guid microcontrollerID, string newOwnerID);
-
-    Task<ServiceResultDto<Microcontroller>> DeleteMicrocontroller(Guid microcontrollerID, string ownerEmail);
+    Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo);
+    Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo);
+    Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(Guid userID, string requestedByEmail, PagedInfoDto pagedInfo);
+    Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerID, string requestedByEmail);
+    Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto dto, string ownerEmail);
+    Task<MicrocontrollerDto> UpdateMicrocontrollerAsync(UpdateMicrocontrollerDto dto, string ownerEmail);
+    Task<MicrocontrollerDto> DeleteMicrocontrollerAsync(Guid microcontrollerID, string ownerEmail);
+    Task<MicrocontrollerDto> ChangeMicrocontrollerOwnerAsync(Guid microcontrollerID, Guid newOwnerID);
   }
 }

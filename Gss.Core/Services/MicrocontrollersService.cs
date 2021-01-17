@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.Entities;
-using Gss.Core.Enums;
+using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Core.Services
 {
@@ -17,145 +18,121 @@ namespace Gss.Core.Services
   {
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager _userManager;
-    public MicrocontrollersService(IUnitOfWork unitOfWork, UserManager userManager)
+    private readonly IMapper _mapper;
+
+    public MicrocontrollersService(IUnitOfWork unitOfWork, UserManager userManager, IMapper mapper)
     {
       _unitOfWork = unitOfWork;
       _userManager = userManager;
+      _mapper = mapper;
     }
 
-    public async Task<(ServiceResultDto<Microcontroller> result, int microcontrollersCount, bool displaySensitiveInfo)> GetUserMicrocontrollers(
-      string userID, string requestedByEmail,
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filterStr = "")
+    public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo)
     {
-      var requestedBy = await _userManager.FindByEmailAsync(requestedByEmail);
+      var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, mc => mc.Public);
+
+      return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
+    }
+
+    public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo)
+    {
+      var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo);
+
+      return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
+    }
+
+    public async Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(Guid userID, string requestedByEmail, PagedInfoDto pagedInfo)
+    {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return (new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "User"), 0, false);
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "User"),
+          HttpStatusCode.NotFound);
       }
 
-      var sorter = GetOrderer(sortBy);
-      var filter = GetFilter(filterBy, filterStr);
-      var microcontrollersQuery = user.Microcontrollers.AsQueryable();
-
+      var requestedBy = await _userManager.FindByEmailAsync(requestedByEmail);
       bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
+      var pagedResultDto = user == requestedBy || administratorClaim
+        ? await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, mc => mc.Owner.ID == user.ID)
+        : await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, mc => mc.Owner.ID == user.ID && mc.Public);
 
-      var (pagedMicrocontrollersQuery, totalMicrocontrollersQuery) = user == requestedBy || administratorClaim
-        ? microcontrollersQuery
-          .GetPage(pageNumber, pageSize, sortOrder, sorter, filter)
-        : microcontrollersQuery
-          .Where(mc => mc.Public)
-          .GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
-
-      var microcontrollers = await pagedMicrocontrollersQuery.ToListAsync();
-      int totalQueriedMicrocontrollersCount = await totalMicrocontrollersQuery.CountAsync();
-
-      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount, user == requestedBy || administratorClaim);
+      return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }
 
-    public async Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetAllMicrocontrollers(
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filterStr = "")
-    {
-      var sorter = GetOrderer(sortBy);
-      var filter = GetFilter(filterBy, filterStr);
-
-      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _unitOfWork.Microcontrollers
-        .GetMicrocontrollersAsync(pageNumber, pageSize, sortOrder, filter, sorter, true);
-
-      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
-    }
-
-    public async Task<(ServiceResultDto<Microcontroller> result, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollers(
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None, string sortBy = "",
-      string filterBy = null, string filterStr = "")
-    {
-      var sorter = GetOrderer(sortBy);
-      var filter = GetFilter(filterBy, filterStr);
-
-      var (microcontrollers, totalQueriedMicrocontrollersCount) = await _unitOfWork.Microcontrollers
-        .GetPublicMicrocontrollersAsync(pageNumber, pageSize, sortOrder, filter, sorter, true);
-
-      return (new ServiceResultDto<Microcontroller>(microcontrollers), totalQueriedMicrocontrollersCount);
-    }
-
-    public async Task<(ServiceResultDto<Microcontroller> result, bool displaySensitiveInfo)> GetMicrocontroller(Guid microcontrollerID,
+    public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerID,
       string requestedByEmail)
     {
-      var microcontroller = await _unitOfWork.Microcontrollers.GetMicrocontrollerAsync(microcontrollerID);
+      var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerID);
 
       if (microcontroller is null)
       {
-        return (new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "Microcontroller"), false);
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "Microcontroller"),
+          HttpStatusCode.NotFound);
       }
 
-      if (microcontroller.Owner.Email.Equals(requestedByEmail))
+      if (microcontroller.Owner is not null
+        && microcontroller.Owner.Email.Equals(requestedByEmail))
       {
-        return (new ServiceResultDto<Microcontroller>(microcontroller), true);
-      }
-
-      if (microcontroller.Public)
-      {
-        return (new ServiceResultDto<Microcontroller>(microcontroller), false);
+        return _mapper.Map<MicrocontrollerDto>(microcontroller);
       }
 
       bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
 
       if (administratorClaim)
       {
-        return (new ServiceResultDto<Microcontroller>(microcontroller), true);
+        return _mapper.Map<MicrocontrollerDto>(microcontroller);
       }
 
-      return (new ServiceResultDto<Microcontroller>()
-        .AddError(Messages.AccessDeniedErrorString), false);
+      if (microcontroller.Public)
+      {
+        return _mapper.Map<MicrocontrollerDto>(microcontroller, options => options.AfterMap(
+          (src, dst) =>
+          {
+            dst.Latitude = dst.Longitude = null;
+            dst.IPAddress = null;
+          }));
+      }
+
+      throw new AppException(Messages.AccessDeniedErrorString, HttpStatusCode.Unauthorized);
     }
 
-    public async Task<ServiceResultDto<Microcontroller>> AddMicrocontroller(CreateMicrocontrollerDto dto, string ownerEmail)
+    public async Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto,
+      string ownerEmail)
     {
       var user = await _userManager.FindByEmailAsync(ownerEmail);
 
       if (user is null)
       {
-        return new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "User"),
+          HttpStatusCode.NotFound);
       }
 
-      var microcontroller = new Microcontroller
-      {
-        Name = dto.Name,
-        Latitude = dto.Latitude,
-        Longitude = dto.Longitude,
-        Public = dto.Public,
-        Owner = user
-      };
+      var microcontroller = _mapper.Map<Microcontroller>(createMicrocontrollerDto);
+      microcontroller.Owner = user;
+      microcontroller = _unitOfWork.Microcontrollers.Add(microcontroller);
 
-      microcontroller = _unitOfWork.Microcontrollers.AddMicrocontroller(microcontroller);
+      bool success = await _unitOfWork.SaveAsync();
 
-      if (await _unitOfWork.SaveAsync())
+      if (!success)
       {
-        return new ServiceResultDto<Microcontroller>(microcontroller);
+        throw new AppException(String.Format(Messages.CreationFailedErrorString, "Microcontroller"),
+          HttpStatusCode.BadRequest);
       }
 
-      return new ServiceResultDto<Microcontroller>()
-        .AddError(Messages.CreationFailedErrorString, "Microcontroller");
+      return _mapper.Map<MicrocontrollerDto>(microcontroller);
     }
 
-    public async Task<ServiceResultDto<Microcontroller>> UpdateMicrocontroller(UpdateMicrocontrollerDto dto,
+    public async Task<MicrocontrollerDto> UpdateMicrocontrollerAsync(UpdateMicrocontrollerDto updateMicrocontrollerDto,
       string ownerEmail)
     {
       Microcontroller microcontroller;
 
+      bool administratorClaim = await _userManager.IsAdministrator(ownerEmail);
+
       if (await _userManager.IsAdministrator(ownerEmail))
       {
-        microcontroller = await _unitOfWork.Microcontrollers
-          .GetMicrocontrollerAsync(dto.ID);
+        microcontroller = await _unitOfWork.Microcontrollers.FindAsync(updateMicrocontrollerDto.ID);
       }
       else
       {
@@ -163,71 +140,76 @@ namespace Gss.Core.Services
 
         if (user is null)
         {
-          return new ServiceResultDto<Microcontroller>()
-            .AddError(Messages.NotFoundErrorString, "User");
+          throw new AppException(String.Format(Messages.NotFoundErrorString, "User"),
+            HttpStatusCode.NotFound);
         }
 
-        microcontroller = user.Microcontrollers
-          .FirstOrDefault(mc => mc.ID == dto.ID);
+        microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == updateMicrocontrollerDto.ID);
       }
 
       if (microcontroller is null)
       {
-        return new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "Microcontoller");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "Microcontoller"),
+          HttpStatusCode.NotFound);
       }
 
-      microcontroller.Name = dto.Name;
-      microcontroller.Latitude = dto.Latitude;
-      microcontroller.Longitude = dto.Longitude;
-      microcontroller.Public = dto.Public;
+      microcontroller.Name = updateMicrocontrollerDto.Name;
+      microcontroller.Latitude = updateMicrocontrollerDto.Latitude;
+      microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
+      microcontroller.Public = updateMicrocontrollerDto.Public;
 
-      if (await _unitOfWork.SaveAsync())
+      bool success = await _unitOfWork.SaveAsync();
+
+      if (!success)
       {
-        return new ServiceResultDto<Microcontroller>(microcontroller);
+        throw new AppException(String.Format(Messages.UpdateFailedErrorString, "Microcontoller"),
+          HttpStatusCode.BadRequest);
       }
 
-      return new ServiceResultDto<Microcontroller>()
-        .AddError(Messages.UpdateFailedErrorString, "Microcontroller");
+      return _mapper.Map<MicrocontrollerDto>(microcontroller);
     }
 
-    public async Task<ServiceResultDto<Microcontroller>> ChangeMicrocontrollerOwner(Guid microcontrollerID,
-      string newOwnerID)
+    public async Task<MicrocontrollerDto> ChangeMicrocontrollerOwnerAsync(Guid microcontrollerID,
+      Guid newOwnerID)
     {
-      var microcontroller = await _unitOfWork.Microcontrollers.GetMicrocontrollerAsync(microcontrollerID);
+      var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerID);
 
       if (microcontroller is null)
       {
-        return new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "Microcontroller");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "Microcontoller"),
+          HttpStatusCode.NotFound);
       }
 
       var user = await _userManager.FindByIdAsync(newOwnerID);
 
       if (user is null)
       {
-        return new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "User"),
+          HttpStatusCode.NotFound);
       }
 
       microcontroller.Owner = user;
 
-      if (await _unitOfWork.SaveAsync())
+      bool success = await _unitOfWork.SaveAsync();
+
+      if (!success)
       {
-        return new ServiceResultDto<Microcontroller>(microcontroller);
+        throw new AppException(String.Format(Messages.UpdateFailedErrorString, "Microcontoller"),
+          HttpStatusCode.BadRequest);
       }
 
-      return new ServiceResultDto<Microcontroller>()
-        .AddError(Messages.UpdateFailedErrorString, "Microcontroller");
+      return _mapper.Map<MicrocontrollerDto>(microcontroller);
     }
 
-    public async Task<ServiceResultDto<Microcontroller>> DeleteMicrocontroller(Guid microcontrollerID, string ownerEmail)
+    public async Task<MicrocontrollerDto> DeleteMicrocontrollerAsync(Guid microcontrollerID, string ownerEmail)
     {
       Microcontroller microcontroller;
 
-      if (await _userManager.IsAdministrator(ownerEmail))
+      bool administratorClaim = await _userManager.IsAdministrator(ownerEmail);
+
+      if (administratorClaim)
       {
-        microcontroller = await _unitOfWork.Microcontrollers.GetMicrocontrollerAsync(microcontrollerID);
+        microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerID);
       }
       else
       {
@@ -235,29 +217,30 @@ namespace Gss.Core.Services
 
         if (user is null)
         {
-          return new ServiceResultDto<Microcontroller>()
-            .AddError(Messages.NotFoundErrorString, "User");
+          throw new AppException(String.Format(Messages.NotFoundErrorString, "User"),
+            HttpStatusCode.NotFound);
         }
 
-        microcontroller = user.Microcontrollers
-          .FirstOrDefault(mc => mc.ID == microcontrollerID);
+        microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == microcontrollerID);
       }
 
       if (microcontroller is null)
       {
-        return new ServiceResultDto<Microcontroller>()
-          .AddError(Messages.NotFoundErrorString, "Microcontoller");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "Microcontoller"),
+          HttpStatusCode.NotFound);
       }
 
-      microcontroller = _unitOfWork.Microcontrollers.DeleteMicrocontroller(microcontroller);
+      microcontroller = _unitOfWork.Microcontrollers.Remove(microcontroller);
 
-      if (await _unitOfWork.SaveAsync())
+      bool success = await _unitOfWork.SaveAsync();
+
+      if (!success)
       {
-        return new ServiceResultDto<Microcontroller>(microcontroller);
+        throw new AppException(String.Format(Messages.DeletionFailedErrorString, "Microcontoller"),
+          HttpStatusCode.BadRequest);
       }
 
-      return new ServiceResultDto<Microcontroller>()
-        .AddError(Messages.DeletionFailedErrorString, "Microcontroller");
+      return _mapper.Map<MicrocontrollerDto>(microcontroller);
     }
 
     private Expression<Func<Microcontroller, bool>> GetFilter(string filterBy, string filter)

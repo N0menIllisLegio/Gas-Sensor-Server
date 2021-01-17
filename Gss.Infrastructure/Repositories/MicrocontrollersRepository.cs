@@ -1,108 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Gss.Core.DTOs;
 using Gss.Core.Entities;
-using Gss.Core.Enums;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories
 {
-  public class MicrocontrollersRepository: IMicrocontrollersRepository
+  public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicrocontrollersRepository
   {
-    private readonly AppDbContext _appDbContext;
-
     public MicrocontrollersRepository(AppDbContext appDbContext)
+      : base(appDbContext)
+    { }
+
+    public async Task<PagedResultDto<Microcontroller>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
+      Expression<Func<Microcontroller, bool>> additionalFilterCriteria = null, bool disableTracking = true)
     {
-      _appDbContext = appDbContext;
-    }
+      var query = DbSet.SearchBy(pagedInfoDto.SearchString, microcontroller => new { microcontroller.Name, microcontroller.LastResponseTime },
+        pagedInfoDto.Filters, additionalFilterCriteria);
 
-    public async Task<(List<Microcontroller> microcontrollers, int totalQueriedMicrocontrollersCount)> GetMicrocontrollersAsync(
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None,
-      Expression<Func<Microcontroller, bool>> filter = null,
-      Expression<Func<Microcontroller, object>> sorter = null,
-      bool notTracking = false)
-    {
-      var (pagedMicrocontrollersQuery, totalMicrocontrollersQuery) = _appDbContext.Microcontrollers
-        .AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
-
-      pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.Include(mc => mc.Owner).AsQueryable();
-
-      if (notTracking)
+      if (disableTracking)
       {
-        pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.AsNoTracking();
+        query = query.AsNoTracking();
       }
 
-      var microcontrollers = await pagedMicrocontrollersQuery.ToListAsync();
-      int totalQueriedMicrocontrollersCount = await totalMicrocontrollersQuery.CountAsync();
+      query = query.OrderBy(pagedInfoDto.SortOptions);
 
-      return (microcontrollers, totalQueriedMicrocontrollersCount);
-    }
+      var pagedQuery = query.Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize).Take(pagedInfoDto.PageSize);
 
-    public async Task<(List<Microcontroller> microcontrollers, int totalQueriedMicrocontrollersCount)> GetPublicMicrocontrollersAsync(
-      int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None,
-      Expression<Func<Microcontroller, bool>> filter = null,
-      Expression<Func<Microcontroller, object>> sorter = null,
-      bool notTracking = false)
-    {
-      var (pagedMicrocontrollersQuery, totalMicrocontrollersQuery) = _appDbContext.Microcontrollers.Where(microcontroller => microcontroller.Public)
-        .GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
-
-      pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.Include(mc => mc.Owner);
-
-      if (notTracking)
+      return new PagedResultDto<Microcontroller>
       {
-        pagedMicrocontrollersQuery = pagedMicrocontrollersQuery.AsNoTracking();
-      }
-
-      var microcontrollers = await pagedMicrocontrollersQuery.ToListAsync();
-      int totalQueriedMicrocontrollersCount = await totalMicrocontrollersQuery.CountAsync();
-
-      return (microcontrollers, totalQueriedMicrocontrollersCount);
-    }
-
-    public async Task<Microcontroller> GetMicrocontrollerAsync(Guid microcontrollerID)
-    {
-      return await _appDbContext.Microcontrollers.FindAsync(microcontrollerID);
-    }
-
-    public Microcontroller AddMicrocontroller(Microcontroller microcontroller, bool generateID = true)
-    {
-      if (generateID)
-      {
-        microcontroller.ID = Guid.NewGuid();
-      }
-
-      return _appDbContext.Microcontrollers.Add(microcontroller).Entity;
-    }
-
-    public Microcontroller UpdateMicrocontroller(Microcontroller microcontroller)
-    {
-      return _appDbContext.Microcontrollers.Update(microcontroller).Entity;
-    }
-
-    public Microcontroller DeleteMicrocontroller(Microcontroller microcontroller)
-    {
-      return _appDbContext.Microcontrollers.Remove(microcontroller).Entity;
-    }
-
-    public async Task<bool> SaveAsync()
-    {
-      try
-      {
-        await _appDbContext.SaveChangesAsync();
-
-        return true;
-      }
-      catch
-      {
-        return false;
-      }
+        Items = await pagedQuery.ToListAsync(),
+        TotalItemsCount = await query.CountAsync(),
+        PagedInfo = pagedInfoDto
+      };
     }
   }
 }
