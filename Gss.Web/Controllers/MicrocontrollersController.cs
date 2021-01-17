@@ -28,7 +28,7 @@ namespace Gss.Web.Controllers
     [SwaggerOperation("Administrator Only", "Gets all microcontrollers. Paged.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetAllMicrocontrollers([FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetAllMicrocontrollers([FromQuery] PagedInfoDto pagedRequest)
     {
       var (microcontrollers, microcontrollersCount) = await _microcontrollerService.GetAllMicrocontrollers(pagedRequest.PageNumber,
         pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
@@ -50,7 +50,7 @@ namespace Gss.Web.Controllers
     [HttpGet]
     [SwaggerOperation(Description = "Gets all public microcontrollers.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
-    public async Task<IActionResult> GetPublicMicrocontrollers([FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetPublicMicrocontrollers([FromQuery] PagedInfoDto pagedRequest)
     {
       var (microcontrollers, microcontrollersCount) = await _microcontrollerService.GetPublicMicrocontrollers(pagedRequest.PageNumber,
         pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
@@ -72,7 +72,7 @@ namespace Gss.Web.Controllers
     [SwaggerOperation("Authorized Only", "Gets all microcontrollers that belongs to user.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<MicrocontrollerInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserMicrocontrollers(string userID, [FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetUserMicrocontrollers(string userID, [FromQuery] PagedInfoDto pagedRequest)
     {
       if (!Guid.TryParse(userID, out _))
       {

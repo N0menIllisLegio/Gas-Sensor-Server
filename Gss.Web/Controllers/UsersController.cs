@@ -37,7 +37,7 @@ namespace Gss.Web.Controllers
     [HttpGet]
     [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<ExtendedUserInfoDto>>))]
-    public async Task<IActionResult> GetAllUsers([FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetAllUsers([FromQuery] PagedInfoDto pagedRequest)
     {
       var (users, totalQueriedUsersCount) = await _userManager
         .GetPage(pagedRequest.PageNumber, pagedRequest.PageSize, pagedRequest.SortOrder,

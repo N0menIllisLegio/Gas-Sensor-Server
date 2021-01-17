@@ -29,7 +29,7 @@ namespace Gss.Web.Controllers
     [HttpGet]
     [SwaggerOperation("Administrator Only", "Gets all roles existing in database. Paged. OrderedBy and FilteredBy is const - Name.")]
     [SwaggerResponse(200, type: typeof(PagedResponse<IdentityRole<Guid>>))]
-    public async Task<IActionResult> GetAllRoles([FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetAllRoles([FromQuery] PagedInfoDto pagedRequest)
     {
       var (pagedRolesQuery, totalRolesQuery) = _roleManager.Roles.AsQueryable()
         .GetPage(pagedRequest.PageNumber, pagedRequest.PageSize,

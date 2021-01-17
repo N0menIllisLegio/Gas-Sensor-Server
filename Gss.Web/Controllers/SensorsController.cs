@@ -26,7 +26,7 @@ namespace Gss.Web.Controllers
     [SwaggerOperation("Administrator Only", "Gets all sensors.")]
     [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetAllSensors([FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetAllSensors([FromQuery] PagedInfoDto pagedRequest)
     {
       return await Task.Run(Ok);
     }

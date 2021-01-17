@@ -11,6 +11,7 @@ namespace Gss.Core.DTOs
       Succeeded = true;
       Data = new List<T>();
       Errors = new List<string>();
+      NewData = default;
     }
 
     public Response(IEnumerable<T> data)
@@ -25,6 +26,7 @@ namespace Gss.Core.DTOs
       Succeeded = true;
       Data = new List<T> { data };
       Errors = new List<string>();
+      NewData = data;
     }
 
     public Response(ServiceResultDto<T> resultDto)
@@ -34,12 +36,14 @@ namespace Gss.Core.DTOs
       Errors = resultDto.Errors;
     }
 
+    public T NewData { get; protected set; }
     public IEnumerable<T> Data { get; protected set; }
     public bool Succeeded { get; protected set; }
     public List<string> Errors { get; protected set; }
 
     public Response<T> AddError(string error, params string[] errorParams)
     {
+      Succeeded = false;
       string fromattedError = String.Format(error, errorParams);
 
       Errors.Add(fromattedError);

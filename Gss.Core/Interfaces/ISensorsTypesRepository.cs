@@ -1,28 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Gss.Core.DTOs;
 using Gss.Core.Entities;
-using Gss.Core.Enums;
 
 namespace Gss.Core.Interfaces
 {
-  public interface ISensorsTypesRepository
+  public interface ISensorsTypesRepository : IRepositoryBase<SensorType>
   {
-    Task<(List<SensorType> sensors, int totalQueriedSensorsCount)> GetSensorsTypesAsync(int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None,
-      Expression<Func<SensorType, bool>> filter = null,
-      Expression<Func<SensorType, object>> sorter = null,
-      bool notTracking = false);
-
-    Task<SensorType> GetSensorTypeAsync(Guid sensorTypeID);
-
-    SensorType AddSensorType(SensorType sensorType, bool generateID = true);
-
-    SensorType UpdateSensorType(SensorType sensorType);
-
-    SensorType DeleteSensorType(SensorType sensorType);
-
-    Task<bool> SaveAsync();
+    Task<PagedResultDto<SensorType>> GetPagedResultAsync(PagedInfoDto pagedInfoDto, bool disableTracking = true);
   }
 }

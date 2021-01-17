@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Enums;
 using Gss.Core.Helpers;
@@ -10,72 +12,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories
 {
-  public class SensorsTypesRepository : ISensorsTypesRepository
+  public class SensorsTypesRepository : RepositoryBase<SensorType>, ISensorsTypesRepository
   {
-    private readonly AppDbContext _appDbContext;
-
     public SensorsTypesRepository(AppDbContext appDbContext)
-    {
-      _appDbContext = appDbContext;
-    }
+      : base(appDbContext)
+    { }
 
-    public async Task<(List<SensorType> sensors, int totalQueriedSensorsCount)> GetSensorsTypesAsync(int pageNumber, int pageSize,
-      SortOrder sortOrder = SortOrder.None,
-      Expression<Func<SensorType, bool>> filter = null,
-      Expression<Func<SensorType, object>> sorter = null,
-      bool notTracking = false)
+    public async Task<PagedResultDto<SensorType>> GetPagedResultAsync(PagedInfoDto pagedInfoDto, bool disableTracking = true)
     {
-      var (pagedSensorsTypesQuery, totalSensorsTypesQuery) = _appDbContext.SensorsTypes
-        .AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
+      var query = DbSet.SearchBy(pagedInfoDto.SearchString, sensorType => new { sensorType.Name, sensorType.Units }, pagedInfoDto.Filters);
 
-      if (notTracking)
+      if (disableTracking)
       {
-        pagedSensorsTypesQuery = pagedSensorsTypesQuery.AsNoTracking();
+        query = query.AsNoTracking();
       }
 
-      var sensorsTypes = await pagedSensorsTypesQuery.ToListAsync();
-      int totalQueriedSensorsTypesCount = await totalSensorsTypesQuery.CountAsync();
+      query = query.OrderBy(pagedInfoDto.SortOptions);
 
-      return (sensorsTypes, totalQueriedSensorsTypesCount);
-    }
+      var pagedQuery = query.Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize).Take(pagedInfoDto.PageSize);
 
-    public async Task<SensorType> GetSensorTypeAsync(Guid sensorTypeID)
-    {
-      return await _appDbContext.SensorsTypes.FindAsync(sensorTypeID);
-    }
-
-    public SensorType AddSensorType(SensorType sensorType, bool generateID = true)
-    {
-      if (generateID)
+      return new PagedResultDto<SensorType>
       {
-        sensorType.ID = Guid.NewGuid();
-      }
-
-      return _appDbContext.SensorsTypes.Add(sensorType).Entity;
-    }
-
-    public SensorType UpdateSensorType(SensorType sensorType)
-    {
-      return _appDbContext.SensorsTypes.Update(sensorType).Entity;
-    }
-
-    public SensorType DeleteSensorType(SensorType sensorType)
-    {
-      return _appDbContext.SensorsTypes.Remove(sensorType).Entity;
-    }
-
-    public async Task<bool> SaveAsync()
-    {
-      try
-      {
-        await _appDbContext.SaveChangesAsync();
-
-        return true;
-      }
-      catch
-      {
-        return false;
-      }
+        Items = await pagedQuery.ToListAsync(),
+        TotalItemsCount = await query.CountAsync(),
+        PagedInfo = pagedInfoDto
+      };
     }
   }
 }

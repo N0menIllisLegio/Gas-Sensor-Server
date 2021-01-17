@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gss.Core.Enums;
 using Gss.Core.Helpers;
+using Gss.Core.Models;
 
 namespace Gss.Core.DTOs
 {
-  public class PagedRequest: IValidatableObject
+  public class PagedInfoDto: IValidatableObject
   {
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
@@ -16,6 +17,12 @@ namespace Gss.Core.DTOs
 
     public string FilterBy { get; set; }
     public string Filter { get; set; }
+
+    public string SearchString { get; set; }
+
+    public List<SortOption> SortOptions { get; set; }
+
+    public List<FilterCriterion> Filters { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.Interfaces;
-using Gss.Core.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -21,113 +18,59 @@ namespace Gss.Web.Controllers
       _sensorsTypesService = sensorsTypesService;
     }
 
-    [HttpGet]
+    [HttpPost]
     [SwaggerOperation(Description = "Gets all sensor's types.")]
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorTypeDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetAllSensorsTypes([FromQuery] PagedRequest pagedRequest)
+    public async Task<IActionResult> GetAllSensorsTypes([FromBody] PagedInfoDto pagedRequest)
     {
-      var (sensorsTypes, sensorsTypesCount) = await _sensorsTypesService.GetAllSensorsTypes(pagedRequest.PageNumber,
-        pagedRequest.PageSize, pagedRequest.SortOrder, pagedRequest.Filter);
+      var pagedResult = await _sensorsTypesService.GetAllSensorsTypes(pagedRequest);
 
-      var microcontrollersInfos = sensorsTypes.Data.Select(type => new SensorTypeInfoDto(type)).ToList();
-      var response = new PagedResponse<SensorTypeInfoDto>(microcontrollersInfos, pagedRequest.PageNumber, pagedRequest.PageSize)
-      {
-        TotalRecords = sensorsTypesCount,
-        OrderedBy = pagedRequest.SortBy,
-        SortOrder = pagedRequest.SortOrder,
-        Filter = pagedRequest.Filter,
-        FilteredBy = pagedRequest.FilterBy
-      };
-
-      return Ok(response);
+      return Ok(new Response<PagedResultDto<SensorTypeDto>>(pagedResult));
     }
 
-    [HttpGet("{sensorTypeID}")]
+    [HttpGet]
     [SwaggerOperation(Description = "Gets sensor's type by id.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorTypeInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetSensorType(string sensorTypeID)
+    public async Task<IActionResult> GetSensorType([FromQuery] IdDto dto)
     {
-      if (!Guid.TryParse(sensorTypeID, out var id))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var sensorTypeDto = await _sensorsTypesService.GetSensorType(dto.ID);
 
-      var result = await _sensorsTypesService.GetSensorType(id);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var sensorType = result.Data.First();
-      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
-
-      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
+      return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
 
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Creates sensor's type.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorTypeInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateSensorTypeDto dto)
     {
-      var result = await _sensorsTypesService.AddSensorType(dto);
+      var sensorTypeDto = await _sensorsTypesService.AddSensorType(dto);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var sensorType = result.Data.First();
-      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
-
-      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
+      return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
 
     [HttpPut]
     [SwaggerOperation("Administrator Only", "Updates sensor's type.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorTypeInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateSensorTypeDto dto)
     {
-      var result = await _sensorsTypesService.UpdateSensorType(dto);
+      var sensorTypeDto = await _sensorsTypesService.UpdateSensorType(dto);
 
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var sensorType = result.Data.First();
-      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
-
-      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
+      return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
 
-    [HttpDelete("{sensorTypeID}")]
+    [HttpDelete]
     [SwaggerOperation("Administrator Only", "Deletes sensor's type.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorTypeInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete(string sensorTypeID)
+    public async Task<IActionResult> Delete([FromQuery] IdDto dto)
     {
-      if (!Guid.TryParse(sensorTypeID, out var id))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var sensorTypeDto = await _sensorsTypesService.DeleteSensorType(dto.ID);
 
-      var result = await _sensorsTypesService.DeleteSensorType(id);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>(result));
-      }
-
-      var sensorType = result.Data.First();
-      var sensorTypeInfoDto = new SensorTypeInfoDto(sensorType);
-
-      return Ok(new Response<SensorTypeInfoDto>(sensorTypeInfoDto));
+      return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
   }
 }
