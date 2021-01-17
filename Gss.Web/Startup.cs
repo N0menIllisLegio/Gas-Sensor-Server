@@ -98,12 +98,15 @@ namespace Gss.Web
 
       services.AddAutoMapper(typeof(AutoMapperProfile));
       services.AddScoped<IUnitOfWork, UnitOfWork>();
+
       services.AddTransient<ITokensService, TokensService>();
-      services.AddScoped<IAuthenticationService, AuthenticationService>();
       services.AddTransient<IEmailService, EmailService>();
+
+      services.AddScoped<IAuthenticationService, AuthenticationService>();
       services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
       services.AddScoped<ISensorsTypesService, SensorsTypesService>();
       services.AddScoped<ISensorsService, SensorsService>();
+      services.AddScoped<IRolesService, RolesService>();
 
       services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
 
