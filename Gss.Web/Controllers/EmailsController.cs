@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Interfaces;
-using Gss.Core.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -27,64 +25,47 @@ namespace Gss.Web.Controllers
     [SwaggerOperation("Authorized Only", "Sends message to specified email with email change confirmation token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> SendEmailChangeConfirmation(string newEmail)
+    public async Task<IActionResult> SendEmailChangeConfirmation([FromBody] EmailDto dto)
     {
-      var emailValidator = new EmailAddressAttribute();
-
-      if (!emailValidator.IsValid(newEmail))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidEmailErrorString));
-      }
-
       string email = User.Identity.Name;
 
       // TODO actually this url should lead to front which will call API
       // this may lead to change in AuthService url params generation
       // string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       string url = $"{Request.Scheme}://{Request.Host}/api/SendEmailChangeConfirmation";
-      var result = await _authService.SendEmailChangeConfirmationAsync(email, newEmail, url);
-      var response = new Response<object>(result);
+      await _authService.SendEmailChangeConfirmationAsync(email, dto.Email, url);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
 
     [HttpGet("{email}")]
     [SwaggerOperation(description: "Sends message to specified email with reset password token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> SendResetPasswordConfirmation(string email)
+    public async Task<IActionResult> SendResetPasswordConfirmation([FromBody] EmailDto dto)
     {
       // TODO actually this url should lead to front which will call API
       // this may lead to change in AuthService url params generation
       // string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       string url = $"{Request.Scheme}://{Request.Host}/api/SendResetPasswordConfirmation";
-      var result = await _authService.SendResetPasswordConfirmationAsync(email, url);
-      var response = new Response<object>(result);
+      await _authService.SendResetPasswordConfirmationAsync(dto.Email, url);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
 
     [HttpGet("{email}")]
     [SwaggerOperation(description: "Sends message to specified email with email confirmation token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> SendEmailConfirmation(string email)
+    public async Task<IActionResult> SendEmailConfirmation([FromBody] EmailDto dto)
     {
       // TODO actually this url should lead to front which will call API
       // this may lead to change in AuthService url params generation (in that case remove '?' from attribute below)
       // string url = Url.RouteUrl(_emailConfirmationRouteName, new { userID = String.Empty, token = String.Empty }, Request.Scheme);
       string url = $"{Request.Scheme}://{Request.Host}/api/SendEmailConfirmation";
-      var result = await _authService.SendEmailConfirmationAsync(email, url);
-      var response = new Response<object>(result);
+      await _authService.SendEmailConfirmationAsync(dto.Email, url);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
   }
 }

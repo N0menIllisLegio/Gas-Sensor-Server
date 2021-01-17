@@ -26,40 +26,31 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)
     {
-      var result = await _authService.RegisterAsync(registerModel);
-      var response = new Response<object>(result);
+      await _authService.RegisterAsync(registerModel);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
 
     [HttpPost]
     [SwaggerOperation(description: "Generates access/refresh token pair.")]
     [SwaggerResponse(200, type: typeof(Response<TokenDto>))]
-    [SwaggerResponse(400, type: typeof(Response<TokenDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> LogIn([FromBody] LoginDto loginModel)
     {
-      var result = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
-      var response = new Response<TokenDto>(result);
+      var tokenDto = await _authService.LogInAsync(loginModel.Login, loginModel.Password);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<TokenDto>(tokenDto));
     }
 
     [HttpPost]
     [SwaggerOperation(description: "Refreshes access token.")]
     [SwaggerResponse(200, type: typeof(Response<TokenDto>))]
-    [SwaggerResponse(400, type: typeof(Response<TokenDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> RefreshToken([FromBody] RequestTokenRefreshDto requestTokens)
     {
-      var result = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
-      var response = new Response<TokenDto>(result);
+      var tokenDto = await _authService.RefreshTokenAsync(requestTokens.AccessToken, requestTokens.RefreshToken);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<TokenDto>(tokenDto));
     }
 
     [Authorize]

@@ -20,6 +20,8 @@ namespace Gss.Core.Helpers
 
       CreateMap<IdentityRole<Guid>, RoleDto>();
       CreateMap<CreateRoleDto, IdentityRole<Guid>>();
+
+      CreateMap<CreateUserDto, User>();
     }
   }
 }

@@ -115,11 +115,11 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to send email confirmation..
+        ///   Looks up a localized string similar to Failed to send {0}..
         /// </summary>
-        public static string FailedToSendEmailConfirmationErrorString {
+        public static string FailedToSendEmailErrorString {
             get {
-                return ResourceManager.GetString("FailedToSendEmailConfirmationErrorString", resourceCulture);
+                return ResourceManager.GetString("FailedToSendEmailErrorString", resourceCulture);
             }
         }
         

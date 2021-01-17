@@ -47,7 +47,7 @@ namespace Gss.Core.Services
 
     public async Task<TokenDto> GenerateTokenAsync(User user)
     {
-      var identity = await GetIdentityAsync(user);
+      var userClaims = await GetUserClaimsAsync(user);
 
       var issueTime = DateTime.UtcNow;
       var expirationTime = issueTime.Add(
@@ -57,7 +57,7 @@ namespace Gss.Core.Services
         issuer: Settings.JWT.Issuer,
         audience: Settings.JWT.Audience,
         notBefore: issueTime,
-        claims: identity.Claims,
+        claims: userClaims.Claims,
         expires: expirationTime,
         signingCredentials: new SigningCredentials(
           Settings.JWT.Key,
@@ -72,7 +72,7 @@ namespace Gss.Core.Services
       };
     }
 
-    private async Task<ClaimsIdentity> GetIdentityAsync(User user)
+    private async Task<ClaimsIdentity> GetUserClaimsAsync(User user)
     {
       var roles = await _userManager.GetRolesAsync(user);
 

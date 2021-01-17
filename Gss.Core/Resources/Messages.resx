@@ -135,8 +135,8 @@
   <data name="EmailNotConfirmedErrorString" xml:space="preserve">
     <value>Email is not confirmed.</value>
   </data>
-  <data name="FailedToSendEmailConfirmationErrorString" xml:space="preserve">
-    <value>Failed to send email confirmation.</value>
+  <data name="FailedToSendEmailErrorString" xml:space="preserve">
+    <value>Failed to send {0}.</value>
   </data>
   <data name="InternalServerErrorString" xml:space="preserve">
     <value>Internal Server Error (500)

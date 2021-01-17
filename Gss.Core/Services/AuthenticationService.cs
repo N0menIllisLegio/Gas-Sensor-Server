@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
-using Gss.Core.DTOs;
+using AutoMapper;
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.DTOs.User;
 using Gss.Core.Entities;
+using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
@@ -15,6 +17,7 @@ namespace Gss.Core.Services
 {
   public class AuthenticationService: IAuthenticationService
   {
+    private const string _user = "User";
     private const string _emailConfirmationSubject = "Email confirmation";
     private const string _emailChangeSubject = "Email change";
     private const string _passwordResetSubject = "Password reset";
@@ -24,210 +27,200 @@ namespace Gss.Core.Services
     private readonly UserManager _userManager;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
+    private readonly IMapper _mapper;
 
     public AuthenticationService(ITokensService tokenService,
       SignInManager<User> signInManager,
       UserManager userManager,
       IUnitOfWork unitOfWork,
-      IEmailService emailService)
+      IEmailService emailService,
+      IMapper mapper)
     {
       _tokenService = tokenService;
       _signInManager = signInManager;
       _userManager = userManager;
       _unitOfWork = unitOfWork;
       _emailService = emailService;
+      _mapper = mapper;
     }
 
-    public async Task<ServiceResultDto<object>> SendEmailConfirmationAsync(string email, string confirmationUrl)
+    public async Task SendEmailConfirmationAsync(string email, string confirmationUrl)
     {
       var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
       }
 
       if (user.EmailConfirmed)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.EmailAlreadyConfirmedErrorString);
+        throw new AppException(Messages.EmailAlreadyConfirmedErrorString,
+          HttpStatusCode.BadRequest);
       }
 
       string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
       confirmationUrl = $"{confirmationUrl}/{user.Id}/{HttpUtility.UrlEncode(token)}";
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailConfirmationSubject, confirmationUrl);
 
-      return sendSuccessfully
-        ? new ServiceResultDto<object>()
-        : new ServiceResultDto<object>()
-          .AddError(Messages.FailedToSendEmailConfirmationErrorString);
+      if (!sendSuccessfully)
+      {
+        throw new AppException(String.Format(Messages.FailedToSendEmailErrorString, "email confirmation"),
+          HttpStatusCode.ServiceUnavailable);
+      }
     }
 
-    public async Task<ServiceResultDto<object>> ConfirmEmailAsync(string userID, string token)
+    public async Task<bool> ConfirmEmailAsync(string userID, string token)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
       }
 
       var result = await _userManager.ConfirmEmailAsync(user, token);
 
-      return result.Succeeded
-          ? new ServiceResultDto<object>()
-          : new ServiceResultDto<object>()
-            .AddErrors(result.Errors.Select(r => r.Description));
+      return result.Succeeded;
     }
 
-    public async Task<ServiceResultDto<object>> SendResetPasswordConfirmationAsync(string email, string redirectUrl)
+    public async Task SendResetPasswordConfirmationAsync(string email, string redirectUrl)
     {
       var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
       }
 
       if (!user.EmailConfirmed)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.EmailNotConfirmedErrorString);
+        throw new AppException(Messages.EmailNotConfirmedErrorString,
+          HttpStatusCode.Forbidden);
       }
 
       string token = await _userManager.GeneratePasswordResetTokenAsync(user);
       redirectUrl = $"{redirectUrl}/{user.Id}/{HttpUtility.UrlEncode(token)}";
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _passwordResetSubject, redirectUrl);
 
-      return sendSuccessfully
-        ? new ServiceResultDto<object>()
-        : new ServiceResultDto<object>()
-          .AddError(Messages.FailedToSendEmailConfirmationErrorString);
+      if (!sendSuccessfully)
+      {
+        throw new AppException(String.Format(Messages.FailedToSendEmailErrorString, "password reset token"),
+          HttpStatusCode.ServiceUnavailable);
+      }
     }
 
-    public async Task<ServiceResultDto<object>> ResetPasswordAsync(string userID, string token, string newPassword)
+    public async Task<bool> ResetPasswordAsync(string userID, string token, string newPassword)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
       }
 
       var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
 
-      return result.Succeeded
-         ? new ServiceResultDto<object>()
-         : new ServiceResultDto<object>()
-           .AddErrors(result.Errors.Select(r => r.Description));
+      return result.Succeeded;
     }
 
-    public async Task<ServiceResultDto<object>> SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl)
+    public async Task SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl)
     {
       var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
       }
 
       if (!user.EmailConfirmed)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.EmailNotConfirmedErrorString);
+        throw new AppException(Messages.EmailNotConfirmedErrorString,
+          HttpStatusCode.Forbidden);
       }
 
       string token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
       confirmationUrl = $"{confirmationUrl}/{user.Id}/{newEmail}/{HttpUtility.UrlEncode(token)}";
       bool sendSuccessfully = await _emailService.SendTextEmailAsync(user.Email, _emailChangeSubject, confirmationUrl);
 
-      return sendSuccessfully
-        ? new ServiceResultDto<object>()
-        : new ServiceResultDto<object>()
-          .AddError(Messages.FailedToSendEmailConfirmationErrorString);
+      if (!sendSuccessfully)
+      {
+        throw new AppException(String.Format(Messages.FailedToSendEmailErrorString, "email change confirmation token"),
+          HttpStatusCode.ServiceUnavailable);
+      }
     }
 
-    public async Task<ServiceResultDto<object>> ChangeEmailAsync(string userID, string newEmail, string token)
+    public async Task<bool> ChangeEmailAsync(string userID, string newEmail, string token)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return new ServiceResultDto<object>()
-          .AddError(Messages.NotFoundErrorString, "User");
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
       }
 
       var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
 
-      return result.Succeeded
-         ? new ServiceResultDto<object>()
-         : new ServiceResultDto<object>()
-           .AddErrors(result.Errors.Select(r => r.Description));
+      return result.Succeeded;
     }
 
-    public async Task<ServiceResultDto<object>> RegisterAsync(CreateUserDto newUserDto)
+    public async Task RegisterAsync(CreateUserDto createUserDto)
     {
-      var user = new User
+      var user = _mapper.Map<User>(createUserDto);
+      var result = await _userManager.CreateAsync(user, createUserDto.Password);
+
+      if (!result.Succeeded)
       {
-        Email = newUserDto.Email,
-        FirstName = newUserDto.FirstName,
-        LastName = newUserDto.LastName,
-        Gender = newUserDto.Gender,
-        Birthday = newUserDto.Birthday,
-        PhoneNumber = newUserDto.PhoneNumber
-      };
-
-      var result = await _userManager.CreateAsync(user, newUserDto.Password);
-
-      return result.Succeeded
-          ? new ServiceResultDto<object>()
-          : new ServiceResultDto<object>()
-            .AddErrors(result.Errors.Select(r => r.Description));
+        string errorMessage = String.Join('\n', result.Errors.Select(r => r.Description));
+        throw new AppException(errorMessage, HttpStatusCode.BadRequest);
+      }
     }
 
-    public async Task<ServiceResultDto<TokenDto>> LogInAsync(string login, string password)
+    public async Task<TokenDto> LogInAsync(string login, string password)
     {
       var user = await _userManager.FindByEmailAsync(login);
       var signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
       if (!signInResult.Succeeded)
       {
-        string errorMessage = signInResult.IsNotAllowed
-          ? Messages.EmailNotConfirmedErrorString
-            : signInResult.IsLockedOut
-          ? Messages.UserIsLockedOutErrorString
-          : Messages.InvalidEmailOrPasswordErrorString;
+        if (signInResult.IsNotAllowed)
+        {
+          throw new AppException(Messages.EmailNotConfirmedErrorString, HttpStatusCode.Forbidden);
+        }
 
-        return new ServiceResultDto<TokenDto>()
-          .AddError(errorMessage);
+        if (signInResult.IsLockedOut)
+        {
+          throw new AppException(Messages.UserIsLockedOutErrorString, HttpStatusCode.Forbidden);
+        }
+
+        throw new AppException(Messages.InvalidEmailOrPasswordErrorString, HttpStatusCode.BadRequest);
       }
 
       var token = await _tokenService.GenerateTokenAsync(user);
       await _unitOfWork.RefreshTokens.AddRefreshTokenAsync(user, token.RefreshToken);
 
-      return new ServiceResultDto<TokenDto>(token);
+      return token;
     }
 
-    public async Task<ServiceResultDto<TokenDto>> RefreshTokenAsync(string accessToken, string refreshToken)
+    public async Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken)
     {
       string accountEmail = _tokenService.GetEmailFromAccessToken(accessToken);
       var token = await _unitOfWork.RefreshTokens.GetRefreshTokenAsync(accountEmail, refreshToken);
 
       if (token is null)
       {
-        return new ServiceResultDto<TokenDto>()
-          .AddError(Messages.RefreshTokenNotExistsErrorString);
+        throw new AppException(Messages.RefreshTokenNotExistsErrorString, HttpStatusCode.BadRequest);
       }
 
       if (token.ExpirationDate < DateTime.UtcNow)
       {
-        return new ServiceResultDto<TokenDto>()
-          .AddError(Messages.RefreshTokenExpiredErrorString);
+        throw new AppException(Messages.RefreshTokenExpiredErrorString, HttpStatusCode.BadRequest);
       }
 
       await _unitOfWork.RefreshTokens.DeleteRefreshTokenAsync(token);
@@ -235,7 +228,7 @@ namespace Gss.Core.Services
       var newToken = await _tokenService.GenerateTokenAsync(user);
       await _unitOfWork.RefreshTokens.AddRefreshTokenAsync(user, newToken.RefreshToken);
 
-      return new ServiceResultDto<TokenDto>(newToken);
+      return newToken;
     }
 
     public async Task LogOutAsync(string accessToken, string refreshToken)
