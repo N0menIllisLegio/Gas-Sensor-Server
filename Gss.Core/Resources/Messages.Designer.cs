@@ -124,6 +124,17 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Internal Server Error (500)
+        ///
+        ///Ooops somthing went wrong on our end....
+        /// </summary>
+        public static string InternalServerErrorString {
+            get {
+                return ResourceManager.GetString("InternalServerErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid email confirmation token..
         /// </summary>
         public static string InvalidEmailConfirmationTokenErrorString {
@@ -219,6 +230,17 @@ namespace Gss.Core.Resources {
         public static string RefreshTokenNotExistsErrorString {
             get {
                 return ResourceManager.GetString("RefreshTokenNotExistsErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unauthorized (401)
+        ///
+        ///Through a series of highly sophisticated and complex algorithms, this system has determined that you are not presently authorized to use this system function. It could be that you simply mistyped a password, or, it could be that you are some sort of interplanetary alien-being that has no hands and, thus, cannot type. If I were a gambler, I would bet that a cat (an orange tabby named Sierra or Harley) somehow jumped onto your keyboard and forgot some of the more important pointers from  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string UnauthorizedMessageErrorString {
+            get {
+                return ResourceManager.GetString("UnauthorizedMessageErrorString", resourceCulture);
             }
         }
         

@@ -12,6 +12,7 @@ using Gss.Core.Interfaces;
 using Gss.Core.Resources;
 using Gss.Core.Services;
 using Gss.Infrastructure;
+using Gss.Web.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -61,14 +62,15 @@ namespace Gss.Web
         .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
         .AddDefaultTokenProviders();
 
-      services.AddControllers().ConfigureApiBehaviorOptions(options =>
-        options.InvalidModelStateResponseFactory = actionContext =>
-        {
-          var errors = actionContext.ModelState.Values.SelectMany(v =>
-            v.Errors.Select(b => b.ErrorMessage));
+      services.AddControllers()
+        .ConfigureApiBehaviorOptions(options =>
+          options.InvalidModelStateResponseFactory = actionContext =>
+          {
+            var errors = actionContext.ModelState.Values.SelectMany(v =>
+              v.Errors.Select(b => b.ErrorMessage));
 
-          return new BadRequestObjectResult(new Response<object>().AddErrors(errors));
-        })
+            return new BadRequestObjectResult(new Response<object>().AddErrors(errors));
+          })
         .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -144,10 +146,12 @@ namespace Gss.Web
     {
       if (!env.IsDevelopment())
       {
-        app.UseExceptionHandler("/Error");
+        // app.UseExceptionHandler("/Error");
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         // TODO app.UseHsts();
       }
+
+      app.UseMiddleware<ExceptionMiddleware>();
 
       // TODO check app.UseHttpsRedirection();
       app.UseStaticFiles();
