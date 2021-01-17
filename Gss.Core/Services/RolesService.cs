@@ -46,7 +46,7 @@ namespace Gss.Core.Services
 
     public async Task<RoleDto> GetRoleAsync(Guid id)
     {
-      var role = await _roleManager.FindByIdAsync(id.ToString());
+      var role = await _roleManager.FindByIdAsync(id);
 
       if (role is null)
       {
@@ -73,7 +73,7 @@ namespace Gss.Core.Services
 
     public async Task<RoleDto> UpdateRoleAsync(UpdateRoleDto updateRoleDto)
     {
-      var role = await _roleManager.FindByIdAsync(updateRoleDto.ID.ToString());
+      var role = await _roleManager.FindByIdAsync(updateRoleDto.ID);
 
       if (role is null)
       {
@@ -96,7 +96,7 @@ namespace Gss.Core.Services
 
     public async Task<RoleDto> DeleteRoleAsync(Guid id)
     {
-      var role = await _roleManager.FindByIdAsync(id.ToString());
+      var role = await _roleManager.FindByIdAsync(id);
 
       if (role is null)
       {
