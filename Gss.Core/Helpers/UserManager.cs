@@ -68,9 +68,24 @@ namespace Gss.Core.Helpers
 
     public async Task<bool> IsAdministrator(string email)
     {
+      if (email is null)
+      {
+        return false;
+      }
+
       var user = await FindByEmailAsync(email);
 
+      if (user is null)
+      {
+        return false;
+      }
+
       return await IsInRoleAsync(user, "Administrator");
+    }
+
+    public Task<User> FindByIdAsync(Guid userId)
+    {
+      return base.FindByIdAsync(userId.ToString());
     }
   }
 }
