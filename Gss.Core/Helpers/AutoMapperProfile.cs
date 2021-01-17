@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.DTOs.Role;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.DTOs.User;
@@ -12,9 +13,6 @@ namespace Gss.Core.Helpers
   {
     public AutoMapperProfile()
     {
-      CreateMap<User, ExtendedUserInfoDto>()
-        .ForMember(destination => destination.FirstName, options => options.MapFrom(source => "KEKER"));
-
       CreateMap<SensorType, SensorTypeDto>();
       CreateMap<CreateSensorTypeDto, SensorType>();
 
@@ -22,6 +20,9 @@ namespace Gss.Core.Helpers
       CreateMap<CreateRoleDto, IdentityRole<Guid>>();
 
       CreateMap<CreateUserDto, User>();
+
+      CreateMap<Microcontroller, MicrocontrollerDto>();
+      CreateMap<CreateMicrocontrollerDto, Microcontroller>();
     }
   }
 }
