@@ -22,14 +22,14 @@ namespace Gss.Core.Services
       _mapper = mapper;
     }
 
-    public async Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypes(PagedInfoDto pagedInfo)
+    public async Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo)
     {
       var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(pagedInfo);
 
       return pagedResultDto.Convert<SensorTypeDto>(_mapper);
     }
 
-    public async Task<SensorTypeDto> GetSensorType(Guid sensorTypeID)
+    public async Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeID)
     {
       var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeID);
 
@@ -42,7 +42,7 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorTypeDto>(sensorType);
     }
 
-    public async Task<SensorTypeDto> AddSensorType(CreateSensorTypeDto createSensorTypeDto)
+    public async Task<SensorTypeDto> AddSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
     {
       var sensorType = _mapper.Map<SensorType>(createSensorTypeDto);
       sensorType = _unitOfWork.SensorsTypes.Add(sensorType);
@@ -58,7 +58,7 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorTypeDto>(sensorType);
     }
 
-    public async Task<SensorTypeDto> UpdateSensorType(UpdateSensorTypeDto updateSensorTypeDto)
+    public async Task<SensorTypeDto> UpdateSensorTypeAsync(UpdateSensorTypeDto updateSensorTypeDto)
     {
       var sensorType = await _unitOfWork.SensorsTypes.FindAsync(updateSensorTypeDto.ID);
 
@@ -83,7 +83,7 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorTypeDto>(sensorType);
     }
 
-    public async Task<SensorTypeDto> DeleteSensorType(Guid sensorTypeID)
+    public async Task<SensorTypeDto> DeleteSensorTypeAsync(Guid sensorTypeID)
     {
       var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeID);
 

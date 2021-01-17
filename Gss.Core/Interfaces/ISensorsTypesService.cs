@@ -7,14 +7,14 @@ namespace Gss.Core.Interfaces
 {
   public interface ISensorsTypesService
   {
-    Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypes(PagedInfoDto pagedInfo);
+    Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo);
 
-    Task<SensorTypeDto> GetSensorType(Guid sensorTypeID);
+    Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeID);
 
-    Task<SensorTypeDto> AddSensorType(CreateSensorTypeDto dto);
+    Task<SensorTypeDto> AddSensorTypeAsync(CreateSensorTypeDto dto);
 
-    Task<SensorTypeDto> UpdateSensorType(UpdateSensorTypeDto dto);
+    Task<SensorTypeDto> UpdateSensorTypeAsync(UpdateSensorTypeDto dto);
 
-    Task<SensorTypeDto> DeleteSensorType(Guid sensorTypeID);
+    Task<SensorTypeDto> DeleteSensorTypeAsync(Guid sensorTypeID);
   }
 }

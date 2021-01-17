@@ -24,7 +24,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetAllSensorsTypes([FromBody] PagedInfoDto pagedRequest)
     {
-      var pagedResult = await _sensorsTypesService.GetAllSensorsTypes(pagedRequest);
+      var pagedResult = await _sensorsTypesService.GetAllSensorsTypesAsync(pagedRequest);
 
       return Ok(new Response<PagedResultDto<SensorTypeDto>>(pagedResult));
     }
@@ -35,7 +35,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetSensorType([FromQuery] IdDto dto)
     {
-      var sensorTypeDto = await _sensorsTypesService.GetSensorType(dto.ID);
+      var sensorTypeDto = await _sensorsTypesService.GetSensorTypeAsync(dto.ID);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
@@ -46,7 +46,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateSensorTypeDto dto)
     {
-      var sensorTypeDto = await _sensorsTypesService.AddSensorType(dto);
+      var sensorTypeDto = await _sensorsTypesService.AddSensorTypeAsync(dto);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
@@ -57,7 +57,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateSensorTypeDto dto)
     {
-      var sensorTypeDto = await _sensorsTypesService.UpdateSensorType(dto);
+      var sensorTypeDto = await _sensorsTypesService.UpdateSensorTypeAsync(dto);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
@@ -68,7 +68,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Delete([FromQuery] IdDto dto)
     {
-      var sensorTypeDto = await _sensorsTypesService.DeleteSensorType(dto.ID);
+      var sensorTypeDto = await _sensorsTypesService.DeleteSensorTypeAsync(dto.ID);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
