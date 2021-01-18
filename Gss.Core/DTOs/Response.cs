@@ -9,37 +9,20 @@ namespace Gss.Core.DTOs
     public Response()
     {
       Succeeded = true;
-      Data = new List<T>();
       Errors = new List<string>();
-      NewData = default;
-    }
-
-    public Response(IEnumerable<T> data)
-    {
-      Succeeded = true;
-      Data = new List<T>(data);
-      Errors = new List<string>();
+      Data = default;
     }
 
     public Response(T data)
     {
       Succeeded = true;
-      Data = new List<T> { data };
       Errors = new List<string>();
-      NewData = data;
+      Data = data;
     }
 
-    public Response(ServiceResultDto<T> resultDto)
-    {
-      Succeeded = resultDto.Succeeded;
-      Data = resultDto.Data;
-      Errors = resultDto.Errors;
-    }
-
-    public T NewData { get; protected set; }
-    public IEnumerable<T> Data { get; protected set; }
-    public bool Succeeded { get; protected set; }
-    public List<string> Errors { get; protected set; }
+    public T Data { get; set; }
+    public bool Succeeded { get; }
+    public List<string> Errors { get; set; }
 
     public Response<T> AddError(string error, params string[] errorParams)
     {

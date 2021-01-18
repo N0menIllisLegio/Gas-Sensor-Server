@@ -4,11 +4,11 @@ namespace Gss.Core.Services
 {
   public class SensorsService : ISensorsService
   {
-    private readonly ISensorsRepository _sensorsRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public SensorsService(ISensorsRepository sensorsRepository)
+    public SensorsService(IUnitOfWork unitOfWork)
     {
-      _sensorsRepository = sensorsRepository;
+      _unitOfWork = unitOfWork;
     }
   }
 }

@@ -14,6 +14,6 @@ namespace Gss.Core.DTOs.Microcontroller
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
 
-    public UserInfoDto UserInfo { get; set; }
+    public UserDto UserInfo { get; set; }
   }
 }

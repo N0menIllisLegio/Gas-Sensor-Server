@@ -23,6 +23,10 @@ namespace Gss.Core.Helpers
 
       CreateMap<Microcontroller, MicrocontrollerDto>();
       CreateMap<CreateMicrocontrollerDto, Microcontroller>();
+
+      CreateMap<User, UserDto>();
+      CreateMap<User, ExtendedUserDto>();
+      CreateMap<CreateUserDto, User>();
     }
   }
 }
