@@ -18,7 +18,7 @@ namespace Gss.Core.Services
       _unitOfWork = unitOfWork;
     }
 
-    public async Task DeleteImage(DeleteFileDto deleteImageDto)
+    public async Task DeleteImageAsync(DeleteFileDto deleteImageDto)
     {
       var imageUri = deleteImageDto.FileUrl;
 
@@ -27,10 +27,10 @@ namespace Gss.Core.Services
         throw new AppException(Messages.InvalidUriErrorString, HttpStatusCode.BadRequest);
       }
 
-      await _unitOfWork.AzureFiles.DeleteImage(imageUri);
+      await _unitOfWork.AzureFiles.DeleteImageAsync(imageUri);
     }
 
-    public async Task<FileDto> UploadImages(UploadFileDto uploadImagesDto)
+    public async Task<FileDto> UploadImageAsync(UploadFileDto uploadImagesDto)
     {
       if (!Settings.AzureImages.SupportedExtensions.Contains(uploadImagesDto.FileExtension))
       {
@@ -41,7 +41,7 @@ namespace Gss.Core.Services
       }
 
       var uri = await _unitOfWork.AzureFiles
-        .AddImage(uploadImagesDto.FileForm.OpenReadStream(), uploadImagesDto.FileExtension);
+        .AddImageAsync(uploadImagesDto.FileForm.OpenReadStream(), uploadImagesDto.FileExtension);
 
       if (uri is null)
       {

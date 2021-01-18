@@ -26,7 +26,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> AvatarUpload([FromForm] UploadFileDto dto)
     {
-      var fileDto = await _filesService.UploadImages(dto);
+      var fileDto = await _filesService.UploadImageAsync(dto);
 
       return Ok(new Response<FileDto>(fileDto));
     }
@@ -38,7 +38,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> DeleteUserAvatar([FromBody] DeleteFileDto dto)
     {
-      await _filesService.DeleteImage(dto);
+      await _filesService.DeleteImageAsync(dto);
 
       return Ok(new Response<object>());
     }

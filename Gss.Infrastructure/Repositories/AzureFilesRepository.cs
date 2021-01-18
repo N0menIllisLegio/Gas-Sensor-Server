@@ -25,7 +25,7 @@ namespace Gss.Infrastructure.Repositories
         new StorageSharedKeyCredential(Settings.AzureImages.AccountName, Settings.AzureImages.AccountKey);
     }
 
-    public async Task<Uri> AddImage(Stream imageStream, string imageExtension)
+    public async Task<Uri> AddImageAsync(Stream imageStream, string imageExtension)
     {
       var imageUri = new Uri($"{_imageContainerPath}{Guid.NewGuid()}.{imageExtension}");
       var blobClient = new BlobClient(imageUri, _storageCredentials);
@@ -43,7 +43,7 @@ namespace Gss.Infrastructure.Repositories
       return imageUri;
     }
 
-    public async Task DeleteImage(Uri imageUri)
+    public async Task DeleteImageAsync(Uri imageUri)
     {
       var blobClient = new BlobClient(imageUri, _storageCredentials);
 

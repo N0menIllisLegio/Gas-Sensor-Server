@@ -6,8 +6,8 @@ namespace Gss.Core.Interfaces
 {
   public interface IAzureFilesRepository
   {
-    Task<Uri> AddImage(Stream imageStream, string imageExtension);
-    Task DeleteImage(Uri imageUri);
+    Task<Uri> AddImageAsync(Stream imageStream, string imageExtension);
+    Task DeleteImageAsync(Uri imageUri);
 
     bool ValidateUri(Uri validatingUri);
   }

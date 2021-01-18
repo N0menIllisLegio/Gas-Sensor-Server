@@ -5,7 +5,7 @@ namespace Gss.Core.Interfaces
 {
   public interface IFilesService
   {
-    Task<FileDto> UploadImages(UploadFileDto uploadImagesDto);
-    Task DeleteImage(DeleteFileDto deleteImageDto);
+    Task<FileDto> UploadImageAsync(UploadFileDto uploadImagesDto);
+    Task DeleteImageAsync(DeleteFileDto deleteImageDto);
   }
 }
