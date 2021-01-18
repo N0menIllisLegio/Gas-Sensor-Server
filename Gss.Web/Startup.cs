@@ -71,7 +71,11 @@ namespace Gss.Web
 
             return new BadRequestObjectResult(new Response<object>().AddErrors(errors));
           })
-        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        .AddJsonOptions(options =>
+        {
+          options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+          options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        });
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
