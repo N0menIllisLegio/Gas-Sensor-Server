@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Gss.Core.Entities;
-using Gss.Core.Enums;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -36,34 +32,6 @@ namespace Gss.Core.Helpers
       }
 
       return await AddToRoleAsync(user, StandardRoleName);
-    }
-
-    public async Task<(List<User> users, int totalQueriedUsersCount)> GetPage(int pageNumber, int pageSize,
-      SortOrder sortOrder, string sortBy,
-      string filterBy = null, string filterStr = null)
-    {
-      var filter = filterBy switch
-      {
-        "EMAIL" => (Expression<Func<User, bool>>)((user) => user.Email.Contains(filterStr)),
-        "FIRSTNAME" => (Expression<Func<User, bool>>)((user) => user.FirstName.Contains(filterStr)),
-        "LASTNAME" => (Expression<Func<User, bool>>)((user) => user.LastName.Contains(filterStr)),
-        "GENDER" => (Expression<Func<User, bool>>)((user) => user.Gender.Contains(filterStr)),
-        _ => (Expression<Func<User, bool>>)((user) => true)
-      };
-
-      var sorter = sortBy switch
-      {
-        "FIRSTNAME" => (Expression<Func<User, object>>)((user) => user.FirstName),
-        "LASTNAME" => (Expression<Func<User, object>>)((user) => user.LastName),
-        "GENDER" => (Expression<Func<User, object>>)((user) => user.Gender),
-        _ => (Expression<Func<User, object>>)((user) => user.Email)
-      };
-
-      var (pagedUsersQuery, totalUsersQuery) = Users.AsQueryable().GetPage(pageNumber, pageSize, sortOrder, sorter, filter);
-      var users = await pagedUsersQuery.AsNoTracking().ToListAsync();
-      int totalQueriedUsersCount = await totalUsersQuery.CountAsync();
-
-      return (users, totalQueriedUsersCount);
     }
 
     public async Task<bool> IsAdministrator(string email)

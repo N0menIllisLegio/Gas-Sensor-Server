@@ -112,6 +112,7 @@ namespace Gss.Web
       services.AddScoped<ISensorsService, SensorsService>();
       services.AddScoped<IRolesService, RolesService>();
       services.AddScoped<IFilesService, FilesService>();
+      services.AddScoped<IUsersService, UsersService>();
 
       services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
 

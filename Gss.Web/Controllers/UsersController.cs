@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using System.Web;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.DTOs.User;
-using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Resources;
@@ -26,108 +24,67 @@ namespace Gss.Web.Controllers
 
     private readonly UserManager _userManager;
     private readonly IAuthenticationService _authService;
+    private readonly IUsersService _usersService;
 
-    public UsersController(UserManager userManager, IAuthenticationService authService)
+    public UsersController(UserManager userManager, IAuthenticationService authService, IUsersService usersService)
     {
       _userManager = userManager;
       _authService = authService;
+      _usersService = usersService;
     }
 
     //[Authorize] Role = Administrator
-    [HttpGet]
+    [HttpPost]
     [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
-    [SwaggerResponse(200, type: typeof(PagedResponse<IEnumerable<ExtendedUserInfoDto>>))]
-    public async Task<IActionResult> GetAllUsers([FromQuery] PagedInfoDto pagedRequest)
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<ExtendedUserDto>>))]
+    public async Task<IActionResult> GetAllUsers([FromBody] PagedInfoDto pagedRequest)
     {
-      var (users, totalQueriedUsersCount) = await _userManager
-        .GetPage(pagedRequest.PageNumber, pagedRequest.PageSize, pagedRequest.SortOrder,
-        pagedRequest.SortBy, pagedRequest.FilterBy, pagedRequest.Filter);
+      var pagedResultDto = await _usersService.GetAllUsersAsync(pagedRequest);
 
-      var formattedUsers = users.Select(user => new ExtendedUserInfoDto(user));
-
-      var response = new PagedResponse<IEnumerable<ExtendedUserInfoDto>>(formattedUsers, pagedRequest.PageNumber, pagedRequest.PageSize)
-      {
-        TotalRecords = totalQueriedUsersCount,
-        OrderedBy = pagedRequest.SortBy,
-        SortOrder = pagedRequest.SortOrder,
-        Filter = pagedRequest.Filter,
-        FilteredBy = pagedRequest.FilterBy
-      };
-
-      return Ok(response);
+      return Ok(new Response<PagedResultDto<ExtendedUserDto>>(pagedResultDto));
     }
 
     [Authorize]
-    [HttpGet("{userID}")]
+    [HttpGet]
     [SwaggerOperation("Authorized Only", "Gets user by id.")]
-    [SwaggerResponse(200, type: typeof(Response<UserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<UserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserByID(string userID)
+    public async Task<IActionResult> GetUserByID([FromQuery] IdDto dto)
     {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var userDto = await _usersService.GetUserAsync(dto.ID);
 
-      var user = await _userManager.FindByIdAsync(userID);
-
-      if (user is null)
-      {
-        return NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
-      }
-
-      var userInfoDto = new UserInfoDto(user);
-
-      return Ok(new Response<UserInfoDto>(userInfoDto));
+      return Ok(new Response<UserDto>(userDto));
     }
 
     //[Authorize] Role = Administrator
-    [HttpGet("{email}")]
+    [HttpPost]
     [SwaggerOperation("Administrator Only", "Gets user by email.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserByEmail(string email)
+    public async Task<IActionResult> GetUserByEmail([FromBody] EmailDto dto)
     {
-      var user = await _userManager.FindByEmailAsync(email);
+      var extendedUserDto = await _usersService.GetUserAsync(dto.Email);
 
-      return user is not null
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
-        : NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
+      return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     //[Authorize] Role = Administrator
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Creates user.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
-      var user = new User
-      {
-        Email = dto.Email,
-        PhoneNumber = dto.PhoneNumber,
-        FirstName = dto.FirstName,
-        LastName = dto.LastName,
-        Gender = dto.Gender,
-        Birthday = dto.Birthday
-      };
+      var extendedUserDto = await _usersService.AddUserAsync(dto);
 
-      var result = await _userManager.CreateAsync(user, dto.Password);
-
-      return result.Succeeded
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
+      return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     //[Authorize] Role = Administrator
     [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates user.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateUserDto dto)
@@ -164,7 +121,7 @@ namespace Gss.Web.Controllers
       result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
 
       return result.Succeeded
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
+        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
@@ -172,7 +129,7 @@ namespace Gss.Web.Controllers
     //[Authorize] Role = Administrator
     [HttpPatch("{userID}/{newPassword}")]
     [SwaggerOperation("Administrator Only", "Updates user's password.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
     public async Task<IActionResult> UpdatePassword(string userID, string newPassword)
@@ -195,7 +152,7 @@ namespace Gss.Web.Controllers
       var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
 
       return result.Succeeded
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
+        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
@@ -203,7 +160,7 @@ namespace Gss.Web.Controllers
     //[Authorize] Role = Administrator
     [HttpPatch("{userID}/{roleName}")]
     [SwaggerOperation("Administrator Only", "Adds role to user.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
     public async Task<IActionResult> AddRole(string userID, string roleName)
@@ -225,7 +182,7 @@ namespace Gss.Web.Controllers
       var result = await _userManager.AddToRoleAsync(user, roleName);
 
       return result.Succeeded
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
+        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
@@ -233,7 +190,7 @@ namespace Gss.Web.Controllers
     //[Authorize] Role = Administrator
     [HttpPatch("{userID}/{roleName}")]
     [SwaggerOperation("Administrator Only", "Removes role from user.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
     public async Task<IActionResult> RemoveRole(string userID, string roleName)
@@ -255,7 +212,7 @@ namespace Gss.Web.Controllers
       var result = await _userManager.RemoveFromRoleAsync(user, roleName);
 
       return result.Succeeded
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
+        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
@@ -263,7 +220,7 @@ namespace Gss.Web.Controllers
     //[Authorize] Role = Administrator
     [HttpDelete("{userID}")]
     [SwaggerOperation("Administrator Only", "Deletes user.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
     public async Task<IActionResult> Delete(string userID)
@@ -285,7 +242,7 @@ namespace Gss.Web.Controllers
       var result = await _userManager.DeleteAsync(user);
 
       return result.Succeeded
-        ? Ok(new Response<ExtendedUserInfoDto>(new ExtendedUserInfoDto(user)))
+        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
@@ -293,7 +250,7 @@ namespace Gss.Web.Controllers
     [Authorize]
     [HttpPut]
     [SwaggerOperation("Authorized Only", "Updates user info.")]
-    [SwaggerResponse(200, type: typeof(Response<UserInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<UserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto dto)
     {
@@ -308,7 +265,7 @@ namespace Gss.Web.Controllers
       var result = await _userManager.UpdateAsync(user);
 
       return result.Succeeded
-        ? Ok(new Response<UserInfoDto>())
+        ? Ok(new Response<UserDto>())
         : BadRequest(new Response<object>()
           .AddErrors(result.Errors.Select(r => r.Description)));
     }
