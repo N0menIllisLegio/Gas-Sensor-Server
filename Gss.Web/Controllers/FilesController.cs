@@ -1,76 +1,53 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.File;
 using Gss.Core.Interfaces;
-using Gss.Core.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  // TODO [Authorize] all controller?
+  // TODO [Authorize]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class FilesController: ControllerBase
   {
-    private readonly IUnitOfWork _unitOfWork;
-    public FilesController(IUnitOfWork unitOfWork)
+    private readonly IFilesService _filesService;
+
+    public FilesController(IFilesService filesService)
     {
-      _unitOfWork = unitOfWork;
+      _filesService = filesService;
     }
 
+    //[Authorize] Role = Administrator
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Uploads user's avatar in cloud storage.")]
-    [SwaggerResponse(200, type: typeof(Response<Uri>))]
+    [SwaggerOperation("Administrator Only", "Uploads image in cloud storage.")]
+    [SwaggerResponse(200, type: typeof(Response<FileDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> AvatarUpload([FromForm] FilesUploadDto dto)
+    public async Task<IActionResult> AvatarUpload([FromForm] UploadFileDto dto)
     {
-      var file = dto.FileForm.FirstOrDefault();
-      string fileExtension = file.FileName.Split('.').Last();
+      var fileDto = await _filesService.UploadImages(dto);
 
-      if (String.IsNullOrEmpty(fileExtension))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.MissingFileExtensionErrorString));
-      }
+      return Ok(new Response<FileDto>(fileDto));
+    }
 
-      var response = await _unitOfWork.AzureImages.UploadImage(file.OpenReadStream(), fileExtension);
+    //[Authorize] Role = Administrator
+    [HttpDelete]
+    [SwaggerOperation("Administrator Only", "Deletes image from cloud storage.")]
+    [SwaggerResponse(200, type: typeof(Response<object>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> DeleteUserAvatar([FromBody] DeleteFileDto dto)
+    {
+      await _filesService.DeleteImage(dto);
 
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
 
     [HttpPost]
     [SwaggerOperation("Authorized Only", "Loads data from files in database.")]
-    public IActionResult MicrocontrollerDataUpload([FromForm] FilesUploadDto dto)
+    public IActionResult MicrocontrollerDataUpload([FromForm] UploadFileDto dto)
     {
-      return Ok();
-    }
-
-    //[Authorize] Role = Administrator
-    [HttpDelete("{userID}")]
-    [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
-    [SwaggerResponse(200, type: typeof(Response<object>))]
-    [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> DeleteUserAvatar(string userID)
-    {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
-      await _unitOfWork.AzureImages.DeleteImage(userID);
-
-      return Ok();
-    }
-
-    private bool ValidateGuidString(string guid)
-    {
-      return Guid.TryParse(guid, out _);
+      return Ok(new Response<object>());
     }
   }
 }

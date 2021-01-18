@@ -8,7 +8,7 @@ namespace Gss.Infrastructure
   public class UnitOfWork: IUnitOfWork
   {
     private readonly AppDbContext _context;
-    private IAzureImagesRepository _azureImages;
+    private IAzureFilesRepository _azureImages;
     private IMicrocontrollersRepository _microcontrollers;
     private IRefreshTokensRepository _refreshTokens;
     private ISensorsRepository _sensors;
@@ -20,7 +20,7 @@ namespace Gss.Infrastructure
       _context = context;
     }
 
-    public IAzureImagesRepository AzureImages => _azureImages = _azureImages ?? new AzureImagesRepository();
+    public IAzureFilesRepository AzureFiles => _azureImages = _azureImages ?? new AzureFilesRepository();
     public IMicrocontrollersRepository Microcontrollers => _microcontrollers = _microcontrollers ?? new MicrocontrollersRepository(_context);
     public IRefreshTokensRepository RefreshTokens => _refreshTokens = _refreshTokens ?? new RefreshTokensRepository(_context);
     public ISensorsRepository Sensors => _sensors = _sensors ?? new SensorsRepository(_context);

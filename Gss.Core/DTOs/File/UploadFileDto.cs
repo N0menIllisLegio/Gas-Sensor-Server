@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace Gss.Core.DTOs.File
 {
-  public class FilesUploadDto
+  public class UploadFileDto
   {
     [Required]
-    public IFormFileCollection FileForm { get; set; }
+    public IFormFile FileForm { get; set; }
+
+    [Required]
+    public string FileExtension { get; set; }
   }
 }

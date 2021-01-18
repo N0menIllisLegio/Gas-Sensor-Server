@@ -189,6 +189,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Uri is invalid..
+        /// </summary>
+        public static string InvalidUriErrorString {
+            get {
+                return ResourceManager.GetString("InvalidUriErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File extension is missing..
         /// </summary>
         public static string MissingFileExtensionErrorString {
