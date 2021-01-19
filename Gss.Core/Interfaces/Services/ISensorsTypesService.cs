@@ -9,7 +9,7 @@ namespace Gss.Core.Interfaces.Services
   {
     Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo);
     Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeID);
-    Task<SensorTypeDto> AddSensorTypeAsync(CreateSensorTypeDto dto);
+    Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto dto);
     Task<SensorTypeDto> UpdateSensorTypeAsync(UpdateSensorTypeDto dto);
     Task<SensorTypeDto> DeleteSensorTypeAsync(Guid sensorTypeID);
   }

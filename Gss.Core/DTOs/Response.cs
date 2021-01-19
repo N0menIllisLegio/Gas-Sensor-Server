@@ -21,7 +21,7 @@ namespace Gss.Core.DTOs
     }
 
     public T Data { get; set; }
-    public bool Succeeded { get; }
+    public bool Succeeded { get; set; }
     public List<string> Errors { get; set; }
 
     public Response<T> AddError(string error, params string[] errorParams)

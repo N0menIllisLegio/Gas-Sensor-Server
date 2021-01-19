@@ -2,7 +2,7 @@
 
 namespace Gss.Core.DTOs.Sensor
 {
-  public class SensorInfoDto
+  public class SensorDto
   {
     public Guid ID { get; set; }
     public string Name { get; set; }

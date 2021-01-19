@@ -46,7 +46,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateSensorTypeDto dto)
     {
-      var sensorTypeDto = await _sensorsTypesService.AddSensorTypeAsync(dto);
+      var sensorTypeDto = await _sensorsTypesService.CreateSensorTypeAsync(dto);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }

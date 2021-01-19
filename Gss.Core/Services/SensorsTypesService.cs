@@ -43,7 +43,7 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorTypeDto>(sensorType);
     }
 
-    public async Task<SensorTypeDto> AddSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
+    public async Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
     {
       var sensorType = _mapper.Map<SensorType>(createSensorTypeDto);
       sensorType = _unitOfWork.SensorsTypes.Add(sensorType);
