@@ -2,6 +2,7 @@
 using AutoMapper;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.DTOs.Role;
+using Gss.Core.DTOs.Sensor;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.DTOs.User;
 using Gss.Core.Entities;
@@ -20,8 +21,6 @@ namespace Gss.Core.Helpers
       CreateMap<IdentityRole<Guid>, RoleDto>();
       CreateMap<CreateRoleDto, IdentityRole<Guid>>();
 
-      CreateMap<CreateUserDto, User>();
-
       CreateMap<Microcontroller, MicrocontrollerDto>();
       CreateMap<CreateMicrocontrollerDto, Microcontroller>();
 
@@ -29,6 +28,9 @@ namespace Gss.Core.Helpers
       CreateMap<User, ExtendedUserDto>();
       CreateMap<CreateUserDto, User>();
       CreateMap<UpdateUserInfoDto, UpdateUserInfoModel>();
+
+      CreateMap<Sensor, SensorDto>();
+      CreateMap<CreateSensorDto, Sensor>();
     }
   }
 }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Sensor;
 using Gss.Core.Interfaces.Services;
-using Gss.Core.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,50 +20,39 @@ namespace Gss.Web.Controllers
     }
 
     // anon
-    [HttpGet]
+    [HttpPost]
     [SwaggerOperation("Administrator Only", "Gets all sensors.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetAllSensors([FromQuery] PagedInfoDto pagedRequest)
+    public async Task<IActionResult> GetAllSensors([FromBody] PagedInfoDto pagedRequest)
     {
-      return await Task.Run(Ok);
+      var pagedResultDto = await _sensorsService.GetAllSensors(pagedRequest);
+      return Ok(new Response<PagedResultDto<SensorDto>>(pagedResultDto));
     }
 
     // anon, access if public
-    [HttpGet("{microcontrollerID}")]
+    [HttpGet]
     [SwaggerOperation("Authorized Only", "Gets all sensors of microcontroller.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetMicrocontrollerSensors(string microcontrollerID)
+    public async Task<IActionResult> GetMicrocontrollerSensors([FromQuery] IdDto dto)
     {
-      if (!ValidateGuidString(microcontrollerID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
       return await Task.Run(Ok);
     }
 
     // anon, access if public
-    [HttpGet("{sensorID}")]
+    [HttpGet]
     [SwaggerOperation("Authorized Only", "Gets sensor by id.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetSensor(string sensorID)
+    public async Task<IActionResult> GetSensor([FromQuery] IdDto dto)
     {
-      if (!ValidateGuidString(sensorID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
       return await Task.Run(Ok);
     }
 
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Creates sensor.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateSensorDto dto)
     {
@@ -74,31 +61,20 @@ namespace Gss.Web.Controllers
 
     [HttpPut]
     [SwaggerOperation("Administrator Only", "Updates sensor.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateSensorDto dto)
     {
       return await Task.Run(Ok);
     }
 
-    [HttpDelete("{sensorID}")]
+    [HttpDelete]
     [SwaggerOperation("Administrator Only", "Deletes sensor.")]
-    [SwaggerResponse(200, type: typeof(Response<SensorInfoDto>))]
+    [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete(string sensorID)
+    public async Task<IActionResult> Delete([FromQuery] IdDto dto)
     {
-      if (!ValidateGuidString(sensorID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
       return await Task.Run(Ok);
-    }
-
-    private bool ValidateGuidString(string guid)
-    {
-      return Guid.TryParse(guid, out _);
     }
   }
 }
