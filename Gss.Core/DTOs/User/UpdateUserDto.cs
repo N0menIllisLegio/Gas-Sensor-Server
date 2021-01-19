@@ -3,23 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Gss.Core.DTOs.User
 {
-  public class UpdateUserDto
+  public class UpdateUserDto : UpdateUserInfoDto
   {
+    [Required]
+    public Guid ID { get; set; }
+
     [Required]
     [EmailAddress]
     public string Email { get; set; }
-
-    [Phone]
-    public string PhoneNumber { get; set; }
-
-    [Required]
-    [StringLength(20, MinimumLength = 2)]
-    public string FirstName { get; set; }
-
-    public string LastName { get; set; }
-
-    public string Gender { get; set; }
-
-    public DateTime? Birthday { get; set; }
   }
 }

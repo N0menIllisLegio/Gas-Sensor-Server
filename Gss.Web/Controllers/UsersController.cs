@@ -1,14 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Threading.Tasks;
+using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.DTOs.User;
-using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
-using Gss.Core.Resources;
+using Gss.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -20,17 +16,15 @@ namespace Gss.Web.Controllers
   [ApiController]
   public class UsersController : ControllerBase
   {
-    private const string _user = "User";
-
-    private readonly UserManager _userManager;
     private readonly IAuthenticationService _authService;
     private readonly IUsersService _usersService;
+    private readonly IMapper _mapper;
 
-    public UsersController(UserManager userManager, IAuthenticationService authService, IUsersService usersService)
+    public UsersController(IAuthenticationService authService, IUsersService usersService, IMapper mapper)
     {
-      _userManager = userManager;
       _authService = authService;
       _usersService = usersService;
+      _mapper = mapper;
     }
 
     //[Authorize] Role = Administrator
@@ -82,287 +76,105 @@ namespace Gss.Web.Controllers
     }
 
     //[Authorize] Role = Administrator
-    [HttpPut("{id}")]
+    [HttpPut]
     [SwaggerOperation("Administrator Only", "Updates user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> Update(string id, [FromBody] UpdateUserDto dto)
+    public async Task<IActionResult> Update([FromBody] UpdateUserDto dto)
     {
-      if (!ValidateGuidString(id))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var extendedUserDto = await _usersService.UpdateUserAsync(dto);
 
-      var user = await _userManager.FindByIdAsync(id);
-
-      if (user is null)
-      {
-        return NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
-      }
-
-      user.FirstName = dto.FirstName;
-      user.LastName = dto.LastName;
-      user.Gender = dto.Gender;
-      user.Birthday = dto.Birthday;
-      user.PhoneNumber = dto.PhoneNumber;
-
-      var result = await _userManager.UpdateAsync(user);
-
-      if (!result.Succeeded)
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
-      }
-
-      string token = await _userManager.GenerateChangeEmailTokenAsync(user, dto.Email);
-      result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
-
-      return result.Succeeded
-        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
+      return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     //[Authorize] Role = Administrator
-    [HttpPatch("{userID}/{newPassword}")]
+    [HttpPatch]
     [SwaggerOperation("Administrator Only", "Updates user's password.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> UpdatePassword(string userID, string newPassword)
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto dto)
     {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var extendedUserDto = await _usersService.UpdatePasswordAsync(dto);
 
-      var user = await _userManager.FindByIdAsync(userID);
-
-      if (user is null)
-      {
-        return NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
-      }
-
-      string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-      var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
-
-      return result.Succeeded
-        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
+      return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     //[Authorize] Role = Administrator
-    [HttpPatch("{userID}/{roleName}")]
+    [HttpPatch]
     [SwaggerOperation("Administrator Only", "Adds role to user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> AddRole(string userID, string roleName)
+    public async Task<IActionResult> SetRole([FromBody] SetUserRoleDto dto)
     {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var extendedUserDto = await _usersService.SetUserRoleAsync(dto);
 
-      var user = await _userManager.FindByIdAsync(userID);
-
-      if (user is null)
-      {
-        return NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
-      }
-
-      var result = await _userManager.AddToRoleAsync(user, roleName);
-
-      return result.Succeeded
-        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
+      return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     //[Authorize] Role = Administrator
-    [HttpPatch("{userID}/{roleName}")]
-    [SwaggerOperation("Administrator Only", "Removes role from user.")]
-    [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
-    [SwaggerResponse(400, type: typeof(Response<object>))]
-    [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> RemoveRole(string userID, string roleName)
-    {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
-      var user = await _userManager.FindByIdAsync(userID);
-
-      if (user is null)
-      {
-        return NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
-      }
-
-      var result = await _userManager.RemoveFromRoleAsync(user, roleName);
-
-      return result.Succeeded
-        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
-    }
-
-    //[Authorize] Role = Administrator
-    [HttpDelete("{userID}")]
+    [HttpDelete]
     [SwaggerOperation("Administrator Only", "Deletes user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete(string userID)
+    public async Task<IActionResult> Delete([FromBody] IdDto dto)
     {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      var extendedUserDto = await _usersService.DeleteUserAsync(dto.ID);
 
-      var user = await _userManager.FindByIdAsync(userID);
-
-      if (user is null)
-      {
-        return NotFound(new Response<object>()
-          .AddError(Messages.NotFoundErrorString, _user));
-      }
-
-      var result = await _userManager.DeleteAsync(user);
-
-      return result.Succeeded
-        ? Ok(new Response<ExtendedUserDto>(new ExtendedUserDto(user)))
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
+      return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     [Authorize]
     [HttpPut]
-    [SwaggerOperation("Authorized Only", "Updates user info.")]
+    [SwaggerOperation("Authorized Only", "Updates authorized user info.")]
     [SwaggerResponse(200, type: typeof(Response<UserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto dto)
     {
-      var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+      var updateUserInfoModel = _mapper.Map<UpdateUserInfoModel>(dto);
 
-      user.FirstName = dto.FirstName;
-      user.LastName = dto.LastName;
-      user.Gender = dto.Gender;
-      user.Birthday = dto.Birthday;
-      user.PhoneNumber = dto.PhoneNumber;
+      updateUserInfoModel.Email = User.Identity.Name;
 
-      var result = await _userManager.UpdateAsync(user);
+      var userDto = await _usersService.UpdateUserInfoAsync(updateUserInfoModel);
 
-      return result.Succeeded
-        ? Ok(new Response<UserDto>())
-        : BadRequest(new Response<object>()
-          .AddErrors(result.Errors.Select(r => r.Description)));
+      return Ok(new Response<UserDto>(userDto));
     }
 
-    [HttpPost("{userID?}/{token?}")]
+    [HttpPost]
     [SwaggerOperation(description: "Confirms user's email. Token sends to unconirmed email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> ConfirmEmail(string userID, string token)
+    public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailDto dto)
     {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      await _authService.ConfirmEmailAsync(dto);
 
-      if (String.IsNullOrEmpty(token))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidEmailConfirmationTokenErrorString));
-      }
-
-      token = HttpUtility.UrlDecode(token).Replace(' ', '+');
-      var result = await _authService.ConfirmEmailAsync(userID, token);
-      var response = new Response<object>(result);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
 
-    [HttpPost("{userID}/{token}")]
-    [SwaggerOperation(description: "Changes user's password. Token sends to confirmed email.")]
+    [HttpPost]
+    [SwaggerOperation(description: "Changes user's password. Token send to confirmed email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> ChangePassword(string userID, string token, [FromBody] ChangePasswordDto dto)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
     {
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
+      await _authService.ResetPasswordAsync(dto);
 
-      if (String.IsNullOrEmpty(token))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidPasswordResetTokenErrorString));
-      }
-
-      token = HttpUtility.UrlDecode(token).Replace(' ', '+');
-      var result = await _authService.ResetPasswordAsync(userID, token, dto.Password);
-      var response = new Response<object>(result);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
+      return Ok(new Response<object>());
     }
 
     [Authorize]
-    [HttpPost("{userID}/{newEmail}/{token}")]
+    [HttpPost]
     [SwaggerOperation("Authorized Only", "Changes user's email. Token sends to old email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> ChangeEmail(string userID, string newEmail, string token)
+    public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailDto dto)
     {
-      var emailValidator = new EmailAddressAttribute();
+      await _authService.ChangeEmailAsync(dto);
 
-      if (!emailValidator.IsValid(newEmail))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidEmailErrorString));
-      }
-
-      if (!ValidateGuidString(userID))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidGuidErrorString));
-      }
-
-      if (String.IsNullOrEmpty(token))
-      {
-        return BadRequest(new Response<object>()
-          .AddErrors(Messages.InvalidPasswordResetTokenErrorString));
-      }
-
-      token = HttpUtility.UrlDecode(token).Replace(' ', '+');
-      var result = await _authService.ChangeEmailAsync(userID, token, newEmail);
-      var response = new Response<object>(result);
-
-      return response.Succeeded
-        ? Ok(response)
-        : BadRequest(response);
-    }
-
-    private bool ValidateGuidString(string guid)
-    {
-      return Guid.TryParse(guid, out _);
+      return Ok(new Response<object>());
     }
   }
 }

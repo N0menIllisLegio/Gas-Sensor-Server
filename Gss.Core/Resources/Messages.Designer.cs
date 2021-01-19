@@ -135,6 +135,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid email change token..
+        /// </summary>
+        public static string InvalidEmailChangeTokenErrorString {
+            get {
+                return ResourceManager.GetString("InvalidEmailChangeTokenErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid email confirmation token..
         /// </summary>
         public static string InvalidEmailConfirmationTokenErrorString {

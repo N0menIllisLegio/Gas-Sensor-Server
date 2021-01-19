@@ -9,6 +9,7 @@ using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
+using Gss.Core.Models;
 using Gss.Core.Resources;
 using Microsoft.EntityFrameworkCore;
 
@@ -85,6 +86,134 @@ namespace Gss.Core.Services
       }
 
       return _mapper.Map<ExtendedUserDto>(user);
+    }
+
+    public async Task<ExtendedUserDto> UpdateUserAsync(UpdateUserDto updateUserDto)
+    {
+      var user = await _userManager.FindByIdAsync(updateUserDto.ID);
+
+      if (user is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
+      }
+
+      user.FirstName = updateUserDto.FirstName;
+      user.LastName = updateUserDto.LastName;
+      user.Gender = updateUserDto.Gender;
+      user.Birthday = updateUserDto.Birthday;
+      user.PhoneNumber = updateUserDto.PhoneNumber;
+
+      var result = await _userManager.UpdateAsync(user);
+
+      if (!result.Succeeded)
+      {
+        throw new AppException(String.Join(", ", result.Errors.Select(r => r.Description)),
+          HttpStatusCode.BadRequest);
+      }
+
+      string token = await _userManager.GenerateChangeEmailTokenAsync(user, updateUserDto.Email);
+      result = await _userManager.ChangeEmailAsync(user, updateUserDto.Email, token);
+
+      if (!result.Succeeded)
+      {
+        throw new AppException(String.Join(", ", result.Errors.Select(r => r.Description)),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<ExtendedUserDto>(user);
+    }
+
+    public async Task<ExtendedUserDto> UpdatePasswordAsync(UpdatePasswordDto updatePasswordDto)
+    {
+      var user = await _userManager.FindByIdAsync(updatePasswordDto.UserID);
+
+      if (user is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
+      }
+
+      string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+      var result = await _userManager.ResetPasswordAsync(user, resetToken, updatePasswordDto.NewPassword);
+
+      if (!result.Succeeded)
+      {
+        throw new AppException(String.Join(", ", result.Errors.Select(r => r.Description)),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<ExtendedUserDto>(user);
+    }
+
+    public async Task<ExtendedUserDto> SetUserRoleAsync(SetUserRoleDto setUserRoleDto)
+    {
+      var user = await _userManager.FindByIdAsync(setUserRoleDto.UserID);
+
+      if (user is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
+      }
+
+      var roles = await _userManager.GetRolesAsync(user);
+
+      if (roles is not null && roles.Count > 0)
+      {
+        await _userManager.RemoveFromRolesAsync(user, roles);
+      }
+
+      var result = await _userManager.AddToRoleAsync(user, setUserRoleDto.RoleName);
+
+      if (!result.Succeeded)
+      {
+        throw new AppException(String.Join(", ", result.Errors.Select(r => r.Description)),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<ExtendedUserDto>(user);
+    }
+
+    public async Task<ExtendedUserDto> DeleteUserAsync(Guid userID)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
+      }
+
+      var result = await _userManager.DeleteAsync(user);
+
+      if (!result.Succeeded)
+      {
+        throw new AppException(String.Join(", ", result.Errors.Select(r => r.Description)),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<ExtendedUserDto>(user);
+    }
+
+    public async Task<UserDto> UpdateUserInfoAsync(UpdateUserInfoModel updateUserInfoModel)
+    {
+      var user = await _userManager.FindByEmailAsync(updateUserInfoModel.Email);
+
+      user.FirstName = updateUserInfoModel.FirstName;
+      user.LastName = updateUserInfoModel.LastName;
+      user.Gender = updateUserInfoModel.Gender;
+      user.Birthday = updateUserInfoModel.Birthday;
+      user.PhoneNumber = updateUserInfoModel.PhoneNumber;
+
+      var result = await _userManager.UpdateAsync(user);
+
+      if (!result.Succeeded)
+      {
+        throw new AppException(String.Join(", ", result.Errors.Select(r => r.Description)),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<UserDto>(user);
     }
   }
 }

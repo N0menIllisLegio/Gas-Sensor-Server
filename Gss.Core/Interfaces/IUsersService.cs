@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.User;
+using Gss.Core.Models;
 
 namespace Gss.Core.Interfaces
 {
@@ -11,5 +12,10 @@ namespace Gss.Core.Interfaces
     Task<UserDto> GetUserAsync(Guid userID);
     Task<ExtendedUserDto> GetUserAsync(string userEmail);
     Task<ExtendedUserDto> AddUserAsync(CreateUserDto createUserDto);
+    Task<ExtendedUserDto> UpdateUserAsync(UpdateUserDto updateUserDto);
+    Task<ExtendedUserDto> UpdatePasswordAsync(UpdatePasswordDto updatePasswordDto);
+    Task<ExtendedUserDto> SetUserRoleAsync(SetUserRoleDto setUserRoleDto);
+    Task<ExtendedUserDto> DeleteUserAsync(Guid userID);
+    Task<UserDto> UpdateUserInfoAsync(UpdateUserInfoModel updateUserInfoModel);
   }
 }

@@ -71,9 +71,10 @@ namespace Gss.Core.Services
       }
     }
 
-    public async Task<bool> ConfirmEmailAsync(string userID, string token)
+    public async Task ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto)
     {
-      var user = await _userManager.FindByIdAsync(userID);
+      string token = HttpUtility.UrlDecode(confirmEmailDto.Token).Replace(' ', '+');
+      var user = await _userManager.FindByIdAsync(confirmEmailDto.UserID);
 
       if (user is null)
       {
@@ -83,7 +84,10 @@ namespace Gss.Core.Services
 
       var result = await _userManager.ConfirmEmailAsync(user, token);
 
-      return result.Succeeded;
+      if (!result.Succeeded)
+      {
+        throw new AppException(Messages.InvalidEmailConfirmationTokenErrorString, HttpStatusCode.BadRequest);
+      }
     }
 
     public async Task SendResetPasswordConfirmationAsync(string email, string redirectUrl)
@@ -113,9 +117,11 @@ namespace Gss.Core.Services
       }
     }
 
-    public async Task<bool> ResetPasswordAsync(string userID, string token, string newPassword)
+    public async Task ResetPasswordAsync(ChangePasswordDto changePasswordDto)
     {
-      var user = await _userManager.FindByIdAsync(userID);
+      changePasswordDto.Token = HttpUtility.UrlDecode(changePasswordDto.Token).Replace(' ', '+');
+
+      var user = await _userManager.FindByIdAsync(changePasswordDto.UserID);
 
       if (user is null)
       {
@@ -123,9 +129,12 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+      var result = await _userManager.ResetPasswordAsync(user, changePasswordDto.Token, changePasswordDto.Password);
 
-      return result.Succeeded;
+      if (!result.Succeeded)
+      {
+        throw new AppException(Messages.InvalidPasswordResetTokenErrorString, HttpStatusCode.BadRequest);
+      }
     }
 
     public async Task SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl)
@@ -155,9 +164,11 @@ namespace Gss.Core.Services
       }
     }
 
-    public async Task<bool> ChangeEmailAsync(string userID, string newEmail, string token)
+    public async Task ChangeEmailAsync(ChangeEmailDto changeEmailDto)
     {
-      var user = await _userManager.FindByIdAsync(userID);
+      changeEmailDto.Token = HttpUtility.UrlDecode(changeEmailDto.Token).Replace(' ', '+');
+
+      var user = await _userManager.FindByIdAsync(changeEmailDto.UserID);
 
       if (user is null)
       {
@@ -165,9 +176,12 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+      var result = await _userManager.ChangeEmailAsync(user, changeEmailDto.NewEmail, changeEmailDto.Token);
 
-      return result.Succeeded;
+      if (!result.Succeeded)
+      {
+        throw new AppException(Messages.InvalidEmailChangeTokenErrorString, HttpStatusCode.BadRequest);
+      }
     }
 
     public async Task RegisterAsync(CreateUserDto createUserDto)

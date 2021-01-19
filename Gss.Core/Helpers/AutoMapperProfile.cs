@@ -5,6 +5,7 @@ using Gss.Core.DTOs.Role;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.DTOs.User;
 using Gss.Core.Entities;
+using Gss.Core.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Gss.Core.Helpers
@@ -27,6 +28,7 @@ namespace Gss.Core.Helpers
       CreateMap<User, UserDto>();
       CreateMap<User, ExtendedUserDto>();
       CreateMap<CreateUserDto, User>();
+      CreateMap<UpdateUserInfoDto, UpdateUserInfoModel>();
     }
   }
 }

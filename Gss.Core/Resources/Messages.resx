@@ -143,6 +143,9 @@
 
 Ooops somthing went wrong on our end...</value>
   </data>
+  <data name="InvalidEmailChangeTokenErrorString" xml:space="preserve">
+    <value>Invalid email change token.</value>
+  </data>
   <data name="InvalidEmailConfirmationTokenErrorString" xml:space="preserve">
     <value>Invalid email confirmation token.</value>
   </data>

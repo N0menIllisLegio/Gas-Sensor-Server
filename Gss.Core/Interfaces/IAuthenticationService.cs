@@ -7,11 +7,11 @@ namespace Gss.Core.Interfaces
   public interface IAuthenticationService
   {
     Task SendResetPasswordConfirmationAsync(string email, string redirectUrl);
-    Task<bool> ResetPasswordAsync(string userID, string token, string newPassword);
+    Task ResetPasswordAsync(ChangePasswordDto changePasswordDto);
     Task SendEmailChangeConfirmationAsync(string email, string newEmail, string confirmationUrl);
-    Task<bool> ChangeEmailAsync(string userID, string newEmail, string token);
+    Task ChangeEmailAsync(ChangeEmailDto changeEmailDto);
     Task SendEmailConfirmationAsync(string email, string confirmationUrl);
-    Task<bool> ConfirmEmailAsync(string userID, string token);
+    Task ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto);
     Task RegisterAsync(CreateUserDto newUserDto);
     Task<TokenDto> LogInAsync(string login, string password);
     Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken);
