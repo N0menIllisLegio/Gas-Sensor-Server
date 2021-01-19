@@ -9,6 +9,7 @@ using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
 using Gss.Core.Services;
 using Gss.Infrastructure;

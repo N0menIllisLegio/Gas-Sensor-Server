@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Repositories
 {
   public interface IRepositoryBase<TEntity>
     where TEntity : class
@@ -25,13 +25,9 @@ namespace Gss.Core.Interfaces
       bool disableTracking = true);
 
     Task<TEntity> FindAsync(Guid id);
-
     TEntity Update(TEntity entity);
-
     TEntity Add(TEntity entity);
-
     TEntity Remove(TEntity entity);
-
     Task<TEntity> ReloadAsync(TEntity entityToReload);
   }
 }

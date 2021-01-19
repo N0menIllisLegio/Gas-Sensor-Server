@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories

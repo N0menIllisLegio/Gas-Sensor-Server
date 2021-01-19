@@ -1,4 +1,4 @@
-﻿namespace Gss.Core.Interfaces
+﻿namespace Gss.Core.Interfaces.Services
 {
   public interface ISensorsService
   {

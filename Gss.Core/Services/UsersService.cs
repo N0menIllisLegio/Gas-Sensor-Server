@@ -8,7 +8,7 @@ using Gss.Core.DTOs.User;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Gss.Core.Models;
 using Gss.Core.Resources;
 using Microsoft.EntityFrameworkCore;

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Repositories;
 
 namespace Gss.Infrastructure.Repositories
 {

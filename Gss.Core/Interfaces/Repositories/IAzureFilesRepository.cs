@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Repositories
 {
   public interface IAzureFilesRepository
   {

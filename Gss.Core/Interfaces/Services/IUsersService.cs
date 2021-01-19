@@ -4,7 +4,7 @@ using Gss.Core.DTOs;
 using Gss.Core.DTOs.User;
 using Gss.Core.Models;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Services
 {
   public interface IUsersService
   {

@@ -1,4 +1,5 @@
 ﻿using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 
 namespace Gss.Core.Services
 {

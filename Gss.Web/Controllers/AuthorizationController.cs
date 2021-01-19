@@ -2,7 +2,7 @@
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.DTOs.User;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

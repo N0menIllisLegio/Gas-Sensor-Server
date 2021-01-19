@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 

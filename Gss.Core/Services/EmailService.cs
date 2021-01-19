@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using MailKit.Net.Smtp;
 using MimeKit;
 

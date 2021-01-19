@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Services
 {
   public interface IMicrocontrollersService
   {

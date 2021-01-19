@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Gss.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Gss.Core.Interfaces

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using MimeKit;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Services
 {
   public interface IEmailService
   {

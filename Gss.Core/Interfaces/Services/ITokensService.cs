@@ -2,7 +2,7 @@
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.Entities;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Services
 {
   public interface ITokensService
   {

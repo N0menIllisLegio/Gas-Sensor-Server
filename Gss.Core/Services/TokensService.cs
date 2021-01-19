@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 

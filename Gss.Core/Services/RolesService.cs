@@ -7,7 +7,7 @@ using Gss.Core.DTOs;
 using Gss.Core.DTOs.Role;
 using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

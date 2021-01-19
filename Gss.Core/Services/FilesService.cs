@@ -5,6 +5,7 @@ using Gss.Core.DTOs.File;
 using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
 
 namespace Gss.Core.Services

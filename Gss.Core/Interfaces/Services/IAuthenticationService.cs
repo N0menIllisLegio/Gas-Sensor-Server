@@ -2,7 +2,7 @@
 using Gss.Core.DTOs.Authentication;
 using Gss.Core.DTOs.User;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces.Services
 {
   public interface IAuthenticationService
   {

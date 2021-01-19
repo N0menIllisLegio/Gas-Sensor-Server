@@ -7,6 +7,7 @@ using Gss.Core.DTOs.SensorType;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
 
 namespace Gss.Core.Services

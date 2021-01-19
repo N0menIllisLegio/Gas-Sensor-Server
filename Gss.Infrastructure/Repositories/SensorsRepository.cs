@@ -1,5 +1,5 @@
 ﻿using Gss.Core.Entities;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Repositories;
 
 namespace Gss.Infrastructure.Repositories
 {

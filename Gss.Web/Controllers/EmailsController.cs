@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Gss.Core.DTOs;
-using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
