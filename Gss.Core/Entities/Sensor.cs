@@ -13,6 +13,10 @@ namespace Gss.Core.Entities
     [MaxLength(200)]
     public string Name { get; set; }
 
+    [MaxLength(2000)]
+    public string Description { get; set; }
+
+    public Guid TypeID { get; set; }
     [Required]
     public virtual SensorType Type { get; set; }
 
