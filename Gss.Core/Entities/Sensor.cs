@@ -20,6 +20,6 @@ namespace Gss.Core.Entities
     [Required]
     public virtual SensorType Type { get; set; }
 
-    public virtual IList<MicrocontrollerSensor> SensorMicrocontrollers { get; set; }
+    public virtual IList<MicrocontrollerSensors> SensorMicrocontrollers { get; set; }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Authentication;
@@ -39,14 +40,14 @@ namespace Gss.Web.Controllers
     }
 
     [Authorize]
-    [HttpGet]
-    [SwaggerOperation("Authorized Only", "Gets user by id.")]
+    [HttpGet("{id}")]
+    [SwaggerOperation("Authorized", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<UserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserByID([FromQuery] IdDto dto)
+    public async Task<IActionResult> GetUserByID([FromRoute] Guid id)
     {
-      var userDto = await _usersService.GetUserAsync(dto.ID);
+      var userDto = await _usersService.GetUserAsync(id);
 
       return Ok(new Response<UserDto>(userDto));
     }
@@ -76,14 +77,14 @@ namespace Gss.Web.Controllers
     }
 
     //[Authorize] Role = Administrator
-    [HttpPut]
+    [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> Update([FromBody] UpdateUserDto dto)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateUserDto dto)
     {
-      var extendedUserDto = await _usersService.UpdateUserAsync(dto);
+      var extendedUserDto = await _usersService.UpdateUserAsync(id, dto);
 
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
@@ -115,21 +116,21 @@ namespace Gss.Web.Controllers
     }
 
     //[Authorize] Role = Administrator
-    [HttpDelete]
+    [HttpDelete("{id}")]
     [SwaggerOperation("Administrator Only", "Deletes user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete([FromBody] IdDto dto)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
-      var extendedUserDto = await _usersService.DeleteUserAsync(dto.ID);
+      var extendedUserDto = await _usersService.DeleteUserAsync(id);
 
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
     [Authorize]
     [HttpPut]
-    [SwaggerOperation("Authorized Only", "Updates authorized user info.")]
+    [SwaggerOperation("Authorized", "Updates authorized user info.")]
     [SwaggerResponse(200, type: typeof(Response<UserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateUserInfoDto dto)
@@ -167,7 +168,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Changes user's email. Token sends to old email.")]
+    [SwaggerOperation("Authorized", "Changes user's email. Token sends to old email.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailDto dto)

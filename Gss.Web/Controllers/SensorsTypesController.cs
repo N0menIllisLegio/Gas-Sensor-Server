@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.Interfaces.Services;
@@ -10,7 +11,7 @@ namespace Gss.Web.Controllers
   //[Authorize], even make all gets anon
   [Route("api/[controller]/[action]")]
   [ApiController]
-  public class SensorsTypesController : ControllerBase
+  public class SensorsTypesController: ControllerBase
   {
     private readonly ISensorsTypesService _sensorsTypesService;
     public SensorsTypesController(ISensorsTypesService sensorsTypesService)
@@ -29,13 +30,13 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<SensorTypeDto>>(pagedResult));
     }
 
-    [HttpGet]
+    [HttpGet("{id}")]
     [SwaggerOperation(Description = "Gets sensor's type by id.")]
     [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetSensorType([FromQuery] IdDto dto)
+    public async Task<IActionResult> GetSensorType([FromRoute] Guid id)
     {
-      var sensorTypeDto = await _sensorsTypesService.GetSensorTypeAsync(dto.ID);
+      var sensorTypeDto = await _sensorsTypesService.GetSensorTypeAsync(id);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
@@ -51,24 +52,24 @@ namespace Gss.Web.Controllers
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates sensor's type.")]
     [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Update([FromBody] UpdateSensorTypeDto dto)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSensorTypeDto dto)
     {
-      var sensorTypeDto = await _sensorsTypesService.UpdateSensorTypeAsync(dto);
+      var sensorTypeDto = await _sensorsTypesService.UpdateSensorTypeAsync(id, dto);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     [SwaggerOperation("Administrator Only", "Deletes sensor's type.")]
     [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete([FromQuery] IdDto dto)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
-      var sensorTypeDto = await _sensorsTypesService.DeleteSensorTypeAsync(dto.ID);
+      var sensorTypeDto = await _sensorsTypesService.DeleteSensorTypeAsync(id);
 
       return Ok(new Response<SensorTypeDto>(sensorTypeDto));
     }

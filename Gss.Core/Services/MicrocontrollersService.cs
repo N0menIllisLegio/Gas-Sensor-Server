@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -160,10 +159,7 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      microcontroller.Name = updateMicrocontrollerDto.Name;
-      microcontroller.Latitude = updateMicrocontrollerDto.Latitude;
-      microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
-      microcontroller.Public = updateMicrocontrollerDto.Public;
+      _mapper.Map(updateMicrocontrollerDto, microcontroller);
 
       bool success = await _unitOfWork.SaveAsync();
 
@@ -248,33 +244,6 @@ namespace Gss.Core.Services
       }
 
       return _mapper.Map<MicrocontrollerDto>(microcontroller);
-    }
-
-    private Expression<Func<Microcontroller, bool>> GetFilter(string filterBy, string filter)
-    {
-      return filterBy switch
-      {
-        "PUBLIC" => filter.ToUpper() switch
-          {
-            "TRUE" => (microcontroller) => microcontroller.Public,
-            _ => (microcontroller) => !microcontroller.Public
-          },
-        "IPADDRESS" => (microcontroller) => microcontroller.IPAddress.Contains(filter),
-        _ => (microcontroller) => microcontroller.Name.Contains(filter)
-      };
-    }
-
-    private Expression<Func<Microcontroller, object>> GetOrderer(string sortBy)
-    {
-      return sortBy switch
-      {
-        "PUBLIC" => (microcontroller) => microcontroller.Public,
-        "IPADDRESS" => (microcontroller) => microcontroller.IPAddress,
-        "LASTRESPONSETIME" => (microcontroller) => microcontroller.LastResponseTime,
-        "LATITUDE" => (microcontroller) => microcontroller.Latitude,
-        "LONGITUDE" => (microcontroller) => microcontroller.Longitude,
-        _ => (microcontroller) => microcontroller.Name
-      };
     }
   }
 }

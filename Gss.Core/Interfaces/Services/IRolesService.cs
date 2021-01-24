@@ -8,9 +8,9 @@ namespace Gss.Core.Interfaces.Services
   public interface IRolesService
   {
     Task<PagedResultDto<RoleDto>> GetAllRolesAsync(PagedInfoDto pagedInfoDto);
-    Task<RoleDto> GetRoleAsync(Guid id);
+    Task<RoleDto> GetRoleAsync(Guid roleID);
     Task<RoleDto> CreateRoleAsync(CreateRoleDto createRoleDto);
-    Task<RoleDto> UpdateRoleAsync(UpdateRoleDto updateRoleDto);
-    Task<RoleDto> DeleteRoleAsync(Guid id);
+    Task<RoleDto> UpdateRoleAsync(Guid roleID, UpdateRoleDto updateRoleDto);
+    Task<RoleDto> DeleteRoleAsync(Guid roleID);
   }
 }

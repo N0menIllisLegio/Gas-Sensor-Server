@@ -88,9 +88,9 @@ namespace Gss.Core.Services
       return _mapper.Map<ExtendedUserDto>(user);
     }
 
-    public async Task<ExtendedUserDto> UpdateUserAsync(UpdateUserDto updateUserDto)
+    public async Task<ExtendedUserDto> UpdateUserAsync(Guid userID, UpdateUserDto updateUserDto)
     {
-      var user = await _userManager.FindByIdAsync(updateUserDto.ID);
+      var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
@@ -98,11 +98,7 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      user.FirstName = updateUserDto.FirstName;
-      user.LastName = updateUserDto.LastName;
-      user.Gender = updateUserDto.Gender;
-      user.Birthday = updateUserDto.Birthday;
-      user.PhoneNumber = updateUserDto.PhoneNumber;
+      _mapper.Map(updateUserDto, user);
 
       var result = await _userManager.UpdateAsync(user);
 

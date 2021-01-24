@@ -3,7 +3,7 @@ using Gss.Core.Interfaces;
 
 namespace Gss.Core.Entities
 {
-  public class MicrocontrollerSensor : IEntity
+  public class MicrocontrollerSensors : IEntity
   {
     public Guid ID { get; set; }
 

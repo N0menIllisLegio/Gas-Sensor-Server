@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.Interfaces.Services;
@@ -43,30 +44,30 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
-    [HttpPost]
-    [SwaggerOperation("Authorized Only", "Gets all microcontrollers that belongs to user.")]
+    [HttpPost("{userID}")]
+    [SwaggerOperation("Authorized", "Gets all microcontrollers that belongs to user.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserMicrocontrollers([FromQuery] IdDto dto, [FromBody] PagedInfoDto pagedInfoDto)
+    public async Task<IActionResult> GetUserMicrocontrollers([FromRoute] Guid userID, [FromBody] PagedInfoDto pagedInfoDto)
     {
-      var pagedResultDto = await _microcontrollerService.GetUserMicrocontrollersAsync(dto.ID, User.Identity.Name, pagedInfoDto);
+      var pagedResultDto = await _microcontrollerService.GetUserMicrocontrollersAsync(userID, User.Identity.Name, pagedInfoDto);
 
       return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
-    [HttpGet]
-    [SwaggerOperation("Authorized Only", "Gets microcontroller by id.")]
+    [HttpGet("{id}")]
+    [SwaggerOperation("Authorized", "Gets microcontroller by id.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetMicrocontroller([FromQuery] IdDto dto)
+    public async Task<IActionResult> GetMicrocontroller([FromRoute] Guid id)
     {
-      var microcontrollerDto = await _microcontrollerService.GetMicrocontrollerAsync(dto.ID, User.Identity.Name);
+      var microcontrollerDto = await _microcontrollerService.GetMicrocontrollerAsync(id, User.Identity.Name);
 
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Creates microcontroller.")]
+    [SwaggerOperation("Authorized", "Creates microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateMicrocontrollerDto dto)
@@ -77,7 +78,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPut]
-    [SwaggerOperation("Authorized Only", "Updates microcontroller.")]
+    [SwaggerOperation("Authorized", "Updates microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Update([FromBody] UpdateMicrocontrollerDto dto)
@@ -87,14 +88,14 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
-    [HttpDelete]
-    [SwaggerOperation("Authorized Only", "Deletes microcontroller.")]
+    [HttpDelete("{id}")]
+    [SwaggerOperation("Authorized", "Deletes microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete([FromQuery] IdDto dto)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
       var microcontrollerDto = await _microcontrollerService
-        .DeleteMicrocontrollerAsync(dto.ID, User.Identity.Name);
+        .DeleteMicrocontrollerAsync(id, User.Identity.Name);
 
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }

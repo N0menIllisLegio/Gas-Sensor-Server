@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Role;
 using Gss.Core.Interfaces.Services;
@@ -11,7 +12,7 @@ namespace Gss.Web.Controllers
   // TODO 200 -> 201
   [Route("api/[controller]/[action]")]
   [ApiController]
-  public class RolesController : ControllerBase
+  public class RolesController: ControllerBase
   {
     private readonly IRolesService _rolesService;
 
@@ -30,14 +31,14 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<RoleDto>>(pagedResult));
     }
 
-    [HttpGet]
+    [HttpGet("{id}")]
     [SwaggerOperation("Administrator Only", "Gets role by id.")]
     [SwaggerResponse(200, type: typeof(Response<RoleDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetRole([FromQuery] IdDto dto)
+    public async Task<IActionResult> GetRole([FromRoute] Guid id)
     {
-      var roleDto = await _rolesService.GetRoleAsync(dto.ID);
+      var roleDto = await _rolesService.GetRoleAsync(id);
 
       return Ok(new Response<RoleDto>(roleDto));
     }
@@ -54,26 +55,26 @@ namespace Gss.Web.Controllers
       return Ok(new Response<RoleDto>(roleDto));
     }
 
-    [HttpPut("{roleID}")]
+    [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates role.")]
     [SwaggerResponse(200, type: typeof(Response<RoleDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> Update([FromBody] UpdateRoleDto dto)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRoleDto dto)
     {
-      var roleDto = await _rolesService.UpdateRoleAsync(dto);
+      var roleDto = await _rolesService.UpdateRoleAsync(id, dto);
 
       return Ok(new Response<RoleDto>(roleDto));
     }
 
-    [HttpDelete("{roleID}")]
+    [HttpDelete("{id}")]
     [SwaggerOperation("Administrator Only", "Deletes role.")]
     [SwaggerResponse(200, type: typeof(Response<RoleDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete(IdDto dto)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
-      var roleDto = await _rolesService.DeleteRoleAsync(dto.ID);
+      var roleDto = await _rolesService.DeleteRoleAsync(id);
 
       return Ok(new Response<RoleDto>(roleDto));
     }

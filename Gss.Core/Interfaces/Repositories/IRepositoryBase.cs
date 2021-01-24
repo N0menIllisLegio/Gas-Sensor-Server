@@ -22,6 +22,7 @@ namespace Gss.Core.Interfaces.Repositories
     Task<PagedResultDto<TEntity>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
       Expression<Func<TEntity, object>> searchedPropertiesSelector,
       Expression<Func<TEntity, bool>> additionalFilterCriteria = null,
+      Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
       bool disableTracking = true);
 
     Task<TEntity> FindAsync(Guid id);

@@ -44,7 +44,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Loads data from files in database.")]
+    [SwaggerOperation("Authorized", "Loads data from files in database.")]
     public IActionResult MicrocontrollerDataUpload([FromForm] UploadFileDto dto)
     {
       return Ok(new Response<object>());

@@ -55,7 +55,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Removes specified refresh token from database.")]
+    [SwaggerOperation("Authorized", "Removes specified refresh token from database.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> LogOut([FromBody] RequestTokenRefreshDto requestTokens)
@@ -67,7 +67,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Removes all refresh tokens of user from database.")]
+    [SwaggerOperation("Authorized", "Removes all refresh tokens of user from database.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> LogOutFromAllDevices([FromBody] RequestTokenRefreshDto requestTokens)

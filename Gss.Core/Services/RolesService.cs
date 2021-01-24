@@ -44,9 +44,9 @@ namespace Gss.Core.Services
       };
     }
 
-    public async Task<RoleDto> GetRoleAsync(Guid id)
+    public async Task<RoleDto> GetRoleAsync(Guid roleID)
     {
-      var role = await _roleManager.FindByIdAsync(id);
+      var role = await _roleManager.FindByIdAsync(roleID);
 
       if (role is null)
       {
@@ -71,9 +71,9 @@ namespace Gss.Core.Services
       return _mapper.Map<RoleDto>(role);
     }
 
-    public async Task<RoleDto> UpdateRoleAsync(UpdateRoleDto updateRoleDto)
+    public async Task<RoleDto> UpdateRoleAsync(Guid roleID, UpdateRoleDto updateRoleDto)
     {
-      var role = await _roleManager.FindByIdAsync(updateRoleDto.ID);
+      var role = await _roleManager.FindByIdAsync(roleID);
 
       if (role is null)
       {
@@ -81,7 +81,7 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      role.Name = updateRoleDto.Name;
+      _mapper.Map(updateRoleDto, role);
 
       var result = await _roleManager.UpdateAsync(role);
 
@@ -94,9 +94,9 @@ namespace Gss.Core.Services
       return _mapper.Map<RoleDto>(role);
     }
 
-    public async Task<RoleDto> DeleteRoleAsync(Guid id)
+    public async Task<RoleDto> DeleteRoleAsync(Guid roleID)
     {
-      var role = await _roleManager.FindByIdAsync(id);
+      var role = await _roleManager.FindByIdAsync(roleID);
 
       if (role is null)
       {

@@ -59,9 +59,9 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorTypeDto>(sensorType);
     }
 
-    public async Task<SensorTypeDto> UpdateSensorTypeAsync(UpdateSensorTypeDto updateSensorTypeDto)
+    public async Task<SensorTypeDto> UpdateSensorTypeAsync(Guid sensorTypeID, UpdateSensorTypeDto updateSensorTypeDto)
     {
-      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(updateSensorTypeDto.ID);
+      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeID);
 
       if (sensorType is null)
       {
@@ -69,9 +69,7 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      sensorType.Name = updateSensorTypeDto.Name;
-      sensorType.Units = updateSensorTypeDto.Units;
-      sensorType.Icon = updateSensorTypeDto.Icon;
+      _mapper.Map(updateSensorTypeDto, sensorType);
 
       bool success = await _unitOfWork.SaveAsync();
 

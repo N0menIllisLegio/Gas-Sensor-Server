@@ -62,6 +62,7 @@ namespace Gss.Infrastructure.Repositories
     public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
       Expression<Func<TEntity, object>> searchedPropertiesSelector,
       Expression<Func<TEntity, bool>> additionalFilterCriteria = null,
+      Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
       bool disableTracking = true)
     {
       var query = DbSet.SearchBy(pagedInfoDto.SearchString, searchedPropertiesSelector, pagedInfoDto.Filters, additionalFilterCriteria);
@@ -72,6 +73,11 @@ namespace Gss.Infrastructure.Repositories
       }
 
       query = query.OrderBy(pagedInfoDto.SortOptions);
+
+      if (include is not null)
+      {
+        query = include(query);
+      }
 
       var pagedQuery = query.Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize).Take(pagedInfoDto.PageSize);
 

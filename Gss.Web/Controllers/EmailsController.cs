@@ -22,7 +22,7 @@ namespace Gss.Web.Controllers
 
     [Authorize]
     [HttpPost]
-    [SwaggerOperation("Authorized Only", "Sends message to specified email with email change confirmation token.")]
+    [SwaggerOperation("Authorized", "Sends message to specified email with email change confirmation token.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> SendEmailChangeConfirmation([FromBody] EmailDto dto)
