@@ -95,7 +95,7 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> SetSensorType([FromBody] SetSensorTypeDto dto)
     {
-      var sensorDto = await _sensorsService.SetSensorType(dto);
+      var sensorDto = await _sensorsService.SetSensorTypeAsync(dto);
 
       return Ok(new Response<SensorDto>(sensorDto));
     }

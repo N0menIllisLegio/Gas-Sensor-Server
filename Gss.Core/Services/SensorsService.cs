@@ -121,7 +121,7 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorDto>(sensor);
     }
 
-    public async Task<SensorDto> SetSensorType(SetSensorTypeDto dto)
+    public async Task<SensorDto> SetSensorTypeAsync(SetSensorTypeDto dto)
     {
       var sensor = await _unitOfWork.Sensors.FindAsync(dto.SensorID);
 
