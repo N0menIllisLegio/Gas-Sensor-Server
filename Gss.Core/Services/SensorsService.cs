@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +10,7 @@ using Gss.Core.Exceptions;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Core.Services
 {
@@ -25,21 +27,36 @@ namespace Gss.Core.Services
       _mapper = mapper;
     }
 
-    public async Task<PagedResultDto<SensorDto>> GetAllSensors(PagedInfoDto pagedRequest)
+    public async Task<PagedResultDto<SensorDto>> GetAllSensors(PagedInfoDto pagedInfoDto)
     {
-      var sensors = await _unitOfWork.Sensors.GetAllAsync();
+      var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
+                sensor => new { sensor.ID, sensor.Name, sensor.Description },
+                include: query => query.Include((sensor) => sensor.Type));
 
-      return await Task.FromResult<PagedResultDto<SensorDto>>(null);
+      return pagedResult.Convert<SensorDto>(_mapper);
     }
 
-    public async Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID)
+    public async Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID, PagedInfoDto pagedInfoDto)
     {
-      return await Task.FromResult<PagedResultDto<SensorDto>>(null);
+      var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
+        sensor => new { sensor.ID, sensor.Name, sensor.Description },
+        sensor => sensor.SensorMicrocontrollers.Any(microcontollerSensor => microcontollerSensor.MicrocontrollerID == microcontrollerID),
+        query => query.Include(sensor => sensor.Type));
+
+      return pagedResult.Convert<SensorDto>(_mapper);
     }
 
-    public async Task<SensorDto> GetSensor(Guid sensorID)
+    public async Task<SensorDto> GetSensorAsync(Guid sensorID)
     {
-      return await Task.FromResult<SensorDto>(null);
+      var sensor = await _unitOfWork.Sensors.FindAsync(sensorID);
+
+      if (sensor is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
+          HttpStatusCode.NotFound);
+      }
+
+      return _mapper.Map<SensorDto>(sensor);
     }
 
     public async Task<SensorDto> CreateSensorAsync(CreateSensorDto createSensorDto)
@@ -58,9 +75,27 @@ namespace Gss.Core.Services
       return _mapper.Map<SensorDto>(sensor);
     }
 
-    public async Task<SensorDto> UpdateSensorAsync(UpdateSensorDto dto)
+    public async Task<SensorDto> UpdateSensorAsync(Guid sensorID, UpdateSensorDto updateSensorDto)
     {
-      return await Task.FromResult<SensorDto>(null);
+      var sensor = await _unitOfWork.Sensors.FindAsync(sensorID);
+
+      if (sensor is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
+          HttpStatusCode.NotFound);
+      }
+
+      sensor = _mapper.Map(updateSensorDto, sensor);
+
+      bool success = await _unitOfWork.SaveAsync();
+
+      if (!success)
+      {
+        throw new AppException(String.Format(Messages.UpdateFailedErrorString, _sensor),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<SensorDto>(sensor);
     }
 
     public async Task<SensorDto> DeleteSensorAsync(Guid sensorID)
@@ -69,7 +104,8 @@ namespace Gss.Core.Services
 
       if (sensor is null)
       {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor), HttpStatusCode.NotFound);
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
+          HttpStatusCode.NotFound);
       }
 
       sensor = _unitOfWork.Sensors.Remove(sensor);

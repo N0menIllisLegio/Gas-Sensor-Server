@@ -1,4 +1,5 @@
 ﻿using System;
+using Gss.Core.DTOs.SensorType;
 
 namespace Gss.Core.DTOs.Sensor
 {
@@ -7,7 +8,6 @@ namespace Gss.Core.DTOs.Sensor
     public Guid ID { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-
-    // TODO Add SensorTypeDto
+    public SensorTypeDto SensorType { get; set; }
   }
 }

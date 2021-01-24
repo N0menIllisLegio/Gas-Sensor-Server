@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Sensor;
 using Gss.Core.Interfaces.Services;
@@ -27,27 +28,32 @@ namespace Gss.Web.Controllers
     public async Task<IActionResult> GetAllSensors([FromBody] PagedInfoDto pagedRequest)
     {
       var pagedResultDto = await _sensorsService.GetAllSensors(pagedRequest);
+
       return Ok(new Response<PagedResultDto<SensorDto>>(pagedResultDto));
     }
 
     // anon, access if public
-    [HttpGet]
-    [SwaggerOperation("Authorized Only", "Gets all sensors of microcontroller.")]
+    [HttpPost("{microcontrollerID}")]
+    [SwaggerOperation("Authorized", "Gets all sensors of microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetMicrocontrollerSensors([FromQuery] IdDto dto)
+    public async Task<IActionResult> GetMicrocontrollerSensors([FromRoute] Guid microcontrollerID, [FromBody] PagedInfoDto pagedRequest)
     {
-      return await Task.Run(Ok);
+      var pagedResult = await _sensorsService.GetMicrocontrollerSensors(microcontrollerID, pagedRequest);
+
+      return Ok(new Response<PagedResultDto<SensorDto>>(pagedResult));
     }
 
     // anon, access if public
-    [HttpGet]
-    [SwaggerOperation("Authorized Only", "Gets sensor by id.")]
+    [HttpGet("{id}")]
+    [SwaggerOperation("Authorized", "Gets sensor by id.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetSensor([FromQuery] IdDto dto)
+    public async Task<IActionResult> GetSensor([FromRoute] Guid id)
     {
-      return await Task.Run(Ok);
+      var sensorDto = await _sensorsService.GetSensorAsync(id);
+
+      return Ok(new Response<SensorDto>(sensorDto));
     }
 
     [HttpPost]
@@ -56,25 +62,31 @@ namespace Gss.Web.Controllers
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Create([FromBody] CreateSensorDto dto)
     {
-      return await Task.Run(Ok);
+      var sensorDto = await _sensorsService.CreateSensorAsync(dto);
+
+      return Ok(new Response<SensorDto>(sensorDto));
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates sensor.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Update([FromBody] UpdateSensorDto dto)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSensorDto updateSensorDto)
     {
-      return await Task.Run(Ok);
+      var sensorDto = await _sensorsService.UpdateSensorAsync(id, updateSensorDto);
+
+      return Ok(new Response<SensorDto>(sensorDto));
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     [SwaggerOperation("Administrator Only", "Deletes sensor.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> Delete([FromQuery] IdDto dto)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
-      return await Task.Run(Ok);
+      var sensorDto = await _sensorsService.DeleteSensorAsync(id);
+
+      return Ok(new Response<SensorDto>(sensorDto));
     }
   }
 }

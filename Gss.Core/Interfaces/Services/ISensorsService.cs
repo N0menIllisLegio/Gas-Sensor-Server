@@ -9,9 +9,9 @@ namespace Gss.Core.Interfaces.Services
   {
     Task<SensorDto> CreateSensorAsync(CreateSensorDto createSensorDto);
     Task<SensorDto> DeleteSensorAsync(Guid sensorID);
-    Task<PagedResultDto<SensorDto>> GetAllSensors(PagedInfoDto pagedRequest);
-    Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID);
-    Task<SensorDto> GetSensor(Guid sensorID);
-    Task<SensorDto> UpdateSensorAsync(UpdateSensorDto updateSensorDto);
+    Task<PagedResultDto<SensorDto>> GetAllSensors(PagedInfoDto pagedInfoDto);
+    Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID, PagedInfoDto pagedInfoDto);
+    Task<SensorDto> GetSensorAsync(Guid sensorID);
+    Task<SensorDto> UpdateSensorAsync(Guid sensorID, UpdateSensorDto updateSensorDto);
   }
 }
