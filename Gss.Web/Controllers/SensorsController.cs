@@ -88,5 +88,16 @@ namespace Gss.Web.Controllers
 
       return Ok(new Response<SensorDto>(sensorDto));
     }
+
+    [HttpPatch]
+    [SwaggerOperation("Administrator Only", "Changes sensor's type.")]
+    [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> SetSensorType([FromBody] SetSensorTypeDto dto)
+    {
+      var sensorDto = await _sensorsService.SetSensorType(dto);
+
+      return Ok(new Response<SensorDto>(sensorDto));
+    }
   }
 }

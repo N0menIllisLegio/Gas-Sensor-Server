@@ -13,5 +13,6 @@ namespace Gss.Core.Interfaces.Services
     Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID, PagedInfoDto pagedInfoDto);
     Task<SensorDto> GetSensorAsync(Guid sensorID);
     Task<SensorDto> UpdateSensorAsync(Guid sensorID, UpdateSensorDto updateSensorDto);
+    Task<SensorDto> SetSensorType(SetSensorTypeDto dto);
   }
 }

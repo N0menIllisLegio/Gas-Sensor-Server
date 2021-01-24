@@ -120,5 +120,36 @@ namespace Gss.Core.Services
 
       return _mapper.Map<SensorDto>(sensor);
     }
+
+    public async Task<SensorDto> SetSensorType(SetSensorTypeDto dto)
+    {
+      var sensor = await _unitOfWork.Sensors.FindAsync(dto.SensorID);
+
+      if (sensor is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
+          HttpStatusCode.NotFound);
+      }
+
+      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(dto.SensorTypeID);
+
+      if (sensorType is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, "Sensor's type"),
+          HttpStatusCode.NotFound);
+      }
+
+      sensor.Type = sensorType;
+
+      bool success = await _unitOfWork.SaveAsync();
+
+      if (!success)
+      {
+        throw new AppException(String.Format(Messages.DeletionFailedErrorString, _sensor),
+          HttpStatusCode.BadRequest);
+      }
+
+      return _mapper.Map<SensorDto>(sensor);
+    }
   }
 }
