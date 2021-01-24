@@ -43,7 +43,8 @@ namespace Gss.Web
 
       services.AddDbContext<AppDbContext>(options =>
           options.UseLazyLoadingProxies()
-            .UseSqlServer(Configuration.GetConnectionString("LocalDB")));
+            .UseSqlServer(Configuration.GetConnectionString("LocalDB"))
+            .EnableSensitiveDataLogging());
 
       services.AddDefaultIdentity<User>(options =>
       {
