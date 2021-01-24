@@ -192,14 +192,39 @@ namespace Gss.Core.Helpers
       return (Expression<Func<TEntity, bool>>)Expression.Lambda(body, parameter);
     }
 
+    private static IEnumerable<string> GetEntitiesPropertiesNames(string parentEntity, Type type)
+    {
+      var propertiesNames = new List<string>();
+
+      foreach (var property in type.GetProperties()
+        .Where(prop => prop.GetCustomAttribute(typeof(ExpressionsBuilderAttribute)) is not null))
+      {
+        if (typeof(IEntity).IsAssignableFrom(property.PropertyType))
+        {
+          propertiesNames.AddRange(GetEntitiesPropertiesNames(property.Name + '.', property.PropertyType));
+        }
+        else
+        {
+          if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(property.PropertyType))
+          {
+            propertiesNames.Add(parentEntity + property.Name);
+          }
+        }
+      }
+
+      return propertiesNames;
+    }
+
     private static IEnumerable<TResult> GetValidPropertyNames<TEntity, TResult>(Dictionary<string, TResult> items)
     {
-      var existingProperties = typeof(TEntity).GetProperties();
+      var existingPropertiesNames = GetEntitiesPropertiesNames(String.Empty, typeof(TEntity));
+      // TODO: create list of names (name, name.name, name.name.name)
+      // than check
       var result = new List<TResult>();
 
       foreach (var item in items)
       {
-        if (existingProperties.Any((prop) => prop.Name.Equals(item.Key)))
+        if (existingPropertiesNames.Any((prop) => prop.Equals(item.Key)))
         {
           result.Add(item.Value);
         }
