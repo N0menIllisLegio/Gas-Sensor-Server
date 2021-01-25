@@ -115,6 +115,24 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to add sensor to microcontroller..
+        /// </summary>
+        public static string FailedAddingSensorToMicrocontrollerErrorString {
+            get {
+                return ResourceManager.GetString("FailedAddingSensorToMicrocontrollerErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to remove sensor from microcontroller..
+        /// </summary>
+        public static string FailedRemovingSensorFromMicrocontrollerErrorString {
+            get {
+                return ResourceManager.GetString("FailedRemovingSensorFromMicrocontrollerErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to send {0}..
         /// </summary>
         public static string FailedToSendEmailErrorString {

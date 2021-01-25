@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AutoMapper;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.DTOs.Role;
@@ -19,11 +20,17 @@ namespace Gss.Core.Helpers
       CreateMap<CreateSensorTypeDto, SensorType>();
       CreateMap<UpdateSensorTypeDto, SensorType>();
 
+      CreateMap<Sensor, SensorDto>()
+        .ForMember(dest => dest.SensorType, opt => opt.MapFrom(src => src.Type));
+      CreateMap<CreateSensorDto, Sensor>();
+      CreateMap<UpdateSensorDto, Sensor>();
+
       CreateMap<IdentityRole<Guid>, RoleDto>();
       CreateMap<CreateRoleDto, IdentityRole<Guid>>();
       CreateMap<UpdateRoleDto, IdentityRole<Guid>>();
 
-      CreateMap<Microcontroller, MicrocontrollerDto>();
+      CreateMap<Microcontroller, MicrocontrollerDto>()
+        .ForMember(dest => dest.Sensors, opt => opt.MapFrom(src => src.MicrocontrollerSensors.Select(s => s.Sensor).ToList()));
       CreateMap<CreateMicrocontrollerDto, Microcontroller>();
       CreateMap<UpdateMicrocontrollerDto, Microcontroller>();
 
@@ -34,11 +41,6 @@ namespace Gss.Core.Helpers
       CreateMap<UpdateUserInfoDto, User>();
       CreateMap<UpdateUserDto, User>();
       CreateMap<UpdateUserInfoModel, User>();
-
-      CreateMap<Sensor, SensorDto>()
-        .ForMember(dest => dest.SensorType, opt => opt.MapFrom(src => src.Type));
-      CreateMap<CreateSensorDto, Sensor>();
-      CreateMap<UpdateSensorDto, Sensor>();
     }
   }
 }

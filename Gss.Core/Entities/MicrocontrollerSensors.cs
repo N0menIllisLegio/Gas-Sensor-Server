@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Gss.Core.Interfaces;
 
 namespace Gss.Core.Entities
 {
   public class MicrocontrollerSensors : IEntity
   {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid ID { get; set; }
 
     public Guid MicrocontrollerID { get; set; }

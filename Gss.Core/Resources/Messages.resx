@@ -135,6 +135,12 @@
   <data name="EmailNotConfirmedErrorString" xml:space="preserve">
     <value>Email is not confirmed.</value>
   </data>
+  <data name="FailedAddingSensorToMicrocontrollerErrorString" xml:space="preserve">
+    <value>Failed to add sensor to microcontroller.</value>
+  </data>
+  <data name="FailedRemovingSensorFromMicrocontrollerErrorString" xml:space="preserve">
+    <value>Failed to remove sensor from microcontroller.</value>
+  </data>
   <data name="FailedToSendEmailErrorString" xml:space="preserve">
     <value>Failed to send {0}.</value>
   </data>

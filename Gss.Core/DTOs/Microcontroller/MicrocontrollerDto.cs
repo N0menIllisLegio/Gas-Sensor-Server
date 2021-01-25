@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Gss.Core.DTOs.Sensor;
 using Gss.Core.DTOs.User;
 
 namespace Gss.Core.DTOs.Microcontroller
@@ -15,5 +17,7 @@ namespace Gss.Core.DTOs.Microcontroller
     public double? Longitude { get; set; }
 
     public UserDto UserInfo { get; set; }
+
+    public IEnumerable<SensorDto> Sensors { get; set; }
   }
 }
