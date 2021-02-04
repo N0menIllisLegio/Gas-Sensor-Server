@@ -315,5 +315,28 @@ namespace Gss.Core.Services
 
       return microcontroller;
     }
+
+    public async Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
+      }
+
+      var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == microcontrollerID);
+
+      if (microcontroller is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
+          HttpStatusCode.NotFound);
+      }
+
+      // TODO check pass
+
+      return microcontroller;
+    }
   }
 }

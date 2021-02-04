@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -43,7 +45,7 @@ namespace Gss.Web
 
       services.AddDbContext<AppDbContext>(options =>
           options.UseLazyLoadingProxies()
-            .UseSqlServer(Configuration.GetConnectionString("LocalDB"))
+            .UseSqlServer(Configuration.GetConnectionString("AzureDB"))
             .EnableSensitiveDataLogging());
 
       services.AddDefaultIdentity<User>(options =>
@@ -116,6 +118,8 @@ namespace Gss.Web
       services.AddScoped<IFilesService, FilesService>();
       services.AddScoped<IUsersService, UsersService>();
 
+      services.AddSingleton<SocketConnectionService>();
+
       services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
 
       services.AddSwaggerGen(c =>
@@ -153,11 +157,10 @@ namespace Gss.Web
       });
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SocketConnectionService socketConnectionService)
     {
       if (!env.IsDevelopment())
       {
-        // app.UseExceptionHandler("/Error");
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         // TODO app.UseHsts();
       }
@@ -177,6 +180,8 @@ namespace Gss.Web
 
       app.UseSwagger();
       app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
+
+      socketConnectionService.RunAsync();
 
       //app.UseSpa(spa =>
       //{

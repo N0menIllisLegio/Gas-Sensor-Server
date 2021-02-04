@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
+using Gss.Core.Entities;
 
 namespace Gss.Core.Interfaces.Services
 {
@@ -17,5 +18,8 @@ namespace Gss.Core.Interfaces.Services
     Task<MicrocontrollerDto> ChangeMicrocontrollerOwnerAsync(Guid microcontrollerID, Guid newOwnerID);
     Task<MicrocontrollerDto> AddSensorAsync(string requestedByEmail, AddSensorDto addSensorDto);
     Task<MicrocontrollerDto> RemoveSensorAsync(string requestedByEmail, RemoveSensorDto removeSensorDto);
+
+    // For connection service
+    Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword);
   }
 }
