@@ -35,5 +35,14 @@ namespace Gss.Core.Helpers
       public static string ThumbnailsContainer { get; set; }
       public static List<string> SupportedExtensions { get; set; }
     }
+
+    public static class Socket
+    {
+      public static string IPAddress { get; set; }
+      public static int Port { get; set; }
+      public static int SendTimeout { get; set; }
+      public static int ReceiveTimeout { get; set; }
+      public static int ListenQueue { get; set; }
+    }
   }
 }

@@ -228,6 +228,15 @@ namespace Gss.Web
       Settings.AzureImages.ImagesContainer = azureImagesSection["ImagesContainer"];
       Settings.AzureImages.ThumbnailsContainer = azureImagesSection["ThumbnailsContainer"];
       Settings.AzureImages.SupportedExtensions = azureImagesSection.GetSection("SupportedExtensions").Get<List<string>>();
+
+      var socketConnectionOptions = Configuration.GetSection("MicrocontrollersConnectionsOptions:Socket");
+
+      Settings.Socket.ReceiveTimeout = Int32.Parse(socketConnectionOptions["ReceiveTimeout"]);
+      Settings.Socket.SendTimeout = Int32.Parse(socketConnectionOptions["SendTimeout"]);
+      Settings.Socket.ListenQueue = Int32.Parse(socketConnectionOptions["ListenQueue"]);
+      Settings.Socket.IPAddress = Dns.GetHostEntry(Dns.GetHostName()).AddressList
+        .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToString(); //socketConnectionOptions["IPAddress"];
+      Settings.Socket.Port = Int32.Parse(socketConnectionOptions["Port"]);
     }
   }
 }
