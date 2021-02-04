@@ -26,6 +26,10 @@ namespace Gss.Core.Entities
     public double? Longitude { get; set; }
     public string PasswordHash { get; set; }
 
+    // ID of microcontroller's sensor
+    // from which data will be requested
+    public Guid? RequestedSensorID { get; set; }
+
     // ---- RELATIONSHIPS
 
     [ExpressionsBuilder]
@@ -34,8 +38,6 @@ namespace Gss.Core.Entities
     public virtual IList<MicrocontrollerSensors> MicrocontrollerSensors { get; set; }
 
     // ----- NOT IN DB
-
-    public bool UserRequestedData { get; }
 
     public SensorData TryParseData(string data)
     {
