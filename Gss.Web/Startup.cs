@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -45,7 +44,7 @@ namespace Gss.Web
 
       services.AddDbContext<AppDbContext>(options =>
           options.UseLazyLoadingProxies()
-            .UseSqlServer(Configuration.GetConnectionString("AzureDB"))
+            .UseSqlServer(Configuration.GetConnectionString("LocalDB"))
             .EnableSensitiveDataLogging());
 
       services.AddDefaultIdentity<User>(options =>
