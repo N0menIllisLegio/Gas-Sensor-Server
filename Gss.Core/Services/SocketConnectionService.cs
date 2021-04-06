@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -10,6 +11,7 @@ using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Gss.Core.Services
 {
@@ -19,12 +21,16 @@ namespace Gss.Core.Services
     private const string _okResponse = "Server_OK";
     private const string _attentionResponse = "Server_AT";
     private const string _sensorValueResponse = "Server_SV";
+    private const int _bulkInsertSize = 1;
 
+    private readonly ILogger<SocketConnectionService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public SocketConnectionService(IServiceScopeFactory serviceScopeFactory)
+    public SocketConnectionService(IServiceScopeFactory serviceScopeFactory,
+      ILogger<SocketConnectionService> logger)
     {
       _serviceScopeFactory = serviceScopeFactory;
+      _logger = logger;
     }
 
     public async void RunAsync()
@@ -53,7 +59,7 @@ namespace Gss.Core.Services
       }
       catch (Exception exception)
       {
-        Console.WriteLine(exception);
+        _logger.LogCritical(exception, exception.Message);
       }
       finally
       {
@@ -63,10 +69,11 @@ namespace Gss.Core.Services
 
     private async void HandleConnection(Socket socket)
     {
+      var receivedSensorsData = new List<SensorData>();
+      Microcontroller connectedMicrocontroller = null;
+
       try
       {
-        Microcontroller connectedMicrocontroller = null;
-
         while (socket.Connected)
         {
           var receivedMessageBuilder = new StringBuilder();
@@ -82,8 +89,6 @@ namespace Gss.Core.Services
           string[] splittedReceivedMessage = receivedMessageBuilder.ToString().Split(_commandSeparator);
           string receivedCommand = splittedReceivedMessage.First();
           string[] splittedArguments = splittedReceivedMessage.Last().Split(';');
-
-          Console.WriteLine(receivedMessageBuilder.ToString()); // TODO temp
 
           string response = null;
 
@@ -103,8 +108,9 @@ namespace Gss.Core.Services
                 || !Guid.TryParse(splittedArguments[1], out microcontrollerID)
                 || String.IsNullOrEmpty(splittedArguments[2]))
               {
-                // Error - Disconnect
-                Console.WriteLine("Invalid status");
+                _logger.LogWarning("Failed to parse data. Endpoint: {0}\tData: {1}",
+                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+
                 return;
               }
 
@@ -118,7 +124,9 @@ namespace Gss.Core.Services
 
               if (connectedMicrocontroller is null)
               {
-                Console.WriteLine("Auth failed");
+                _logger.LogWarning("Failed to authenticate. Endpoint: {0}\tRequest: {1}",
+                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+
                 return;
               }
 
@@ -131,20 +139,51 @@ namespace Gss.Core.Services
               DateTime sensorValueReadedDateTime;
               int sensorValue;
 
-              if (connectedMicrocontroller is null
-                || splittedArguments.Length != 3
+              if (connectedMicrocontroller is null)
+              {
+                _logger.LogWarning("Unauthorized. Endpoint: {0}\tRequest: {1}",
+                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+
+                return;
+              }
+
+              if (splittedArguments.Length != 3
                 || !Guid.TryParse(splittedArguments[0], out sensorID)
                 || !DateTime.TryParse(splittedArguments[1], CultureInfo.CreateSpecificCulture("en-US"),
                   DateTimeStyles.None, out sensorValueReadedDateTime)
                 || !Int32.TryParse(splittedArguments[2], out sensorValue))
               {
-                // Error - Disconnect
-                Console.WriteLine("Invalid status");
+                _logger.LogWarning("Failed to parse data. Endpoint: {0}\tMicrocontroller: {1}\tRequest: {2}",
+                  socket.RemoteEndPoint, connectedMicrocontroller.ID, receivedMessageBuilder.ToString());
+
                 return;
               }
 
-              //_unitOfWork.Data.write
-              Console.WriteLine($"{sensorID} | {sensorValueReadedDateTime} | {sensorValue}");
+              if (receivedSensorsData.Count(sensorData => sensorData.SensorID == sensorID
+                && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
+              {
+                receivedSensorsData.Add(new SensorData
+                {
+                  MicrocontrollerID = connectedMicrocontroller.ID,
+                  SensorID = sensorID,
+                  SensorValue = sensorValue,
+                  ValueReadTime = sensorValueReadedDateTime,
+                  ValueReceivedTime = DateTime.Now
+                });
+
+                _logger.LogInformation("Received Data. Endpoint: {0}\tRequest: {1}",
+                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+
+                if (receivedSensorsData.Count > _bulkInsertSize)
+                {
+                  using var scope = _serviceScopeFactory.CreateScope();
+                  var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                  await unitOfWork.SensorsData.BulkInsert(receivedSensorsData);
+                  receivedSensorsData.Clear();
+
+                  _logger.LogInformation("Written data to DB NORMALLY.");
+                }
+              }
 
               response = _okResponse;
 
@@ -154,8 +193,9 @@ namespace Gss.Core.Services
 
               if (connectedMicrocontroller is null)
               {
-                // Error - Disconnect
-                Console.WriteLine("Unknown command");
+                _logger.LogWarning("Unauthorized. Endpoint: {0}\tRequest: {1}",
+                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+
                 return;
               }
 
@@ -173,21 +213,29 @@ namespace Gss.Core.Services
               break;
 
             default:
-              Console.WriteLine("Unknown command");
-              throw new NotSupportedException();
+              _logger.LogWarning("Unknown command. Endpoint: {0}\tRequest: {1}",
+                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+              return;
           }
-
-          Console.WriteLine(response); // TODO temp
 
           await socket.SendAsync(Encoding.ASCII.GetBytes(response), SocketFlags.None);
         }
       }
       catch (Exception exception)
       {
-        Console.WriteLine(exception);
+        _logger.LogError(exception, "Endpoint: {0}\tConnected microcontroller: {1}", socket.RemoteEndPoint, connectedMicrocontroller?.ID);
       }
       finally
       {
+        if (receivedSensorsData.Count > 0)
+        {
+          using var scope = _serviceScopeFactory.CreateScope();
+          var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+          await unitOfWork.SensorsData.BulkInsert(receivedSensorsData);
+
+          _logger.LogInformation("Written data to DB FINALLY.");
+        }
+
         socket?.Dispose();
       }
     }
