@@ -14,6 +14,7 @@ namespace Gss.Infrastructure
     private IRefreshTokensRepository _refreshTokens;
     private ISensorsRepository _sensors;
     private ISensorsTypesRepository _sensorsTypes;
+    private ISensorsDataRepository _sensorsData;
     private bool _disposedValue = false;
 
     public UnitOfWork(AppDbContext context)
@@ -21,11 +22,12 @@ namespace Gss.Infrastructure
       _context = context;
     }
 
-    public IAzureFilesRepository AzureFiles => _azureImages = _azureImages ?? new AzureFilesRepository();
-    public IMicrocontrollersRepository Microcontrollers => _microcontrollers = _microcontrollers ?? new MicrocontrollersRepository(_context);
-    public IRefreshTokensRepository RefreshTokens => _refreshTokens = _refreshTokens ?? new RefreshTokensRepository(_context);
-    public ISensorsRepository Sensors => _sensors = _sensors ?? new SensorsRepository(_context);
-    public ISensorsTypesRepository SensorsTypes => _sensorsTypes = _sensorsTypes ?? new SensorsTypesRepository(_context);
+    public IAzureFilesRepository AzureFiles => _azureImages ??= new AzureFilesRepository();
+    public IMicrocontrollersRepository Microcontrollers => _microcontrollers ??= new MicrocontrollersRepository(_context);
+    public IRefreshTokensRepository RefreshTokens => _refreshTokens ??= new RefreshTokensRepository(_context);
+    public ISensorsRepository Sensors => _sensors ??= new SensorsRepository(_context);
+    public ISensorsTypesRepository SensorsTypes => _sensorsTypes ??= new SensorsTypesRepository(_context);
+    public ISensorsDataRepository SensorsData => _sensorsData ??= new SensorsDataRepository(_context);
 
     public async Task<bool> SaveAsync()
     {
