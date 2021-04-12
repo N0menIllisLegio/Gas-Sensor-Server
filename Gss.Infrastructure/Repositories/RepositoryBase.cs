@@ -119,5 +119,10 @@ namespace Gss.Infrastructure.Repositories
       await Context.Entry(entity).ReloadAsync();
       return entity;
     }
+
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>> match)
+    {
+      return await DbSet.CountAsync(match);
+    }
   }
 }

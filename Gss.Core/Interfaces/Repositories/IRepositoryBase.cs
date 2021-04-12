@@ -30,5 +30,6 @@ namespace Gss.Core.Interfaces.Repositories
     TEntity Add(TEntity entity);
     TEntity Remove(TEntity entity);
     Task<TEntity> ReloadAsync(TEntity entityToReload);
+    Task<int> CountAsync(Expression<Func<TEntity, bool>> match);
   }
 }
