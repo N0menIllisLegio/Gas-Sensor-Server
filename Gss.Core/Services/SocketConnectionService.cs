@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -21,10 +22,14 @@ namespace Gss.Core.Services
     private const string _okResponse = "Server_OK";
     private const string _attentionResponse = "Server_AT";
     private const string _sensorValueResponse = "Server_SV";
-    private const int _bulkInsertSize = 1;
+    private const int _receivedSensorsDatMaxSize = 5;
 
     private readonly ILogger<SocketConnectionService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly object _locker = new ();
+    private readonly List<SensorData> _receivedSensorsData = new ();
+
+    private int _runInsertReceivedSensorsData = 0;
 
     public SocketConnectionService(IServiceScopeFactory serviceScopeFactory,
       ILogger<SocketConnectionService> logger)
@@ -40,11 +45,7 @@ namespace Gss.Core.Services
 
     private void Run()
     {
-      var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-      {
-        ReceiveTimeout = Settings.Socket.ReceiveTimeout,
-        SendTimeout = Settings.Socket.SendTimeout
-      };
+      var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
       socket.Bind(new IPEndPoint(IPAddress.Parse(Settings.Socket.IPAddress), Settings.Socket.Port));
       socket.Listen(Settings.Socket.ListenQueue);
@@ -54,6 +55,10 @@ namespace Gss.Core.Services
         while (true)
         {
           var acceptedSocket = socket.Accept();
+
+          acceptedSocket.ReceiveTimeout = Settings.Socket.ReceiveTimeout;
+          acceptedSocket.SendTimeout = Settings.Socket.SendTimeout;
+
           HandleConnection(acceptedSocket);
         }
       }
@@ -63,163 +68,192 @@ namespace Gss.Core.Services
       }
       finally
       {
+        _logger.LogWarning("SocketConnectionService stopped working.");
         socket?.Close();
       }
     }
 
     private async void HandleConnection(Socket socket)
     {
-      var receivedSensorsData = new List<SensorData>();
       Microcontroller connectedMicrocontroller = null;
 
       try
       {
-        while (socket.Connected)
+        string request = await ReceiveMicrocontrollerRequest(socket);
+        var (receivedCommand, receivedArguments) = SplitRequest(request);
+
+        switch (receivedCommand)
         {
-          var receivedMessageBuilder = new StringBuilder();
-          byte[] receivedData = new byte[256];
+          case "STM_AUTH":
+            if (receivedArguments.Length != 3
+             || String.IsNullOrEmpty(receivedArguments[2])
+             || !Guid.TryParse(receivedArguments[0], out var userID)
+             || !Guid.TryParse(receivedArguments[1], out var microcontrollerID))
+            {
+              _logger.LogWarning("Failed to parse data. Endpoint: {0}\tRequest: {1}",
+                socket.RemoteEndPoint, request);
 
-          do
-          {
-            int bytesReceived = await socket.ReceiveAsync(receivedData, SocketFlags.None);
-            receivedMessageBuilder.Append(Encoding.ASCII.GetString(receivedData, 0, bytesReceived));
-          }
-          while (socket.Available > 0);
+              socket.Shutdown(SocketShutdown.Both);
+              socket.Close();
 
-          string[] splittedReceivedMessage = receivedMessageBuilder.ToString().Split(_commandSeparator);
-          string receivedCommand = splittedReceivedMessage.First();
-          string[] splittedArguments = splittedReceivedMessage.Last().Split(';');
+              return;
+            }
 
-          string response = null;
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+              var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
 
-          switch (receivedCommand)
-          {
-            case "STM_AT":
-              response = _attentionResponse;
+              connectedMicrocontroller = await microcontrollersService
+                .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, receivedArguments[2]);
+            }
 
-              break;
+            if (connectedMicrocontroller is null)
+            {
+              _logger.LogWarning("Failed to authenticate. Endpoint: {0}\tRequest: {1}",
+                socket.RemoteEndPoint, request);
 
-            case "STM_AUTH":
-              Guid userID, microcontrollerID;
+              socket.Shutdown(SocketShutdown.Both);
+              socket.Close();
 
-              if (connectedMicrocontroller is not null
-                || splittedArguments.Length != 3
-                || !Guid.TryParse(splittedArguments[0], out userID)
-                || !Guid.TryParse(splittedArguments[1], out microcontrollerID)
-                || String.IsNullOrEmpty(splittedArguments[2]))
+              return;
+            }
+
+            await SendMicrocontrollerResponse(socket, _okResponse);
+
+            break;
+
+          case "STM_TIME":
+
+            // PTP?
+
+            break;
+
+          default:
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+            return;
+        }
+
+        request = await ReceiveMicrocontrollerRequest(socket);
+        (receivedCommand, receivedArguments) = SplitRequest(request);
+
+        switch (receivedCommand)
+        {
+          case "STM_DATA":
+            if (receivedArguments.Length != 3
+              || !Guid.TryParse(receivedArguments[0], out var sensorID)
+              || !DateTime.TryParse(receivedArguments[1], CultureInfo.CreateSpecificCulture("en-US"),
+                DateTimeStyles.None, out var sensorValueReadedDateTime)
+              || !Int32.TryParse(receivedArguments[2], out int sensorValue))
+            {
+              _logger.LogWarning("Failed to parse data. Endpoint: {0}\tMicrocontroller: {1}\tRequest: {2}",
+                socket.RemoteEndPoint, connectedMicrocontroller.ID, request);
+
+              socket.Shutdown(SocketShutdown.Both);
+              socket.Close();
+
+              return;
+            }
+
+            await SendMicrocontrollerResponse(socket, _okResponse);
+
+            if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerID == connectedMicrocontroller.ID
+              && sensorData.SensorID == sensorID
+              && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
+            {
+              var sensorData = new SensorData
               {
-                _logger.LogWarning("Failed to parse data. Endpoint: {0}\tData: {1}",
-                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+                ID = Guid.NewGuid(),
+                MicrocontrollerID = connectedMicrocontroller.ID,
+                SensorID = sensorID,
+                SensorValue = sensorValue,
+                ValueReadTime = sensorValueReadedDateTime,
+                ValueReceivedTime = DateTime.UtcNow
+              };
 
-                return;
+              lock (_locker)
+              {
+                _receivedSensorsData.Add(sensorData);
               }
 
-              using (var scope = _serviceScopeFactory.CreateScope())
+              if (_receivedSensorsData.Count > _receivedSensorsDatMaxSize)
               {
-                var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
-
-                connectedMicrocontroller = await microcontrollersService
-                  .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, splittedArguments[2]);
+                _ = Task.Run(InsertReceivedSensorsData);
               }
+            }
 
-              if (connectedMicrocontroller is null)
-              {
-                _logger.LogWarning("Failed to authenticate. Endpoint: {0}\tRequest: {1}",
-                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+            break;
 
-                return;
-              }
+          case "STM_RQ":
 
-              response = _okResponse;
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+              var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-              break;
+              connectedMicrocontroller = await unitOfWork.Microcontrollers.ReloadAsync(connectedMicrocontroller);
+            }
 
-            case "STM_DATA":
-              Guid sensorID;
-              DateTime sensorValueReadedDateTime;
-              int sensorValue;
+            if (connectedMicrocontroller.RequestedSensorID is not null)
+            {
+              await SendMicrocontrollerResponse(socket, $"{_sensorValueResponse}|{connectedMicrocontroller.RequestedSensorID};");
 
-              if (connectedMicrocontroller is null)
-              {
-                _logger.LogWarning("Unauthorized. Endpoint: {0}\tRequest: {1}",
-                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+              request = await ReceiveMicrocontrollerRequest(socket);
+              (receivedCommand, receivedArguments) = SplitRequest(request);
 
-                return;
-              }
-
-              if (splittedArguments.Length != 3
-                || !Guid.TryParse(splittedArguments[0], out sensorID)
-                || !DateTime.TryParse(splittedArguments[1], CultureInfo.CreateSpecificCulture("en-US"),
-                  DateTimeStyles.None, out sensorValueReadedDateTime)
-                || !Int32.TryParse(splittedArguments[2], out sensorValue))
+              if (receivedArguments.Length != 3
+              || !Guid.TryParse(receivedArguments[0], out sensorID)
+              || !DateTime.TryParse(receivedArguments[1], CultureInfo.CreateSpecificCulture("en-US"),
+                DateTimeStyles.None, out sensorValueReadedDateTime)
+              || !Int32.TryParse(receivedArguments[2], out sensorValue))
               {
                 _logger.LogWarning("Failed to parse data. Endpoint: {0}\tMicrocontroller: {1}\tRequest: {2}",
-                  socket.RemoteEndPoint, connectedMicrocontroller.ID, receivedMessageBuilder.ToString());
+                  socket.RemoteEndPoint, connectedMicrocontroller.ID, request);
+
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
 
                 return;
               }
 
-              if (receivedSensorsData.Count(sensorData => sensorData.SensorID == sensorID
-                && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
+              await SendMicrocontrollerResponse(socket, _okResponse);
+
+              using var scope = _serviceScopeFactory.CreateScope();
+              var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+              unitOfWork.SensorsData.Add(new SensorData
               {
-                receivedSensorsData.Add(new SensorData
-                {
-                  MicrocontrollerID = connectedMicrocontroller.ID,
-                  SensorID = sensorID,
-                  SensorValue = sensorValue,
-                  ValueReadTime = sensorValueReadedDateTime,
-                  ValueReceivedTime = DateTime.Now
-                });
+                ID = Guid.NewGuid(),
+                MicrocontrollerID = connectedMicrocontroller.ID,
+                SensorID = sensorID,
+                SensorValue = sensorValue,
+                ValueReadTime = sensorValueReadedDateTime,
+                ValueReceivedTime = DateTime.UtcNow
+              });
 
-                _logger.LogInformation("Received Data. Endpoint: {0}\tRequest: {1}",
-                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+              connectedMicrocontroller.RequestedSensorID = null;
+              unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
 
-                if (receivedSensorsData.Count > _bulkInsertSize)
-                {
-                  using var scope = _serviceScopeFactory.CreateScope();
-                  var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                  await unitOfWork.SensorsData.BulkInsert(receivedSensorsData);
-                  receivedSensorsData.Clear();
+              await unitOfWork.SaveAsync();
+            }
+            else
+            {
+              await SendMicrocontrollerResponse(socket, _attentionResponse);
+            }
 
-                  _logger.LogInformation("Written data to DB NORMALLY.");
-                }
-              }
+            break;
 
-              response = _okResponse;
+          default:
+            _logger.LogWarning("Unknown command. Endpoint: {0}\tRequest: {1}", socket.RemoteEndPoint, request);
 
-              break;
-
-            case "STM_RQ":
-
-              if (connectedMicrocontroller is null)
-              {
-                _logger.LogWarning("Unauthorized. Endpoint: {0}\tRequest: {1}",
-                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
-
-                return;
-              }
-
-              using (var scope = _serviceScopeFactory.CreateScope())
-              {
-                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-                connectedMicrocontroller = await unitOfWork.Microcontrollers.ReloadAsync(connectedMicrocontroller);
-
-                response = connectedMicrocontroller.RequestedSensorID is not null
-                  ? $"{_sensorValueResponse}|{connectedMicrocontroller.RequestedSensorID}"
-                  : _attentionResponse;
-              }
-
-              break;
-
-            default:
-              _logger.LogWarning("Unknown command. Endpoint: {0}\tRequest: {1}",
-                  socket.RemoteEndPoint, receivedMessageBuilder.ToString());
-              return;
-          }
-
-          await socket.SendAsync(Encoding.ASCII.GetBytes(response), SocketFlags.None);
+            break;
         }
+
+        socket.Shutdown(SocketShutdown.Both);
+        socket.Close();
+      }
+      catch (OperationCanceledException)
+      {
+        _logger.LogWarning("Endpoint: {0}\tMicrocontroller {1} was disconnected after {2}ms timeout", socket.RemoteEndPoint,
+          connectedMicrocontroller?.ID, Settings.Socket.ReceiveTimeout);
       }
       catch (Exception exception)
       {
@@ -227,16 +261,76 @@ namespace Gss.Core.Services
       }
       finally
       {
-        if (receivedSensorsData.Count > 0)
-        {
-          using var scope = _serviceScopeFactory.CreateScope();
-          var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-          await unitOfWork.SensorsData.BulkInsert(receivedSensorsData);
+        socket?.Dispose();
+      }
+    }
 
-          _logger.LogInformation("Written data to DB FINALLY.");
+    private async Task<string> ReceiveMicrocontrollerRequest(Socket socket)
+    {
+      var receivedMessageBuilder = new StringBuilder();
+      byte[] receivedData = new byte[256];
+
+      var cancellationTokenSource = new CancellationTokenSource();
+      cancellationTokenSource.CancelAfter(Settings.Socket.ReceiveTimeout);
+
+      do
+      {
+        int bytesReceived = await socket.ReceiveAsync(receivedData, SocketFlags.None, cancellationTokenSource.Token);
+        receivedMessageBuilder.Append(Encoding.ASCII.GetString(receivedData, 0, bytesReceived));
+      }
+      while (socket.Available > 0);
+
+      _logger.LogInformation("Received Data. Endpoint: {0}\tRequest: {1}",
+        socket.RemoteEndPoint, receivedMessageBuilder.ToString());
+
+      return receivedMessageBuilder.ToString();
+    }
+
+    private (string command, string[] arguments) SplitRequest(string request)
+    {
+      string[] splittedReceivedMessage = request.Split(_commandSeparator);
+      string receivedCommand = splittedReceivedMessage.First();
+      string[] receivedArguments = splittedReceivedMessage.Last().Split(';');
+
+      return (receivedCommand, receivedArguments);
+    }
+
+    private async Task SendMicrocontrollerResponse(Socket socket, string response)
+    {
+      _logger.LogInformation("Received Data. Endpoint: {0}\tResponse: {1}",
+        socket.RemoteEndPoint, response);
+
+      byte[] responseBytes = Encoding.ASCII.GetBytes(response);
+      await socket.SendAsync(responseBytes, SocketFlags.None);
+    }
+
+    private async Task InsertReceivedSensorsData()
+    {
+      if (Interlocked.CompareExchange(ref _runInsertReceivedSensorsData, 0, 1) == 0)
+      {
+        List<SensorData> receivedData;
+
+        lock (_locker)
+        {
+          receivedData = _receivedSensorsData.ToList();
+          _receivedSensorsData.Clear();
         }
 
-        socket?.Dispose();
+        using var scope = _serviceScopeFactory.CreateScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+        try
+        {
+          await unitOfWork.SensorsData.BulkInsert(receivedData);
+        }
+        catch (Exception exception)
+        {
+          _logger.LogError(exception, exception.Message);
+        }
+        finally
+        {
+          Interlocked.Exchange(ref _runInsertReceivedSensorsData, 1);
+        }
       }
     }
   }
