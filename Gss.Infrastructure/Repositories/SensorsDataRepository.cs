@@ -27,6 +27,6 @@ namespace Gss.Infrastructure.Repositories
         options.AutoMapOutputDirection = false;
         options.InsertIfNotExists = true;
       });
-    }r
+    }
   }
 }

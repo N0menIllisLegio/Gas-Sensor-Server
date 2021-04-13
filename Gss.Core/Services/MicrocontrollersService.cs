@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Gss.Core.DTOs;
@@ -322,21 +324,35 @@ namespace Gss.Core.Services
 
       if (user is null)
       {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
-          HttpStatusCode.NotFound);
+        return null;
       }
 
       var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == microcontrollerID);
 
-      if (microcontroller is null)
+      if (microcontroller is null && microcontroller.PasswordHash != GetHashString(microcontrollerPassword))
       {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
-          HttpStatusCode.NotFound);
+        return null;
       }
 
-      // TODO check pass
-
       return microcontroller;
+    }
+
+    public byte[] GetHash(string inputString)
+    {
+      using var algorithm = SHA256.Create();
+      return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+    }
+
+    public string GetHashString(string inputString)
+    {
+      var stringBuilder = new StringBuilder();
+
+      foreach (byte hashedByte in GetHash(inputString))
+      {
+        stringBuilder.Append(hashedByte.ToString("X2"));
+      }
+
+      return stringBuilder.ToString();
     }
   }
 }
