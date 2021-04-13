@@ -6,6 +6,6 @@ namespace Gss.Core.Interfaces.Repositories
 {
   public interface ISensorsDataRepository: IRepositoryBase<SensorData>
   {
-    Task BulkInsert(List<SensorData> sensorData);
+    Task BulkInsertIfNotExists(List<SensorData> sensorData);
   }
 }

@@ -323,7 +323,7 @@ namespace Gss.Core.Services
 
         try
         {
-          await unitOfWork.SensorsData.BulkInsert(receivedData);
+          await unitOfWork.SensorsData.BulkInsertIfNotExists(receivedData);
         }
         catch (Exception exception)
         {

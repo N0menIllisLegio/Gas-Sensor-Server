@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Gss.Core.Entities;
 using Gss.Core.Interfaces.Repositories;
@@ -11,15 +12,21 @@ namespace Gss.Infrastructure.Repositories
       : base(appDbContext)
     { }
 
-    public async Task BulkInsert(List<SensorData> sensorData)
+    public async Task BulkInsertIfNotExists(List<SensorData> sensorData)
     {
-      bool previousAutoDetectChangesEnabledValue = Context.ChangeTracker.AutoDetectChangesEnabled;
-      Context.ChangeTracker.AutoDetectChangesEnabled = false;
+      var dataForInsertion = new List<SensorData>();
 
-      DbSet.AddRange(sensorData);
-      await Context.SaveChangesAsync();
+      foreach (var group in sensorData
+        .GroupBy(data => new { data.MicrocontrollerID, data.SensorID, data.ValueReadTime }))
+      {
+        dataForInsertion.Add(group.First());
+      }
 
-      Context.ChangeTracker.AutoDetectChangesEnabled = previousAutoDetectChangesEnabledValue;
-    }
+      await DbSet.BulkInsertAsync(dataForInsertion, options =>
+      {
+        options.AutoMapOutputDirection = false;
+        options.InsertIfNotExists = true;
+      });
+    }r
   }
 }
