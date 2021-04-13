@@ -82,57 +82,49 @@ namespace Gss.Core.Services
         string request = await ReceiveMicrocontrollerRequest(socket);
         var (receivedCommand, receivedArguments) = SplitRequest(request);
 
-        switch (receivedCommand)
+        if (receivedCommand != "STM_AUTH")
         {
-          case "STM_AUTH":
-            if (receivedArguments.Length != 3
-             || String.IsNullOrEmpty(receivedArguments[2])
-             || !Guid.TryParse(receivedArguments[0], out var userID)
-             || !Guid.TryParse(receivedArguments[1], out var microcontrollerID))
-            {
-              _logger.LogWarning("Failed to parse data. Endpoint: {0}\tRequest: {1}",
-                socket.RemoteEndPoint, request);
+          _logger.LogWarning("Unknown command. Endpoint: {0}\tRequest: {1}", socket.RemoteEndPoint, request);
+          socket.Shutdown(SocketShutdown.Both);
+          socket.Close();
 
-              socket.Shutdown(SocketShutdown.Both);
-              socket.Close();
-
-              return;
-            }
-
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-              var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
-
-              connectedMicrocontroller = await microcontrollersService
-                .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, receivedArguments[2]);
-            }
-
-            if (connectedMicrocontroller is null)
-            {
-              _logger.LogWarning("Failed to authenticate. Endpoint: {0}\tRequest: {1}",
-                socket.RemoteEndPoint, request);
-
-              socket.Shutdown(SocketShutdown.Both);
-              socket.Close();
-
-              return;
-            }
-
-            await SendMicrocontrollerResponse(socket, _okResponse);
-
-            break;
-
-          case "STM_TIME":
-
-            // PTP?
-
-            break;
-
-          default:
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
-            return;
+          return;
         }
+
+        if (receivedArguments.Length != 3
+          || String.IsNullOrEmpty(receivedArguments[2])
+          || !Guid.TryParse(receivedArguments[0], out var userID)
+          || !Guid.TryParse(receivedArguments[1], out var microcontrollerID))
+        {
+          _logger.LogWarning("Failed to parse data. Endpoint: {0}\tRequest: {1}",
+            socket.RemoteEndPoint, request);
+
+          socket.Shutdown(SocketShutdown.Both);
+          socket.Close();
+
+          return;
+        }
+
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+          var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
+
+          connectedMicrocontroller = await microcontrollersService
+            .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, receivedArguments[2]);
+        }
+
+        if (connectedMicrocontroller is null)
+        {
+          _logger.LogWarning("Failed to authenticate. Endpoint: {0}\tRequest: {1}",
+            socket.RemoteEndPoint, request);
+
+          socket.Shutdown(SocketShutdown.Both);
+          socket.Close();
+
+          return;
+        }
+
+        await SendMicrocontrollerResponse(socket, _okResponse);
 
         request = await ReceiveMicrocontrollerRequest(socket);
         (receivedCommand, receivedArguments) = SplitRequest(request);
@@ -238,6 +230,16 @@ namespace Gss.Core.Services
             {
               await SendMicrocontrollerResponse(socket, _attentionResponse);
             }
+
+            break;
+
+          case "STM_DT":
+            var currentDateTime = DateTime.UtcNow;
+
+            await SendMicrocontrollerResponse(socket, $"Server_DT|" +
+              $"Date={currentDateTime.Day};Month={currentDateTime.Month};Year={currentDateTime.Date:yy};" +
+              $"WeekDay={(int)currentDateTime.DayOfWeek};Hours={currentDateTime.Hour};" +
+              $"Minutes={currentDateTime.Minute};Seconds={currentDateTime.Second};");
 
             break;
 
