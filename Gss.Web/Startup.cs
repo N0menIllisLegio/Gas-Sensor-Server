@@ -116,6 +116,7 @@ namespace Gss.Web
       services.AddScoped<IRolesService, RolesService>();
       services.AddScoped<IFilesService, FilesService>();
       services.AddScoped<IUsersService, UsersService>();
+      services.AddScoped<ISensorsDataService, SensorsDataService>();
 
       services.AddSingleton<SocketConnectionService>();
 

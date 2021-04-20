@@ -329,30 +329,12 @@ namespace Gss.Core.Services
 
       var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == microcontrollerID);
 
-      if (microcontroller is null && microcontroller.PasswordHash != GetHashString(microcontrollerPassword))
+      if (microcontroller is null && microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
       {
         return null;
       }
 
       return microcontroller;
-    }
-
-    public byte[] GetHash(string inputString)
-    {
-      using var algorithm = SHA256.Create();
-      return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-    }
-
-    public string GetHashString(string inputString)
-    {
-      var stringBuilder = new StringBuilder();
-
-      foreach (byte hashedByte in GetHash(inputString))
-      {
-        stringBuilder.Append(hashedByte.ToString("X2"));
-      }
-
-      return stringBuilder.ToString();
     }
   }
 }
