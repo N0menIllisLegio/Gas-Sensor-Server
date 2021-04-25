@@ -1,12 +1,58 @@
-import React, { Component } from 'react';
 import Dashboard from './components/Administration/Dashboard';
+import Navbar from './components/Navbar';
+import { createMuiTheme, ThemeProvider, Toolbar } from '@material-ui/core'
+import { red, teal } from '@material-ui/core/colors'
+import ClippedDrawer from './components/ClippedDrawer';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
+import Users from './components/Administration/Users';
+import User from './components/User';
 
-export default class App extends Component {
-  static displayName = App.name;
-
-  render() {
-    return (
-      <Dashboard />
-    );
+const theme = createMuiTheme({
+  palette: {
+    primary: teal,
+    secondary: red
   }
+});
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexGrow: 1,
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+  },
+}));
+
+export default function App() {
+  const classes = useStyles();
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Router>
+        <div className={classes.root}>
+          <CssBaseline />
+          <Navbar />
+          <ClippedDrawer />
+          <main className={classes.content}>
+            <Toolbar/>
+              <Switch>
+                <Route exact path="/">
+                  <Dashboard />
+                </Route>
+                <Route path="/users">
+                  <Users />
+                </Route>
+                <Route path="/user/:id">
+                  <User />
+                </Route>
+              </Switch>
+          </main>
+        </div>
+      </Router>
+    </ThemeProvider>
+  );
 }

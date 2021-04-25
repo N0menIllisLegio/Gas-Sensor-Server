@@ -1,17 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import '@fontsource/roboto'
+import '@fontsource/roboto';
+import './index.css';
 //import registerServiceWorker from './registerServiceWorker';
-
-const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
-const rootElement = document.getElementById('root');
 
 ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  rootElement);
+  document.getElementById('root'));
 
 // Uncomment the line above that imports the registerServiceWorker function
 // and the line below to register the generated service worker.
