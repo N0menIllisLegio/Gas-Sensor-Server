@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Table(props) {
+export default function PagedTable(props) {
   const classes = useStyles();
   const history = useHistory();
   const [rows, setRows] = useState([]);
@@ -46,6 +46,10 @@ export default function Table(props) {
       setTotalPagesNumber(Math.ceil(pagedResponse.TotalItemsCount / pagedResponse.PagedInfo.PageSize));
     }
   }, [pagedResponse]);
+
+  useEffect(() => {
+    setCurrentPageNumber(1);
+  }, [searchString]);
 
   return (
     <div>
@@ -87,9 +91,9 @@ export default function Table(props) {
                 rows={rows}
                 columns={props.columns}
                 pageSize={pageSize}
-                onRowSelected={(e) => {
+                onRowDoubleClick={(e) => {
                   if (props.detailsUrl !== null) {
-                    history.push(`${props.detailsUrl}${e.data.id}`)
+                    history.push(`${props.detailsUrl}${e.id}`)
                   }
                 }} />
             </div>

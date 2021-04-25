@@ -1,4 +1,4 @@
-import Table from "../Table";
+import PagedTable from "../PagedTable";
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
@@ -11,7 +11,7 @@ const columns = [
 export default function Users() {
   return (
     <div>
-      <Table columns={columns} url={'api/Users/GetAllUsers'} detailsUrl={'/user/'} />
+      <PagedTable columns={columns} url={'api/Users/GetAllUsers'} detailsUrl={'/user/'} />
     </div>
   );
 }
