@@ -10,6 +10,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import { Link } from "react-router-dom";
 import PeopleAltTwoToneIcon from '@material-ui/icons/PeopleAltTwoTone';
+import RouterIcon from '@material-ui/icons/Router';
 
 const drawerWidth = 240;
 
@@ -54,6 +55,12 @@ export default function ClippedDrawer() {
               <ListItem button>
                 <ListItemIcon><PeopleAltTwoToneIcon /></ListItemIcon>
                 <ListItemText primary="Users" />
+              </ListItem>
+            </Link>
+            <Link to="/microcontrollers" key="microcontrollers" className={classes.link}>
+              <ListItem button>
+                <ListItemIcon><RouterIcon /></ListItemIcon>
+                <ListItemText primary="Microcontrollers" />
               </ListItem>
             </Link>
           </List>

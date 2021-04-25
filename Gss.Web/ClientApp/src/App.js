@@ -1,6 +1,6 @@
 import Dashboard from './components/Administration/Dashboard';
 import Navbar from './components/Navbar';
-import { createMuiTheme, ThemeProvider, Toolbar } from '@material-ui/core'
+import { unstable_createMuiStrictModeTheme as createMuiTheme, ThemeProvider, Toolbar } from '@material-ui/core'
 import { red, teal } from '@material-ui/core/colors'
 import ClippedDrawer from './components/ClippedDrawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Users from './components/Administration/Users';
 import User from './components/User';
+import Microcontrollers from "./components/Microcontrollers";
 
 const theme = createMuiTheme({
   palette: {
@@ -48,6 +49,9 @@ export default function App() {
                 </Route>
                 <Route path="/user/:id">
                   <User />
+                </Route>
+                <Route path="/microcontrollers">
+                  <Microcontrollers />
                 </Route>
               </Switch>
           </main>
