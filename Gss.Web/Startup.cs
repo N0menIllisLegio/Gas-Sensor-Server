@@ -174,6 +174,7 @@ namespace Gss.Web
 
       app.UseRouting();
 
+      app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
       app.UseAuthentication();
       app.UseAuthorization();
 
@@ -184,15 +185,15 @@ namespace Gss.Web
 
       socketConnectionService.RunAsync();
 
-      app.UseSpa(spa =>
-      {
-        spa.Options.SourcePath = "ClientApp";
+      //app.UseSpa(spa =>
+      //{
+      //  spa.Options.SourcePath = "ClientApp";
 
-        if (env.IsDevelopment())
-        {
-          spa.UseReactDevelopmentServer(npmScript: "start");
-        }
-      });
+      //  if (env.IsDevelopment())
+      //  {
+      //    spa.UseReactDevelopmentServer(npmScript: "start");
+      //  }
+      //});
     }
 
     private void LoadSettings()

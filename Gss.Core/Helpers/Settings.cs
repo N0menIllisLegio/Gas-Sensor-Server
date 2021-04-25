@@ -5,8 +5,8 @@ namespace Gss.Core.Helpers
 {
   public static class Settings
   {
-    public static int MaximumItemsPerPage { get; set; } = 10;
-    public static int MinimumItemsPerPage { get; set; } = 2;
+    public static int MaximumItemsPerPage { get; set; } = 50;
+    public static int MinimumItemsPerPage { get; set; } = 10;
 
     public static class Email
     {
