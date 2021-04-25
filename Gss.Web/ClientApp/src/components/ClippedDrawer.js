@@ -36,21 +36,18 @@ export default function ClippedDrawer() {
 
   return (
     <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
+      className={classes.drawer}
+      variant="permanent"
+      classes={{ paper: classes.drawerPaper }}>
         <Toolbar />
         <div className={classes.drawerContainer}>
           <List>
-            {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText primary={text} />
+            <Link to="/" key="123" className={classes.link}>
+              <ListItem button>
+                <ListItemIcon><InboxIcon /></ListItemIcon>
+                <ListItemText primary="Main" />
               </ListItem>
-            ))}
+            </Link>
           </List>
           <Divider />
           <List>
@@ -62,6 +59,6 @@ export default function ClippedDrawer() {
             </Link>
           </List>
         </div>
-      </Drawer>
+    </Drawer>
   );
 }
