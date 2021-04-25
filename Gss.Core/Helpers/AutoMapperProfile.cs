@@ -29,11 +29,6 @@ namespace Gss.Core.Helpers
       CreateMap<CreateRoleDto, IdentityRole<Guid>>();
       CreateMap<UpdateRoleDto, IdentityRole<Guid>>();
 
-      CreateMap<Microcontroller, MicrocontrollerDto>()
-        .ForMember(dest => dest.Sensors, opt => opt.MapFrom(src => src.MicrocontrollerSensors.Select(s => s.Sensor).ToList()));
-      CreateMap<CreateMicrocontrollerDto, Microcontroller>();
-      CreateMap<UpdateMicrocontrollerDto, Microcontroller>();
-
       CreateMap<User, UserDto>();
       CreateMap<User, ExtendedUserDto>();
       CreateMap<CreateUserDto, User>();
@@ -41,6 +36,12 @@ namespace Gss.Core.Helpers
       CreateMap<UpdateUserInfoDto, User>();
       CreateMap<UpdateUserDto, User>();
       CreateMap<UpdateUserInfoModel, User>();
+
+      CreateMap<Microcontroller, MicrocontrollerDto>()
+        .ForMember(dest => dest.Sensors, opt => opt.MapFrom(src => src.MicrocontrollerSensors.Select(s => s.Sensor).ToList()))
+        .ForMember(dest => dest.UserInfo, opt => opt.MapFrom(src => src.Owner));
+      CreateMap<CreateMicrocontrollerDto, Microcontroller>();
+      CreateMap<UpdateMicrocontrollerDto, Microcontroller>();
     }
   }
 }

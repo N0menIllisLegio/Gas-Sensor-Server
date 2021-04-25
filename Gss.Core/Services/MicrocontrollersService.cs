@@ -48,7 +48,7 @@ namespace Gss.Core.Services
     {
       var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
         microcontroller => new { microcontroller.ID, microcontroller.Name, microcontroller.LastResponseTime },
-        include: query => query.Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
+        include: query => query.Include(mc => mc.Owner).Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }
