@@ -12,6 +12,10 @@ const useStyles = makeStyles((theme) => ({
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
   },
+  link: {
+    color: 'inherit',
+    textDecoration: 'none',
+  }
 }));
 
 export default function Navbar() {
@@ -20,13 +24,15 @@ export default function Navbar() {
   return (
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar>
-        <Link to="/">
+        <Link to="/" className={classes.link}>
           <Avatar variant="square" src={`${process.env.PUBLIC_URL}/favicon.ico`} edge="start" className={classes.icon} />
         </Link>
         <Typography variant="h6" className={classes.title}>
           Sensors System
         </Typography>
-        <Button color="inherit">Login</Button>
+        <Link to="/" className={classes.link}>
+          <Button color="inherit">Login</Button>
+        </Link>
       </Toolbar>
     </AppBar>
   );
