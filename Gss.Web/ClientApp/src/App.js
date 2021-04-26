@@ -9,6 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Users from './components/Administration/Users';
 import User from './components/User';
 import Microcontrollers from "./components/Microcontrollers";
+import Sensors from './components/Administration/Sensors';
 
 const theme = createMuiTheme({
   palette: {
@@ -52,6 +53,9 @@ export default function App() {
                 </Route>
                 <Route path="/microcontrollers">
                   <Microcontrollers />
+                </Route>
+                <Route path="/sensors">
+                  <Sensors />
                 </Route>
               </Switch>
           </main>
