@@ -1,6 +1,7 @@
-import PagedTable from "./PagedTable";
+import PagedTable from "../PagedTable";
 import { Link } from 'react-router-dom'
 import { Button } from "@material-ui/core";
+import AddButton from "../AddButton";
 
 const dateTimeOptions = {
   year: 'numeric',
@@ -45,6 +46,7 @@ export default function Users() {
   return (
     <div>
       <PagedTable columns={columns} url={'api/Microcontrollers/GetAllMicrocontrollers'} detailsUrl={'/microcontroller/'} />
+      <AddButton url={'/microcontroller/create'} />
     </div>
   );
 }

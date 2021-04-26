@@ -1,6 +1,7 @@
 import PagedTable from "../PagedTable";
 import { Link } from 'react-router-dom'
 import { Button } from "@material-ui/core";
+import AddButton from "../AddButton";
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
@@ -30,6 +31,7 @@ export default function Sensors() {
   return (
     <div>
       <PagedTable columns={columns} url={'api/Sensors/GetAllSensors'} detailsUrl={'/sensor/'} />
+      <AddButton url={'/sensor/create'} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import PagedTable from "../PagedTable";
+import AddButton from "../AddButton";
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
@@ -12,6 +13,7 @@ export default function Users() {
   return (
     <div>
       <PagedTable columns={columns} url={'api/Users/GetAllUsers'} detailsUrl={'/user/'} />
+      <AddButton url={'/user/create'} />
     </div>
   );
 }
