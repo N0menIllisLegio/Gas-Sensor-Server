@@ -20,9 +20,20 @@ const columns = [
   { field: 'LastResponseTime', headerName: 'LRT', flex: 1, type: 'dateTime', description: 'Last Response Time', valueFormatter: (params) => new Date(params.value).toLocaleString("en-US", dateTimeOptions) },
   { field: 'Public', headerName: 'Public', flex: 0.2, type: 'boolean' },
   { field: 'Sensors', headerName: 'Sensors Connected', flex: 0.4, valueFormatter: (params) => params.value.length, type: 'number', sortComparator: (v1, v2, cellParams1, cellParams2) => v1.length - v2.length},
-  { field: 'UserInfo', headerName: 'Owner Email', flex: 0.6, align: 'center',
+  { field: 'UserInfo', headerName: 'Owner Email', flex: 0.6, align: 'center', headerAlign: 'center',
+    sortComparator: (v1, v2, cellParams1, cellParams2) => {
+      if (v1 !== null && v2 !== null) {
+        return v1.Email.localeCompare(v2.Email);
+      } else if (v1 === v2) {
+        return 0;
+      } else if (v1 === null) {
+        return -1;
+      } else {
+        return 1;
+      }
+    },
     renderCell: (params) => params.value === null ? (<div>—</div>) : (
-    <Link to={`/user/${params.row.ID}`} style={{color: 'inherit', textDecoration: 'none'}}>
+    <Link to={`/user/${params.value.ID}`} style={{color: 'inherit', textDecoration: 'none'}}>
       <Button variant="contained" color="primary" disableElevation>
        {params.value.Email}
       </Button>
