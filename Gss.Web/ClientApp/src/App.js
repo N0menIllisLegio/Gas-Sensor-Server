@@ -7,9 +7,10 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Users from './components/Administration/Users';
-import User from './components/User';
-import Microcontrollers from "./components/Microcontrollers";
+import User from './components/Users/User';
+import Microcontrollers from "./components/Administration/Microcontrollers";
 import Sensors from './components/Administration/Sensors';
+import SensorTypes from './components/Administration/SensorTypes';
 
 const theme = createMuiTheme({
   palette: {
@@ -45,17 +46,23 @@ export default function App() {
                 <Route exact path="/">
                   <Dashboard />
                 </Route>
+                {/* Administration catalogs */}
                 <Route path="/users">
                   <Users />
-                </Route>
-                <Route path="/user/:id">
-                  <User />
                 </Route>
                 <Route path="/microcontrollers">
                   <Microcontrollers />
                 </Route>
                 <Route path="/sensors">
                   <Sensors />
+                </Route>
+                <Route path="/sensorTypes">
+                  <SensorTypes />
+                </Route>
+                
+                {/* Details */}
+                <Route path="/user/:id">
+                  <User />
                 </Route>
               </Switch>
           </main>
