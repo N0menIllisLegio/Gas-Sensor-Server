@@ -18,7 +18,7 @@ export default function useGet(url) {
     })
     .then(data => {
       console.log(data);
-      setData(data);
+      setData(data.Data);
       setIsPending(false);
       setError(null);
     })
