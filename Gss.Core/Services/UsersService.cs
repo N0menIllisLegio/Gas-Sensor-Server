@@ -20,13 +20,11 @@ namespace Gss.Core.Services
     private const string _user = "User";
 
     private readonly UserManager _userManager;
-    private readonly IAuthenticationService _authService;
     private readonly IMapper _mapper;
 
-    public UsersService(UserManager userManager, IAuthenticationService authService, IMapper mapper)
+    public UsersService(UserManager userManager, IMapper mapper)
     {
       _userManager = userManager;
-      _authService = authService;
       _mapper = mapper;
     }
 
@@ -58,6 +56,19 @@ namespace Gss.Core.Services
       }
 
       return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task<ExtendedUserDto> GetExtendedUserAsync(Guid userID)
+    {
+      var user = await _userManager.FindByIdAsync(userID);
+
+      if (user is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _user),
+          HttpStatusCode.NotFound);
+      }
+
+      return _mapper.Map<ExtendedUserDto>(user);
     }
 
     public async Task<ExtendedUserDto> GetUserAsync(string userEmail)

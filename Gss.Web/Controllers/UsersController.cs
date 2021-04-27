@@ -39,7 +39,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<ExtendedUserDto>>(pagedResultDto));
     }
 
-    [Authorize]
+    // [Authorize]
     [HttpGet("{id}")]
     [SwaggerOperation("Authorized", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<UserDto>))]
@@ -53,13 +53,13 @@ namespace Gss.Web.Controllers
     }
 
     //[Authorize] Role = Administrator
-    [HttpPost]
-    [SwaggerOperation("Administrator Only", "Gets user by email.")]
+    [HttpGet("{id}")]
+    [SwaggerOperation("Administrator Only", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
-    public async Task<IActionResult> GetUserByEmail([FromBody] EmailDto dto)
+    public async Task<IActionResult> GetExtendedUserByID([FromRoute] Guid id)
     {
-      var extendedUserDto = await _usersService.GetUserAsync(dto.Email);
+      var extendedUserDto = await _usersService.GetExtendedUserAsync(id);
 
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
