@@ -11,6 +11,7 @@ import User from './components/Users/User';
 import Microcontrollers from "./components/Administration/Microcontrollers";
 import Sensors from './components/Administration/Sensors';
 import SensorTypes from './components/Administration/SensorTypes';
+import Login from './components/Login';
 
 const theme = createMuiTheme({
   palette: {
@@ -50,6 +51,12 @@ export default function App() {
                 <Route exact path="/">
                   <Dashboard />
                 </Route>
+
+                {/* Auth */}
+                <Route path="/login">
+                  <Login />
+                </Route>
+
                 {/* Administration catalogs */}
                 <Route path="/users">
                   <Users />

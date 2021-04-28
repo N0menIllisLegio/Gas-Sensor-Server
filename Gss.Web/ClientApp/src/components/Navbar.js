@@ -30,7 +30,7 @@ export default function Navbar() {
         <Typography variant="h6" className={classes.title}>
           Sensors System
         </Typography>
-        <Link to="/" className={classes.link}>
+        <Link to="/login" className={classes.link}>
           <Button color="inherit">Login</Button>
         </Link>
       </Toolbar>
