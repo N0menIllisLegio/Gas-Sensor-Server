@@ -12,7 +12,7 @@ import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: 400,
+    width: theme.userDetailsCard.width,
   },
   media: {
     height: 300,

@@ -16,6 +16,10 @@ const theme = createMuiTheme({
   palette: {
     primary: teal,
     secondary: red
+  },
+
+  userDetailsCard: {
+    width: 500
   }
 });
 
@@ -59,7 +63,7 @@ export default function App() {
                 <Route path="/sensorTypes">
                   <SensorTypes />
                 </Route>
-                
+
                 {/* Details */}
                 <Route path="/user/:id">
                   <User />
