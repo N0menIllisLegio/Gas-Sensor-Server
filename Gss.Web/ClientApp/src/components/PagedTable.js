@@ -1,5 +1,5 @@
 import { DataGrid } from "@material-ui/data-grid";
-import usePagedPost from "../hooks/usePost";
+import { usePagedPost } from "../hooks/usePost";
 import Progress from "./Progress";
 import { useState, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
