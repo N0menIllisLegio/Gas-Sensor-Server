@@ -8,5 +8,6 @@ namespace Gss.Core.DTOs.Authentication
     public DateTime AccessTokenExpiration { get; init; }
     public string RefreshToken { get; init; }
     public Guid UserID { get; init; }
+    public bool Administrator { get; init; }
   }
 }

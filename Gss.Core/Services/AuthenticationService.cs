@@ -200,7 +200,16 @@ namespace Gss.Core.Services
     public async Task<TokenDto> LogInAsync(string login, string password)
     {
       var user = await _userManager.FindByEmailAsync(login);
-      var signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+      SignInResult signInResult;
+
+      try
+      {
+        signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+      }
+      catch
+      {
+        throw new AppException(Messages.InvalidEmailOrPasswordErrorString, HttpStatusCode.BadRequest);
+      }
 
       if (!signInResult.Succeeded)
       {

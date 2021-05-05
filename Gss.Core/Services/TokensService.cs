@@ -9,14 +9,13 @@ using Gss.Core.DTOs.Authentication;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Gss.Core.Services
 {
   public class TokensService : ITokensService
   {
-    private readonly UserManager<User> _userManager;
+    private readonly UserManager _userManager;
 
     public TokensService(UserManager userManager)
     {
@@ -68,7 +67,8 @@ namespace Gss.Core.Services
         AccessToken = new JwtSecurityTokenHandler().WriteToken(jwt),
         AccessTokenExpiration = expirationTime,
         RefreshToken = GenerateRefreshToken(),
-        UserID = user.Id
+        UserID = user.Id,
+        Administrator = await _userManager.IsAdministrator(user.Email)
       };
     }
 
