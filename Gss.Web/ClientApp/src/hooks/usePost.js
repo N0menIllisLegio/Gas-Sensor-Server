@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 //   }
 // ]
 
-export default function usePagedPost(url, pageNumber, pageSize,
+export function usePagedPost(url, pageNumber, pageSize,
   searchString = "", sortOptions = null, filters = null) {
 
   const [data, setData] = useState(null);
@@ -63,4 +63,33 @@ export default function usePagedPost(url, pageNumber, pageSize,
   }, [url, pageNumber, pageSize, searchString, sortOptions, filters]);
 
   return { data, isPending, error };
+}
+
+export async function PostRequest(url, body) {
+  let data = null;
+  let errors = null;
+
+  try {
+    let response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      errors = response.errors
+    }
+
+    response = await response.json();
+
+    if (response.Succeeded) {
+      data = response.Data;
+    } else {
+      errors = response.errors;
+    }
+  } catch (e) {
+    errors = [e.Name];
+  }
+
+  return { data, errors };
 }
