@@ -13,6 +13,9 @@ import PeopleAltTwoToneIcon from '@material-ui/icons/PeopleAltTwoTone';
 import RouterTwoToneIcon from '@material-ui/icons/RouterTwoTone';
 import MemoryTwoToneIcon from '@material-ui/icons/MemoryTwoTone';
 import AccountTreeTwoToneIcon from '@material-ui/icons/AccountTreeTwoTone';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../redux/reducers/authSlice';
+import { useState, useEffect } from 'react';
 
 const drawerWidth = 240;
 
@@ -35,6 +38,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ClippedDrawer() {
   const classes = useStyles();
+  const user = useSelector(selectUser);
+  const [displayAdminPanel, setDisplayAdminPanel] = useState(false);
+
+  useEffect(() => {
+    setDisplayAdminPanel(user?.Administrator === true);
+  }, [user?.Administrator])
 
   return (
     <Drawer
@@ -52,7 +61,8 @@ export default function ClippedDrawer() {
             </Link>
           </List>
           <Divider />
-          <List>
+
+          <List hidden={!displayAdminPanel}>
             <Link to="/users" key="users" className={classes.link}>
               <ListItem button>
                 <ListItemIcon><PeopleAltTwoToneIcon /></ListItemIcon>

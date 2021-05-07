@@ -6,12 +6,13 @@ import Typography from '@material-ui/core/Typography';
 import { Button, Grid } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { PostRequest } from '../hooks/usePost';
+import { PostRequest } from '../requests/Post';
 import { useForm } from "react-hook-form";
 import FormErrors from './FormErrors';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Authorize } from './AuthenticationService';
 import { useHistory } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { authorize } from '../redux/reducers/authSlice';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -56,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Login() {
   const classes = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
   const { register, formState: { errors }, handleSubmit } = useForm();
   const [serverErrors, setServerErrors] = useState(null);
   const [isPending, setIsPending] = useState(false);
@@ -71,8 +73,7 @@ export default function Login() {
         setIsPending(false);
 
         if (response.data != null) {
-          Authorize(response.data);
-
+          dispatch(authorize(response.data))
           if (history.length > 1) {
             history.goBack();
           } else {
