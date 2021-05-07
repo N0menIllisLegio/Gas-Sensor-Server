@@ -12,6 +12,9 @@ import Microcontrollers from "./components/Administration/Microcontrollers";
 import Sensors from './components/Administration/Sensors';
 import SensorTypes from './components/Administration/SensorTypes';
 import Login from './components/Login';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux'
+import { initialize } from './redux/reducers/authSlice';
 
 const theme = createMuiTheme({
   palette: {
@@ -37,6 +40,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(initialize());
+  }, [dispatch]);
 
   return (
     <ThemeProvider theme={theme}>
