@@ -1,6 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Avatar, Button, Toolbar, Typography } from '@material-ui/core';
-import { Link } from 'react-router-dom'
+import { AppBar, Avatar, Toolbar, Typography } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+import UserBadge from './UserBadge';
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -30,9 +31,7 @@ export default function Navbar() {
         <Typography variant="h6" className={classes.title}>
           Sensors System
         </Typography>
-        <Link to="/login" className={classes.link}>
-          <Button color="inherit">Login</Button>
-        </Link>
+        <UserBadge />
       </Toolbar>
     </AppBar>
   );
