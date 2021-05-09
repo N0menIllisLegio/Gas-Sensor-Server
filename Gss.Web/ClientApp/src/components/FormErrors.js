@@ -15,9 +15,12 @@ const useStyles = makeStyles((theme) => ({
 export default function FormErrors(props) {
   const classes = useStyles();
 
+  const errors = props.errors?.flatMap(error => error?.split('\n'))
+    .filter(error => error != null && error !== '');
+
   return (
   <List className={classes.list}>
-    {(props.errors.map(error => (
+    {(errors.map(error => (
       <ListItem key={error} className={classes.listItem}>
         <ListItemText primary={error} />
       </ListItem>
