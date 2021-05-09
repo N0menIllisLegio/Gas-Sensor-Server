@@ -50,7 +50,7 @@ namespace Gss.Web
 
       services.AddDefaultIdentity<User>(options =>
       {
-        // TODO config for prod
+        // TODO config for prod, max length set on front to 20
         //options.SignIn.RequireConfirmedAccount = true;
         //options.SignIn.RequireConfirmedEmail = true;
         options.Password.RequireNonAlphanumeric = false;
