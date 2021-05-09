@@ -15,6 +15,7 @@ import Login from './components/Login';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux'
 import { initialize } from './redux/reducers/authSlice';
+import SignUp from './components/SignUp';
 
 const theme = createMuiTheme({
   palette: {
@@ -63,6 +64,9 @@ export default function App() {
                 {/* Auth */}
                 <Route path="/login">
                   <Login />
+                </Route>
+                <Route path="/signup">
+                  <SignUp />
                 </Route>
 
                 {/* Administration catalogs */}
