@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
@@ -48,22 +50,28 @@ namespace Gss.Web.Middlewares
 
     public async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-      string errorMessage = Messages.InternalServerErrorString;
-      var statusCode = HttpStatusCode.InternalServerError;
+      var errorMessages = new List<string>();
+      HttpStatusCode statusCode;
 
       if (ex is AppException appException)
       {
         statusCode = appException.ErrorCode;
-        errorMessage = ex.Message;
-      }
+        errorMessages.AddRange(ex.Message.Split('\n'));
 
-      if (ex is FormatException)
+        errorMessages = errorMessages.Where(errorMessage => !errorMessage.ToLower().Contains("username")).ToList();
+      }
+      else if (ex is FormatException)
       {
         statusCode = HttpStatusCode.BadRequest;
-        errorMessage = ex.Message;
+        errorMessages.AddRange(ex.Message.Split('\n'));
+      }
+      else
+      {
+        statusCode = HttpStatusCode.InternalServerError;
+        errorMessages.Add(Messages.InternalServerErrorString);
       }
 
-      await WriteResponseAsync(context, new Response<object>().AddError(errorMessage), statusCode);
+      await WriteResponseAsync(context, new Response<object>().AddErrors(errorMessages), statusCode);
     }
 
     private async Task WriteResponseAsync(HttpContext context, object obj, HttpStatusCode statusCode)
