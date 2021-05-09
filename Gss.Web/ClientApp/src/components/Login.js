@@ -148,7 +148,7 @@ export default function Login() {
               <Typography className={classes.footer}>
                 <Link to="/" className={classes.link}>Forgot password?</Link>
                 <span className={classes.bullet}>•</span>
-                <Link to="/" className={classes.link}>Sign up</Link>
+                <Link to="/signup" className={classes.link}>Sign up</Link>
               </Typography>
             </Grid>
           </Grid>
