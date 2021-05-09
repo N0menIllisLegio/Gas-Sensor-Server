@@ -8,6 +8,7 @@ import { MakeAuthorizedRequest, GetRequest } from '../requests/Post';
 import { selectUser, logout } from '../redux/reducers/authSlice';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -30,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserBadge() {
   const classes = useStyles();
+  const history = useHistory();
   const [anchorElement, setAnchorElement] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const dispatch = useDispatch();
@@ -78,7 +80,7 @@ export default function UserBadge() {
           keepMounted
           open={Boolean(anchorElement)}
           onClose={handleClose}>
-          <MenuItem onClick={handleClose}>Profile</MenuItem>
+          <MenuItem onClick={() => history.push(`/user/${user.UserID}`)}>Profile</MenuItem>
           <MenuItem onClick={handleLogout} className={classes.logout}>Logout</MenuItem>
         </Menu>
       </div>
