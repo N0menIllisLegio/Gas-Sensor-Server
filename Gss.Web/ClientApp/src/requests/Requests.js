@@ -46,6 +46,40 @@ export async function GetRequest(url, token) {
   });
 }
 
+export async function PutRequest(url, body, token) {
+  return await Request(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token ?? ''}`
+    },
+    body: JSON.stringify(body)
+  });
+}
+
+export async function DeleteRequest(url, token) {
+  return await Request(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token ?? ''}`
+    }
+  });
+}
+
+export async function PostImageRequest(url, image, token) {
+  const imageRequestData = new FormData();
+  imageRequestData.append('FileForm', image);
+
+  return await Request(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token ?? ''}`
+    },
+    body: imageRequestData
+  });
+}
+
 export async function Request(url, requestInit) {
   let data = null;
   let errors = null;
