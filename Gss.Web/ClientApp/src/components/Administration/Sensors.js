@@ -1,7 +1,7 @@
 import PagedTable from "../PagedTable";
-import { Link } from 'react-router-dom'
-import { Button } from "@material-ui/core";
 import AddButton from "../AddButton";
+import Sensor from "./Sensor";
+import { useState, useEffect } from 'react';
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
@@ -18,20 +18,42 @@ const columns = [
         return 1;
       }
     },
-    renderCell: (params) => params.value === null ? (<div>—</div>) : (
-    <Link to={`/sensorType/${params.value.ID}`} style={{color: 'inherit', textDecoration: 'none'}}>
-      <Button variant="contained" color="primary" disableElevation>
-      {params.value.Name}
-      </Button>
-    </Link>
-  )},
+    renderCell: (params) => params.value === null ? (<div>—</div>) : (<div>{params.value.Name}</div>)
+  },
 ]
 
 export default function Sensors() {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedSensor, setSelectedSensor] = useState(null);
+  const [sensorChanged, setSensorChanged] = useState(false);
+  const [sensorUrl, setSensorUrl] = useState('api/Sensors/GetAllSensors');
+
+  const handleDetailsAction = (e) => {
+    if (e?.row != null) {
+      setSelectedSensor(e.row);
+      setOpenDialog(true);
+    }
+  };
+
+  useEffect(() => {
+    if (sensorChanged) {
+      setSensorUrl('api/Sensors/GetAllSensors/');
+    } else {
+      setSensorUrl('api/Sensors/GetAllSensors');
+    }
+  }, [sensorChanged]);
+
   return (
     <div>
-      <PagedTable columns={columns} url={'api/Sensors/GetAllSensors'} detailsUrl={'/sensor/'} />
-      <AddButton url={'/sensor/create'} />
+      <PagedTable columns={columns} url={sensorUrl} detailsAction={handleDetailsAction} />
+      <AddButton handleClick={() => setOpenDialog(true)} />
+      <Sensor
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+        selectedSensor={selectedSensor}
+        setSelectedSensor={setSelectedSensor}
+        sensorChanged={sensorChanged}
+        setSensorChanged={setSensorChanged} />
     </div>
   );
 }
