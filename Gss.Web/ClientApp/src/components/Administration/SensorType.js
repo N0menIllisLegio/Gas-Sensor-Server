@@ -35,15 +35,15 @@ export default function SensorType(props) {
   const classes = useStyles();
   const history = useHistory();
 
-  const [sensorImageSrc, setSensorImageSrc] = useState(null);
-  const [sensorImage, setSensorImage] = useState(null);
-  const [sensorName, setSensorName] = useState('');
-  const [sensorUnit, setSensorUnit] = useState('');
+  const [sensorTypeImageSrc, setSensorTypeImageSrc] = useState(null);
+  const [sensorTypeImage, setSensorTypeImage] = useState(null);
+  const [sensorTypeName, setSensorTypeName] = useState('');
+  const [sensorTypeUnit, setSensorTypeUnit] = useState('');
   
-  const [sensorNameError, setSensorNameError] = useState('');
-  const [isSensorNameError, setIsSensorNameError] = useState(false);
-  const [sensorUnitError, setSensorUnitError] = useState('');
-  const [isSensorUnitError, setIsSensorUnitError] = useState(false);
+  const [sensorTypeNameError, setSensorTypeNameError] = useState('');
+  const [isSensorTypeNameError, setIsSensorTypeNameError] = useState(false);
+  const [sensorTypeUnitError, setSensorTypeUnitError] = useState('');
+  const [isSensorTypeUnitError, setIsSensorTypeUnitError] = useState(false);
 
   const [serverErrors, setServerErrors] = useState(null);
   const [isPending, setIsPending] = useState(false);
@@ -52,54 +52,53 @@ export default function SensorType(props) {
 
   useEffect(() => {
     if (props.selectedSensorType != null) {
-      setSensorImageSrc(props.selectedSensorType.Icon);
-      setSensorName(props.selectedSensorType.Name);
-      setSensorUnit(props.selectedSensorType.Units);
+      setSensorTypeImageSrc(props.selectedSensorType.Icon);
+      setSensorTypeName(props.selectedSensorType.Name);
+      setSensorTypeUnit(props.selectedSensorType.Units);
     }
   }, [props.selectedSensorType]);
 
   useEffect(() => {
-    if (sensorName == null || sensorName === '') {
-      setSensorNameError('Sensor name is required');
-      setIsSensorNameError(true);
-    } else if (sensorName.length > 200) {
-      setSensorNameError('Sensor name length should be less than 200 charaters');
-      setIsSensorNameError(true);
+    if (sensorTypeName == null || sensorTypeName === '') {
+      setSensorTypeNameError('Sensor type name is required');
+      setIsSensorTypeNameError(true);
+    } else if (sensorTypeName.length > 200) {
+      setSensorTypeNameError('Sensor type name should be less than 200 charaters');
+      setIsSensorTypeNameError(true);
     } else {
-      setSensorNameError('');
-      setIsSensorNameError(false);
+      setSensorTypeNameError('');
+      setIsSensorTypeNameError(false);
     }
-  }, [sensorName]);
+  }, [sensorTypeName]);
 
   useEffect(() => {
-    if (sensorUnit == null || sensorUnit === '') {
-      setSensorUnitError('Sensor\'s units of measure is required');
-      setIsSensorUnitError(true);
-    } else if (sensorUnit.length > 20) {
-      setSensorUnitError('Sensor\'s units of measure length should be less than 20 charaters');
-      setIsSensorUnitError(true);
+    if (sensorTypeUnit == null || sensorTypeUnit === '') {
+      setSensorTypeUnitError('Sensor type\'s units of measure is required');
+      setIsSensorTypeUnitError(true);
+    } else if (sensorTypeUnit.length > 20) {
+      setSensorTypeUnitError('Sensor type\'s units of measure should be less than 20 charaters');
+      setIsSensorTypeUnitError(true);
     } else {
-      setSensorUnitError('');
-      setIsSensorUnitError(false);
+      setSensorTypeUnitError('');
+      setIsSensorTypeUnitError(false);
     }
-  }, [sensorUnit]);
+  }, [sensorTypeUnit]);
 
   const handleClose = () => {
-    setSensorImageSrc(null);
-    setSensorName('');
-    setSensorUnit('');
-    setSensorUnitError('');
-    setIsSensorUnitError(false);
-    setSensorNameError('');
-    setIsSensorNameError(false);
-    setServerErrors(null);
-
     props.setOpenDialog(false);
+    setSensorTypeImageSrc(null);
+    setSensorTypeName('');
+    setSensorTypeUnit('');
+    setSensorTypeUnitError('');
+    setIsSensorTypeUnitError(false);
+    setSensorTypeNameError('');
+    setIsSensorTypeNameError(false);
+    setServerErrors(null);
     props.setSelectedSensorType(null);
   };
 
   const handleSave = async () => {
-    if (isSensorNameError || isSensorUnitError) {
+    if (isSensorTypeNameError || isSensorTypeUnitError) {
       return;
     }
 
@@ -107,9 +106,9 @@ export default function SensorType(props) {
 
     let imageResponse = null;
 
-    if (sensorImage != null) {
+    if (sensorTypeImage != null) {
       const saveImageRequestFactory = () =>
-        PostImageRequest(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, sensorImage, user?.AccessToken);
+        PostImageRequest(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, sensorTypeImage, user?.AccessToken);
   
       imageResponse = await MakeAuthorizedRequest(saveImageRequestFactory, user);
 
@@ -120,22 +119,22 @@ export default function SensorType(props) {
 
     const createSensorTypeRequestFactory = () =>
       PostRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Create`, {
-        Name: sensorName,
+        Name: sensorTypeName,
         Icon: imageResponse?.status === 200
           ? imageResponse.data.FileUrl
           : null,
-        Units: sensorUnit
+        Units: sensorTypeUnit
       }, user?.AccessToken);
 
     const updateSensorTypeRequestFactory = () =>
       PutRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Update/${props.selectedSensorType?.ID}`, {
-        Name: sensorName,
-        Icon: sensorImage != null
+        Name: sensorTypeName,
+        Icon: sensorTypeImage != null
           ? imageResponse?.status === 200
             ? imageResponse.data.FileUrl
             : null
           : props.selectedSensorType?.Icon,
-        Units: sensorUnit
+        Units: sensorTypeUnit
       }, user?.AccessToken);
 
     const sensorTypeRequestFactory = props.selectedSensorType != null
@@ -191,29 +190,30 @@ export default function SensorType(props) {
         <Grid container>
           <Grid item xs={4} className={classes.avatarContainer}>
             <AvatarButton
+              placeholderText={props.selectedSensorType?.Units}
               avatarWidth={appTheme.spacing(16)}
               avatarHeight={appTheme.spacing(16)}
-              imageSrc={sensorImageSrc}
-              setImageSrc={setSensorImageSrc}
-              setImage={setSensorImage} />
+              imageSrc={sensorTypeImageSrc}
+              setImageSrc={setSensorTypeImageSrc}
+              setImage={setSensorTypeImage} />
           </Grid>
           <Grid item xs={8}>
             <TextField
-              value={sensorName}
-              onChange={(e) => setSensorName(e.target.value)}
+              value={sensorTypeName}
+              onChange={(e) => setSensorTypeName(e.target.value)}
               margin="dense"
               label="Name"
               fullWidth
-              error={isSensorNameError}
-              helperText={sensorNameError} />
+              error={isSensorTypeNameError}
+              helperText={sensorTypeNameError} />
             <TextField
-              value={sensorUnit}
-              onChange={(e) => setSensorUnit(e.target.value)}
+              value={sensorTypeUnit}
+              onChange={(e) => setSensorTypeUnit(e.target.value)}
               margin="dense"
               label="Units of measure"
               fullWidth
-              error={isSensorUnitError}
-              helperText={sensorUnitError} />
+              error={isSensorTypeUnitError}
+              helperText={sensorTypeUnitError} />
           </Grid>
           {serverErrors && (
             <Grid item xs={12} className={classes.serverErrors}>
