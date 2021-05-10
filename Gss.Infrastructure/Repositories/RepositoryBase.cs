@@ -72,7 +72,9 @@ namespace Gss.Infrastructure.Repositories
         query = query.AsNoTracking();
       }
 
-      query = query.OrderBy(pagedInfoDto.SortOptions);
+      query = pagedInfoDto.SortOptions is null
+        ? query.OrderBy(entity => entity.ID)
+        : query.OrderBy(pagedInfoDto.SortOptions);
 
       if (include is not null)
       {
@@ -81,10 +83,13 @@ namespace Gss.Infrastructure.Repositories
 
       var pagedQuery = query.Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize).Take(pagedInfoDto.PageSize);
 
+      int totalItemsCount = await query.CountAsync();
+      var items = await pagedQuery.ToListAsync();
+
       return new PagedResultDto<TEntity>
       {
-        Items = await pagedQuery.ToListAsync(),
-        TotalItemsCount = await query.CountAsync(),
+        Items = items,
+        TotalItemsCount = totalItemsCount,
         PagedInfo = pagedInfoDto
       };
     }
