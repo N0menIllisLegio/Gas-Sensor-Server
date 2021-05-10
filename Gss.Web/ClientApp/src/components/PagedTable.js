@@ -83,7 +83,7 @@ export default function PagedTable(props) {
               </FormControl>
             </div>
 
-            <div style={{ height: 800, width: '100%' }}>
+            <div style={{ height: props.tableHeight != null ? props.tableHeight : 800, width: '100%', cursor: 'pointer' }}>
               <DataGrid
                 disableColumnMenu
                 hideFooter
