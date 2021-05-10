@@ -94,6 +94,8 @@ export default function PagedTable(props) {
                 onRowDoubleClick={(e) => {
                   if (props.detailsUrl != null) {
                     history.push(`${props.detailsUrl}${e.id}`)
+                  } else if (props.detailsAction != null) {
+                    props.detailsAction(e);
                   }
                 }} />
             </div>

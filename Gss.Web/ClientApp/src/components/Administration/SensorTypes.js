@@ -4,7 +4,7 @@ import { Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import CreateSensorType from "../SensorTypes/CreateSensorType";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const margin = 6;
 
@@ -35,19 +35,43 @@ const columns = [
 export default function Sensors() {
   const classes = useStyles();
   const [openDialog, setOpenDialog] = useState(false);
+  const [selectedSensorType, setSelectedSensorType] = useState(null);
+  const [sensorTypeChanged, setSensorTypeChanged] = useState(false);
+  const [sensorTypesUrl, setSensorTypesUrl] = useState('api/SensorsTypes/GetAllSensorsTypes');
 
   const handleClickOpen = () => {
     setOpenDialog(true);
   };
 
+  const handleDetailsAction = (e) => {
+    if (e?.row != null) {
+      setSelectedSensorType(e.row);
+      setOpenDialog(true);
+    }
+  };
+
+  useEffect(() => {
+    if (sensorTypeChanged) {
+      setSensorTypesUrl('api/SensorsTypes/GetAllSensorsTypes/');
+    } else {
+      setSensorTypesUrl('api/SensorsTypes/GetAllSensorsTypes');
+    }
+  }, [sensorTypeChanged])
+
   return (
     <div>
-      <PagedTable columns={columns} url={'api/SensorsTypes/GetAllSensorsTypes'} />
+      <PagedTable columns={columns} url={sensorTypesUrl} detailsAction={handleDetailsAction} />
       <Button variant="contained" color="secondary" className={classes.button} onClick={handleClickOpen}>
         <AddIcon fontSize="large" />
       </Button>
-      
-      <CreateSensorType openDialog={openDialog} setOpenDialog={setOpenDialog} />
+
+      <CreateSensorType
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+        selectedSensorType={selectedSensorType}
+        setSelectedSensorType={setSelectedSensorType}
+        sensorTypeChanged={sensorTypeChanged}
+        setSensorTypeChanged={setSensorTypeChanged} />
     </div>
   );
 }
