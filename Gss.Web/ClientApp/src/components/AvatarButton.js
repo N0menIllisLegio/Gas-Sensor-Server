@@ -34,7 +34,7 @@ export default function AvatarButton(props) {
             style={{
               width: props.avatarWidth,
               height: props.avatarHeight
-            }} />
+            }}>{props.placeholderText}</Avatar>
         </Button>
       </label>
       <div style={{overflow: 'hidden', display: 'flex', width: props.avatarWidth}}>
