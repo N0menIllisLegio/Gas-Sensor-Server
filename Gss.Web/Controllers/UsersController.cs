@@ -39,7 +39,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<ExtendedUserDto>>(pagedResultDto));
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpGet("{id}")]
     [SwaggerOperation("Authorized", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<UserDto>))]

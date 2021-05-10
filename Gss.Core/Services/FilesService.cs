@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Gss.Core.DTOs.File;
@@ -33,7 +34,9 @@ namespace Gss.Core.Services
 
     public async Task<FileDto> UploadImageAsync(UploadFileDto uploadImagesDto)
     {
-      if (!Settings.AzureImages.SupportedExtensions.Contains(uploadImagesDto.FileExtension))
+      string imageExtension = Path.GetExtension(uploadImagesDto.FileForm.FileName);
+
+      if (!Settings.AzureImages.SupportedExtensions.Contains(imageExtension))
       {
         string error = String.Format(Messages.UnsupportedImageExtensionErrorString,
           String.Join(", ", Settings.AzureImages.SupportedExtensions));
@@ -42,7 +45,7 @@ namespace Gss.Core.Services
       }
 
       var uri = await _unitOfWork.AzureFiles
-        .AddImageAsync(uploadImagesDto.FileForm.OpenReadStream(), uploadImagesDto.FileExtension);
+        .AddImageAsync(uploadImagesDto.FileForm.OpenReadStream(), imageExtension);
 
       if (uri is null)
       {

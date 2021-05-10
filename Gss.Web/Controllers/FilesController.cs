@@ -19,7 +19,7 @@ namespace Gss.Web.Controllers
       _filesService = filesService;
     }
 
-    //[Authorize] Role = Administrator
+    //[Authorize]
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Uploads image in cloud storage.")]
     [SwaggerResponse(200, type: typeof(Response<FileDto>))]
@@ -31,7 +31,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<FileDto>(fileDto));
     }
 
-    //[Authorize] Role = Administrator
+    //[Authorize]
     [HttpDelete]
     [SwaggerOperation("Administrator Only", "Deletes image from cloud storage.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]

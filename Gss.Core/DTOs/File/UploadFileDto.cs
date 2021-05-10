@@ -7,8 +7,5 @@ namespace Gss.Core.DTOs.File
   {
     [Required]
     public IFormFile FileForm { get; set; }
-
-    [Required]
-    public string FileExtension { get; set; }
   }
 }

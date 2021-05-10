@@ -27,7 +27,7 @@ namespace Gss.Infrastructure.Repositories
 
     public async Task<Uri> AddImageAsync(Stream imageStream, string imageExtension)
     {
-      var imageUri = new Uri($"{_imageContainerPath}{Guid.NewGuid()}.{imageExtension}");
+      var imageUri = new Uri(_imageContainerPath + Guid.NewGuid().ToString() + imageExtension);
       var blobClient = new BlobClient(imageUri, _storageCredentials);
 
       try
