@@ -9,7 +9,7 @@ import { CircularProgress, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AvatarButton from '../AvatarButton';
 import { theme as appTheme } from '../../App';
-import { MakeAuthorizedRequest, Request, PostRequest } from '../../requests/Requests';
+import { MakeAuthorizedRequest, PostImageRequest, PostRequest, PutRequest, DeleteRequest } from '../../requests/Requests';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom'
@@ -24,7 +24,11 @@ const useStyles = makeStyles((theme) => ({
   serverErrors: {
     marginTop: theme.spacing(2),
     marginLeft: theme.spacing(2),
-  }
+  },
+  progress: {
+    color: theme.palette.grey[400],
+    marginRight: theme.spacing(1)
+  },
 }));
 
 export default function CreateSensorType(props) {
@@ -47,6 +51,14 @@ export default function CreateSensorType(props) {
   const user = useSelector(selectUser);
 
   useEffect(() => {
+    if (props.selectedSensorType != null) {
+      setSensorImageSrc(props.selectedSensorType.Icon);
+      setSensorName(props.selectedSensorType.Name);
+      setSensorUnit(props.selectedSensorType.Units);
+    }
+  }, [props.selectedSensorType]);
+
+  useEffect(() => {
     if (sensorName == null || sensorName === '') {
       setSensorNameError('Sensor name is required');
       setIsSensorNameError(true);
@@ -61,10 +73,10 @@ export default function CreateSensorType(props) {
 
   useEffect(() => {
     if (sensorUnit == null || sensorUnit === '') {
-      setSensorUnitError('Sensor unit is required');
+      setSensorUnitError('Sensor\'s units of measure is required');
       setIsSensorUnitError(true);
     } else if (sensorUnit.length > 20) {
-      setSensorUnitError('Sensor unit length should be less than 20 charaters');
+      setSensorUnitError('Sensor\'s units of measure length should be less than 20 charaters');
       setIsSensorUnitError(true);
     } else {
       setSensorUnitError('');
@@ -76,8 +88,14 @@ export default function CreateSensorType(props) {
     setSensorImageSrc(null);
     setSensorName('');
     setSensorUnit('');
+    setSensorUnitError('');
+    setIsSensorUnitError(false);
+    setSensorNameError('');
+    setIsSensorNameError(false);
+    setServerErrors(null);
 
     props.setOpenDialog(false);
+    props.setSelectedSensorType(null);
   };
 
   const handleSave = async () => {
@@ -90,17 +108,8 @@ export default function CreateSensorType(props) {
     let imageResponse = null;
 
     if (sensorImage != null) {
-      const imageRequestData = new FormData();
-      imageRequestData.append('FileForm', sensorImage);
-  
       const saveImageRequestFactory = () =>
-        Request(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${user?.AccessToken ?? ''}`
-          },
-          body: imageRequestData
-        });
+        PostImageRequest(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, sensorImage, user?.AccessToken);
   
       imageResponse = await MakeAuthorizedRequest(saveImageRequestFactory, user);
 
@@ -109,7 +118,7 @@ export default function CreateSensorType(props) {
       }
     }
 
-    const saveSensorTypeRequestFactory = () =>
+    const createSensorTypeRequestFactory = () =>
       PostRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Create`, {
         Name: sensorName,
         Icon: imageResponse?.status === 200
@@ -118,7 +127,22 @@ export default function CreateSensorType(props) {
         Units: sensorUnit
       }, user?.AccessToken);
 
-    const sensorTypeResponse = await MakeAuthorizedRequest(saveSensorTypeRequestFactory, user);
+    const updateSensorTypeRequestFactory = () =>
+      PutRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Update/${props.selectedSensorType?.ID}`, {
+        Name: sensorName,
+        Icon: sensorImage != null
+          ? imageResponse?.status === 200
+            ? imageResponse.data.FileUrl
+            : null
+          : props.selectedSensorType?.Icon,
+        Units: sensorUnit
+      }, user?.AccessToken);
+
+    const sensorTypeRequestFactory = props.selectedSensorType != null
+      ? updateSensorTypeRequestFactory
+      : createSensorTypeRequestFactory;
+
+    const sensorTypeResponse = await MakeAuthorizedRequest(sensorTypeRequestFactory, user);
 
     setIsPending(false);
     
@@ -129,16 +153,40 @@ export default function CreateSensorType(props) {
         history.push(process.env.REACT_APP_SERVER_ERROR_URL);
       } else {
         setServerErrors(sensorTypeResponse.errors);
-        console.log(serverErrors);
       }
     } else {
+      props.setSensorTypeChanged(!props.sensorTypeChanged);
+      handleClose();
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsPending(true);
+
+    const deleteSensorTypeRequestFactory = () =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Delete/${props.selectedSensorType.ID}`, user?.AccessToken);
+  
+    const response = await MakeAuthorizedRequest(deleteSensorTypeRequestFactory, user);
+
+    setIsPending(false);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setServerErrors(response.errors);
+      }
+    } else {
+      props.setSensorTypeChanged(!props.sensorTypeChanged);
       handleClose();
     }
   };
 
   return (
     <Dialog open={props.openDialog}>
-      <DialogTitle>Create Sensor Type</DialogTitle>
+      <DialogTitle>{ props.selectedSensorType ? 'Update Sensor Type' : 'Create Sensor Type' }</DialogTitle>
       <DialogContent>
         <Grid container>
           <Grid item xs={4} className={classes.avatarContainer}>
@@ -162,7 +210,7 @@ export default function CreateSensorType(props) {
               value={sensorUnit}
               onChange={(e) => setSensorUnit(e.target.value)}
               margin="dense"
-              label="Unit"
+              label="Units of measure"
               fullWidth
               error={isSensorUnitError}
               helperText={sensorUnitError} />
@@ -175,11 +223,17 @@ export default function CreateSensorType(props) {
         </Grid>
       </DialogContent>
       <DialogActions>
+        {props.selectedSensorType && (
+          <Button onClick={handleDelete} color="secondary" disabled={isPending}>
+            Delete
+          </Button>
+        )}
+
         <Button onClick={handleClose} color="secondary" disabled={isPending}>
           Cancel
         </Button>
         <Button onClick={handleSave} color="primary" disabled={isPending}>
-          {isPending && (<CircularProgress size={15} />)}
+          {isPending && (<CircularProgress className={classes.progress} size={15} />)}
           Save
         </Button>
       </DialogActions>
