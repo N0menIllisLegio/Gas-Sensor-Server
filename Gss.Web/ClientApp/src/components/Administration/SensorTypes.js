@@ -15,18 +15,11 @@ const columns = [
   { field: 'Name', headerName: 'Name', flex: 1 },
 ];
 
-// detailsUrl={'/sensorsType/'}
-// url={'/sensorsType/create'} 
-
 export default function Sensors() {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedSensorType, setSelectedSensorType] = useState(null);
   const [sensorTypeChanged, setSensorTypeChanged] = useState(false);
   const [sensorTypesUrl, setSensorTypesUrl] = useState('api/SensorsTypes/GetAllSensorsTypes');
-
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
 
   const handleDetailsAction = (e) => {
     if (e?.row != null) {
@@ -41,12 +34,12 @@ export default function Sensors() {
     } else {
       setSensorTypesUrl('api/SensorsTypes/GetAllSensorsTypes');
     }
-  }, [sensorTypeChanged])
+  }, [sensorTypeChanged]);
 
   return (
     <div>
       <PagedTable columns={columns} url={sensorTypesUrl} detailsAction={handleDetailsAction} />
-      <AddButton handleClick={handleClickOpen} />
+      <AddButton handleClick={() => setOpenDialog(true)} />
 
       <SensorType
         openDialog={openDialog}
