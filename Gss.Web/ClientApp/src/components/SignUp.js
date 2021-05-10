@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import { Button, Grid } from '@material-ui/core';
 import { useState, useEffect } from 'react';
-import { PostRequest } from '../requests/Post';
+import { PostRequest } from '../requests/Requests';
 import { useForm } from "react-hook-form";
 import FormErrors from './FormErrors';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -97,8 +97,6 @@ export default function SignUp() {
         setServerErrors(response.errors);
         setIsPending(false);
 
-        console.log(response);
-
         if (response.status === 200) {
           history.push('/login');
         }
@@ -154,7 +152,7 @@ export default function SignUp() {
                 label="Email"
                 variant="outlined"
                 error={isEmailError}
-                helperText={errors.Email?.message}  />
+                helperText={errors.Email?.message} />
             </Grid>
             
             {/* Password */}

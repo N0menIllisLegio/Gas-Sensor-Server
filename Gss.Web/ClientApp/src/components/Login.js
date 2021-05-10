@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { Button, Grid } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { PostRequest } from '../requests/Post';
+import { PostRequest } from '../requests/Requests';
 import { useForm } from "react-hook-form";
 import FormErrors from './FormErrors';
 import CircularProgress from '@material-ui/core/CircularProgress';

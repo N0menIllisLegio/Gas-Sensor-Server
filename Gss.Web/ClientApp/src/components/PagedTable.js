@@ -92,7 +92,7 @@ export default function PagedTable(props) {
                 columns={props.columns}
                 pageSize={pageSize}
                 onRowDoubleClick={(e) => {
-                  if (props.detailsUrl !== null) {
+                  if (props.detailsUrl != null) {
                     history.push(`${props.detailsUrl}${e.id}`)
                   }
                 }} />

@@ -16,8 +16,9 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux'
 import { initialize } from './redux/reducers/authSlice';
 import SignUp from './components/SignUp';
+import { Initialize } from './requests/Requests';
 
-const theme = createMuiTheme({
+export const theme = createMuiTheme({
   palette: {
     primary: teal,
     secondary: red
@@ -45,6 +46,7 @@ export default function App() {
 
   useEffect(() => {
     dispatch(initialize());
+    Initialize(dispatch);
   }, [dispatch]);
 
   return (

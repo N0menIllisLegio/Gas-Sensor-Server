@@ -4,7 +4,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { MakeAuthorizedRequest, GetRequest } from '../requests/Post';
+import { MakeAuthorizedRequest, GetRequest } from '../requests/Requests';
 import { selectUser, logout } from '../redux/reducers/authSlice';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
@@ -38,7 +38,6 @@ export default function UserBadge() {
   const user = useSelector(selectUser);
 
   const handleClick = (event) => {
-    console.log(event)
     setAnchorElement(event.currentTarget);
   };
 
@@ -53,10 +52,9 @@ export default function UserBadge() {
   useEffect(() => {
     if (user != null) {
       const getUserRequestFactory = () => GetRequest(`${process.env.REACT_APP_SERVER_URL}api/Users/GetUserByID/${user.UserID}`, user.AccessToken);
-      MakeAuthorizedRequest(getUserRequestFactory, dispatch, user.AccessToken, user.RefreshToken)
+      MakeAuthorizedRequest(getUserRequestFactory, user)
         .then(response => {
           if (response.status === 200) {
-            console.log(response.data);
             setUserInfo(response.data);
           }
         });

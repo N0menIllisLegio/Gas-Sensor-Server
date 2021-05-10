@@ -30,12 +30,12 @@ export const authSlice = createSlice({
       try {
         let parsedStorageItem = JSON.parse(storageItem);
         const user = buildUser(parsedStorageItem);
-        console.log(user);
         state.user = user;
       } catch { }
     },
     authorize: (state, action) => {
       const user = buildUser(action.payload);
+      console.log(user);
 
       if (user != null) {
         state.user = user;

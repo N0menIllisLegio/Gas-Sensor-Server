@@ -1,15 +1,21 @@
 import { authorize } from '../redux/reducers/authSlice';
 
-export async function MakeAuthorizedRequest(requestFactory, dispatch, accessToken, refreshToken) {
-  let response = await requestFactory();
-  console.log(accessToken);
+let dispatch = null;
 
-  if (response.status === 401 || true) {
-    const refreshTokenResponse = await RefreshToken(accessToken, refreshToken);
+export function Initialize(_dispatch) {
+  dispatch = _dispatch;
+}
+
+export async function MakeAuthorizedRequest(requestFactory, user) {
+  let response = await requestFactory();
+
+  if (response.status === 401) {
+    const refreshTokenResponse = await RefreshToken(user.AccessToken, user.RefreshToken);
 
     if (refreshTokenResponse.errors === null) {
       dispatch(authorize(refreshTokenResponse.data));
       response = await requestFactory();
+      console.log(response);
 
     } else {
       return refreshTokenResponse;
@@ -40,7 +46,7 @@ export async function GetRequest(url, token) {
   });
 }
 
-async function Request(url, requestInit) {
+export async function Request(url, requestInit) {
   let data = null;
   let errors = null;
   let status = null;
