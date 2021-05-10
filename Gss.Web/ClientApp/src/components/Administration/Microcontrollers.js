@@ -2,6 +2,7 @@ import PagedTable from "../PagedTable";
 import { Link } from 'react-router-dom'
 import { Button } from "@material-ui/core";
 import AddButton from "../AddButton";
+import { useHistory } from 'react-router-dom';
 
 const dateTimeOptions = {
   year: 'numeric',
@@ -43,10 +44,12 @@ const columns = [
 ];
 
 export default function Users() {
+  const history = useHistory();
+
   return (
     <div>
       <PagedTable columns={columns} url={'api/Microcontrollers/GetAllMicrocontrollers'} detailsUrl={'/microcontroller/'} />
-      <AddButton url={'/microcontroller/create'} />
+      <AddButton handleClick={() => history.push('/microcontroller/create')} />
     </div>
   );
 }

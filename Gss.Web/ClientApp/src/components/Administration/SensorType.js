@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CreateSensorType(props) {
+export default function SensorType(props) {
   const classes = useStyles();
   const history = useHistory();
 

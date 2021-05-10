@@ -1,22 +1,8 @@
 import PagedTable from "../PagedTable";
 import { Avatar } from "@material-ui/core";
-import { Button } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
-import CreateSensorType from "../SensorTypes/CreateSensorType";
+import SensorType from "./SensorType";
 import { useEffect, useState } from 'react';
-
-const margin = 6;
-
-const useStyles = makeStyles((theme) => ({
-  button: {
-    position: 'fixed',
-    bottom: theme.spacing(margin),
-    right: theme.spacing(margin),
-    borderRadius: '100%',
-    padding: '15px'
-  }
-}));
+import AddButton from "../AddButton";
 
 // https://sensorsappimagestorage.blob.core.windows.net/thumbnails/0c896b43-2794-4d3e-a8eb-39dbd3afc3e6.png
 const columns = [
@@ -33,7 +19,6 @@ const columns = [
 // url={'/sensorsType/create'} 
 
 export default function Sensors() {
-  const classes = useStyles();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedSensorType, setSelectedSensorType] = useState(null);
   const [sensorTypeChanged, setSensorTypeChanged] = useState(false);
@@ -61,11 +46,9 @@ export default function Sensors() {
   return (
     <div>
       <PagedTable columns={columns} url={sensorTypesUrl} detailsAction={handleDetailsAction} />
-      <Button variant="contained" color="secondary" className={classes.button} onClick={handleClickOpen}>
-        <AddIcon fontSize="large" />
-      </Button>
+      <AddButton handleClick={handleClickOpen} />
 
-      <CreateSensorType
+      <SensorType
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
         selectedSensorType={selectedSensorType}

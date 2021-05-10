@@ -1,5 +1,6 @@
 import PagedTable from "../PagedTable";
 import AddButton from "../AddButton";
+import { useHistory } from 'react-router-dom';
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
@@ -10,10 +11,12 @@ const columns = [
 ];
 
 export default function Users() {
+  const history = useHistory();
+  
   return (
     <div>
       <PagedTable columns={columns} url={'api/Users/GetAllUsers'} detailsUrl={'/user/'} />
-      <AddButton url={'/user/create'} />
+      <AddButton handleClick={() => history.push('/user/create')} />
     </div>
   );
 }
