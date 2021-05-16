@@ -24,6 +24,11 @@ namespace Gss.Infrastructure
       base.OnModelCreating(builder);
       builder.Entity<SensorData>().HasKey(e =>
         new { e.MicrocontrollerID, e.SensorID, e.ValueReadTime });
+
+      builder.Entity<RefreshToken>()
+        .HasOne(p => p.User)
+        .WithMany(p => p.RefreshTokens)
+        .OnDelete(DeleteBehavior.Cascade);
     }
   }
 }
