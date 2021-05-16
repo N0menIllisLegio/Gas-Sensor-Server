@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { MakeAuthorizedRequest, GetRequest } from '../requests/Requests';
-import { selectUser, logout } from '../redux/reducers/authSlice';
+import { selectUser, selectUserBadgeName, selectUserBadgeAvatarSrc, logout, saveBadgeData } from '../redux/reducers/authSlice';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
@@ -33,9 +33,10 @@ export default function UserBadge() {
   const classes = useStyles();
   const history = useHistory();
   const [anchorElement, setAnchorElement] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
+  const userName = useSelector(selectUserBadgeName);
+  const userAvatarSrc = useSelector(selectUserBadgeAvatarSrc);
 
   const handleClick = (event) => {
     setAnchorElement(event.currentTarget);
@@ -47,27 +48,35 @@ export default function UserBadge() {
 
   const handleLogout = () => {
     dispatch(logout());
+    history.push('/');
   };
 
   useEffect(() => {
     if (user != null) {
-      const getUserRequestFactory = () => GetRequest(`${process.env.REACT_APP_SERVER_URL}api/Users/GetUserByID/${user.UserID}`, user.AccessToken);
+      const getUserRequestFactory = (token) => GetRequest(`${process.env.REACT_APP_SERVER_URL}api/Users/GetUserByID/${user.UserID}`, token);
+
       MakeAuthorizedRequest(getUserRequestFactory, user)
         .then(response => {
           if (response.status === 200) {
-            setUserInfo(response.data);
+            dispatch(saveBadgeData({
+              userBadgeName: response.data.FirstName,
+              userBadgeAvatarSrc: response.data.AvatarPath
+            }));
           }
         });
     } else {
-      setUserInfo(null);
+      dispatch(saveBadgeData({
+        userBadgeName: null,
+        userBadgeAvatarSrc: null
+      }));
     }
   }, [user?.UserID]);
 
-  return userInfo ? (
+  return userName ? (
       <div>
         <Button aria-haspopup="true" variant="contained" color="primary" onClick={handleClick} disableElevation>
-          <Avatar src={userInfo?.AvatarPath} className={classes.avatar}/>
-          <Typography className={classes.name}>{userInfo?.FirstName}</Typography>
+          <Avatar src={userAvatarSrc} className={classes.avatar}/>
+          <Typography className={classes.name}>{userName}</Typography>
         </Button>
 
         <Menu

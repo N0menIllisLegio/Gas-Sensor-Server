@@ -21,7 +21,9 @@ const buildUser = (data) => {
 export const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: null
+    user: null,
+    userBadgeName: null,
+    userBadgeAvatarSrc: null,
   },
   reducers: {
     initialize: state => {
@@ -44,12 +46,20 @@ export const authSlice = createSlice({
     },
     logout: state => {
       state.user = null;
+      state.userBadgeName = null;
+      state.userBadgeAvatarSrc = null;
       localStorage.removeItem(localStorageKey);
+    },
+    saveBadgeData: (state, action) => {
+      state.userBadgeName = action.payload.userBadgeName;
+      state.userBadgeAvatarSrc = action.payload.userBadgeAvatarSrc;
     }
   }
 });
 
-export const { initialize, authorize, logout } = authSlice.actions;
+export const { initialize, authorize, logout, saveBadgeData } = authSlice.actions;
 export const selectUser = state => state.authenticator.user;
+export const selectUserBadgeName = state => state.authenticator.userBadgeName;
+export const selectUserBadgeAvatarSrc = state => state.authenticator.userBadgeAvatarSrc;
 
 export default authSlice.reducer;
