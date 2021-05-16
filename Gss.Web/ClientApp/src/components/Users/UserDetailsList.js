@@ -13,7 +13,9 @@ import lightGreen from '@material-ui/core/colors/lightGreen';
 import red from '@material-ui/core/colors/red';
 import yellow from '@material-ui/core/colors/yellow';
 import indigo from '@material-ui/core/colors/indigo';
+import teal from '@material-ui/core/colors/teal';
 import TimerOffTwoToneIcon from '@material-ui/icons/TimerOffTwoTone';
+import PhoneIphoneTwoToneIcon from '@material-ui/icons/PhoneIphoneTwoTone';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,17 +43,17 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.getContrastText(indigo[500]),
     backgroundColor: indigo[500],
   },
+  teal: {
+    color: theme.palette.getContrastText(teal[200]),
+    backgroundColor: teal[200],
+  }
 }));
 
 const dateTimeOptions = {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
-  weekday: 'long',
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  hour12: false
+  weekday: 'long'
 };
 
 export default function UserDetailsList(props) {
@@ -72,22 +74,40 @@ export default function UserDetailsList(props) {
         </ListItemAvatar>
         <ListItemText primary="Email" secondary={user.Email} />
       </ListItem>
-      <ListItem>
-        <ListItemAvatar>
-          <Avatar className={classes.indigo}>
-            <WcTwoToneIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary="Gender" secondary={user.Gender} />
-      </ListItem>
-      <ListItem>
-        <ListItemAvatar>
-          <Avatar className={classes.yellow}>
-            <CakeTwoToneIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary="Birthday" secondary={new Date(user.Birthday).toLocaleString("en-US", dateTimeOptions)} />
-      </ListItem>
+      
+      {user.Gender && (
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar className={classes.indigo}>
+              <WcTwoToneIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Gender" secondary={user.Gender} />
+        </ListItem>
+      )}
+      
+      {user.Birthday && (
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar className={classes.yellow}>
+              <CakeTwoToneIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Birthday" secondary={new Date(user.Birthday).toLocaleString("en-US", dateTimeOptions)} />
+        </ListItem>
+      )}
+      
+      {user.PhoneNumber && (
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar className={classes.teal}>
+              <PhoneIphoneTwoToneIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Phone Number" secondary={user.PhoneNumber} />
+        </ListItem>
+      )}
+      
       { user.LockoutEnabled != null && user.LockoutEnabled && new Date(user.LockoutEnd) > Date.now() && (
         <ListItem>
           <ListItemAvatar>
