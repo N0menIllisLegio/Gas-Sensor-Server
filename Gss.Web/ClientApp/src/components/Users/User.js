@@ -3,6 +3,8 @@ import useGet from '../../hooks/useGet';
 import { useParams } from 'react-router-dom';
 import UserDetailsCard from './UserDetailsCard';
 import UserMicrocontrollersList from './UserMicrocontrollersList';
+import { useState, useEffect } from 'react';
+import UserEdit from './UserEdit';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,12 +21,29 @@ const useStyles = makeStyles((theme) => ({
 export default function User() {
   const classes = useStyles();
   const { id } = useParams();
-  const { data: user, isPending: userDetailsIsPending } = useGet(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}`);
+  const [ isEditingUserInfo, setIsEditingUserInfo ] = useState(false);
+  const [userDetailsChanged, setUserDetailsChanged] = useState(false);
+  const [userDetailsUrl, setUserDetailsUrl] = useState(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}`);
+  const { data: user, isPending: userDetailsIsPending } = useGet(userDetailsUrl);
+
+  useEffect(() => {
+    if (userDetailsChanged) {
+      setUserDetailsUrl(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}/`);
+    } else {
+      setUserDetailsUrl(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}`);
+    }
+  }, [userDetailsChanged, id]);
 
   return (
     <div className={classes.root}>
       <div className={classes.userDetailsCardWrapper} >
-        { !userDetailsIsPending && <UserDetailsCard user={user} />}
+        { !userDetailsIsPending && !isEditingUserInfo && <UserDetailsCard user={user} handleEditClick={() => setIsEditingUserInfo(true)} />}
+        { !userDetailsIsPending && isEditingUserInfo
+          && <UserEdit
+            user={user}
+            handleCloseClick={() => setIsEditingUserInfo(false)}
+            setUserDetailsChanged={setUserDetailsChanged}
+            userDetailsChanged={userDetailsChanged}/>}
       </div>
       <div className={classes.rightColumn}>
         <UserMicrocontrollersList />

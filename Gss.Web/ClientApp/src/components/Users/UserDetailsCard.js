@@ -8,7 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import UserDetailsList from './UserDetailsList';
 import { Divider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,7 +45,6 @@ const dateTimeOptions = {
 
 export default function UserDetailsCard(props) {
   const classes = useStyles();
-  const history = useHistory();
   const user = props.user;
 
   return user && (
@@ -63,7 +61,7 @@ export default function UserDetailsCard(props) {
                 {user.FirstName} {user.LastName}
               </strong>
             </Typography>
-            <IconButton size="medium" onClick={() => console.log(history)} color="primary">
+            <IconButton size="medium" onClick={props.handleEditClick} color="primary">
               <EditTwoToneIcon />
             </IconButton>
           </div>
