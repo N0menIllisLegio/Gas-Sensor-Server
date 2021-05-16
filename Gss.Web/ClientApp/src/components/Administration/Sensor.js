@@ -130,8 +130,8 @@ export default function Sensor(props) {
   const handleDelete = async () => {
     setIsPending(true);
 
-    const deleteSensorRequestFactory = () =>
-      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Sensors/Delete/${props.selectedSensor.ID}`, user?.AccessToken);
+    const deleteSensorRequestFactory = (token) =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Sensors/Delete/${props.selectedSensor.ID}`, token);
   
     const response = await MakeAuthorizedRequest(deleteSensorRequestFactory, user);
 
@@ -158,19 +158,19 @@ export default function Sensor(props) {
 
     setIsPending(true);
 
-    const createSensorRequestFactory = () =>
+    const createSensorRequestFactory = (token) =>
       PostRequest(`${process.env.REACT_APP_SERVER_URL}api/Sensors/Create`, {
         Name: sensorName,
         Description: sensorDescription,
         TypeID: sensorType
-      }, user?.AccessToken);
+      }, token);
 
-    const updateSensorRequestFactory = () =>
+    const updateSensorRequestFactory = (token) =>
       PutRequest(`${process.env.REACT_APP_SERVER_URL}api/Sensors/Update/${props.selectedSensor?.ID}`, {
         Name: sensorName,
         Description: sensorDescription,
         TypeID: sensorType
-      }, user?.AccessToken);
+      }, token);
 
     const sensorRequestFactory = props.selectedSensor != null
       ? updateSensorRequestFactory

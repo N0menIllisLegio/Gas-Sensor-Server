@@ -7,15 +7,14 @@ export function Initialize(_dispatch) {
 }
 
 export async function MakeAuthorizedRequest(requestFactory, user) {
-  let response = await requestFactory();
+  let response = await requestFactory(user.AccessToken);
 
   if (response.status === 401) {
     const refreshTokenResponse = await RefreshToken(user.AccessToken, user.RefreshToken);
 
     if (refreshTokenResponse.errors === null) {
       dispatch(authorize(refreshTokenResponse.data));
-      response = await requestFactory();
-      console.log(response);
+      response = await requestFactory(refreshTokenResponse.data.AccessToken);
 
     } else {
       return refreshTokenResponse;
@@ -94,7 +93,7 @@ export async function Request(url, requestInit) {
     if (response.Succeeded) {
       data = response.Data;
     } else {
-      errors = response.errors;
+      errors = response.errors || response.Errors;
     }
   } catch (e) {
     errors = [e.Name];

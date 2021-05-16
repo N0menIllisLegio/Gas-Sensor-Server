@@ -107,8 +107,8 @@ export default function SensorType(props) {
     let imageResponse = null;
 
     if (sensorTypeImage != null) {
-      const saveImageRequestFactory = () =>
-        PostImageRequest(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, sensorTypeImage, user?.AccessToken);
+      const saveImageRequestFactory = (token) =>
+        PostImageRequest(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, sensorTypeImage, token);
   
       imageResponse = await MakeAuthorizedRequest(saveImageRequestFactory, user);
 
@@ -117,16 +117,16 @@ export default function SensorType(props) {
       }
     }
 
-    const createSensorTypeRequestFactory = () =>
+    const createSensorTypeRequestFactory = (token) =>
       PostRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Create`, {
         Name: sensorTypeName,
         Icon: imageResponse?.status === 200
           ? imageResponse.data.FileUrl
           : null,
         Units: sensorTypeUnit
-      }, user?.AccessToken);
+      }, token);
 
-    const updateSensorTypeRequestFactory = () =>
+    const updateSensorTypeRequestFactory = (token) =>
       PutRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Update/${props.selectedSensorType?.ID}`, {
         Name: sensorTypeName,
         Icon: sensorTypeImage != null
@@ -135,7 +135,7 @@ export default function SensorType(props) {
             : null
           : props.selectedSensorType?.Icon,
         Units: sensorTypeUnit
-      }, user?.AccessToken);
+      }, token);
 
     const sensorTypeRequestFactory = props.selectedSensorType != null
       ? updateSensorTypeRequestFactory
@@ -162,8 +162,8 @@ export default function SensorType(props) {
   const handleDelete = async () => {
     setIsPending(true);
 
-    const deleteSensorTypeRequestFactory = () =>
-      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Delete/${props.selectedSensorType.ID}`, user?.AccessToken);
+    const deleteSensorTypeRequestFactory = (token) =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/SensorsTypes/Delete/${props.selectedSensorType.ID}`, token);
   
     const response = await MakeAuthorizedRequest(deleteSensorTypeRequestFactory, user);
 
