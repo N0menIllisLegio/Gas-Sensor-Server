@@ -7,9 +7,9 @@ export function Initialize(_dispatch) {
 }
 
 export async function MakeAuthorizedRequest(requestFactory, user) {
-  let response = await requestFactory(user.AccessToken);
+  let response = await requestFactory(user?.AccessToken);
 
-  if (response.status === 401) {
+  if (response.status === 401 && user != null) {
     const refreshTokenResponse = await RefreshToken(user.AccessToken, user.RefreshToken);
 
     if (refreshTokenResponse.errors === null) {

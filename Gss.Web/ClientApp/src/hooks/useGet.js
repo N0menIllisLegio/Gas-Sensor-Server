@@ -1,38 +1,40 @@
 import { useState, useEffect } from 'react';
+import { MakeAuthorizedRequest, Request } from '../requests/Requests';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../redux/reducers/authSlice';
 
 export default function useGet(url) {
   const [data, setData] = useState(null);
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState(null);
-
+  const user = useSelector(selectUser);
+  
   useEffect(() => {
     const abortCont = new AbortController();
-
-    fetch(url, { signal: abortCont.signal })
-    .then(res => {
-      if (!res.ok) {
-        throw Error(`Failed to fetch data from ${url}`);
-      }
-
-      return res.json();
-    })
-    .then(data => {
-      console.log(data);
-      setData(data.Data);
-      setIsPending(false);
-      setError(null);
-    })
-    .catch(err => {
-      if (err.Name === 'AbortError') {
+    const getRequestFactory = (token) =>
+      Request(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token ?? ''}`
+        },
+        signal: abortCont.signal
+      });
+    
+    MakeAuthorizedRequest(getRequestFactory, user).then(response => {
+      if (response.status === 200) {
+        setData(response.data);
+        setError(null);
+      } else if (response.errors[0] === 'AbortError') {
         console.log(`Fetch from ${url} aborted.`);
       } else {
-        setIsPending(false);
-        setError(err.Message);
+        setError(response.errors);
       }
+    
+      setIsPending(false);
     });
 
     return () => abortCont.abort();
-  }, [url]);
+  }, [url, user]);
 
   return { data, isPending, error };
 }

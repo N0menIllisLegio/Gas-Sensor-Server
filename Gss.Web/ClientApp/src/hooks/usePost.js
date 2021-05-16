@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { MakeAuthorizedRequest, Request } from '../requests/Requests';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../redux/reducers/authSlice';
 
 // SortOptions: [
 //   {
@@ -20,15 +23,18 @@ export function usePagedPost(url, pageNumber, pageSize,
   const [data, setData] = useState(null);
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState(null);
-
+  const user = useSelector(selectUser);
+  
   useEffect(() => {
     const abortCont = new AbortController();
-    
-    fetch(url,
-      {
+    const postRequestFactory = (token) =>
+      Request(url, {
         signal: abortCont.signal,
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token ?? ''}`
+        },
         body: JSON.stringify({
           PageNumber: pageNumber,
           PageSize: pageSize,
@@ -36,31 +42,24 @@ export function usePagedPost(url, pageNumber, pageSize,
           SortOptions: sortOptions,
           Filters: filters
         })
-      })
-    .then(res => {
-      if (!res.ok) {
-        throw Error(`Failed to fetch data from ${url}`);
-      }
-
-      return res.json();
-    })
-    .then(data => {
-      console.log(data);
-      setData(data.Data);
-      setIsPending(false);
-      setError(null);
-    })
-    .catch(err => {
-      if (err.Name === 'AbortError') {
-        console.log(`Fetch from ${url} aborted.`);
-      } else {
+      });
+    
+    MakeAuthorizedRequest(postRequestFactory, user)
+      .then(response => {
+        if (response.status === 200) {
+          setData(response.data);
+          setError(null);
+        } else if (response.errors[0] === 'AbortError') {
+          console.log(`Fetch from ${url} aborted.`);
+        } else {
+          setError(response.errors);
+        }
+      
         setIsPending(false);
-        setError(err.Message);
-      }
-    });
+      });
 
     return () => abortCont.abort();
-  }, [url, pageNumber, pageSize, searchString, sortOptions, filters]);
+  }, [url, user, pageNumber, pageSize, searchString, sortOptions, filters]);
 
   return { data, isPending, error };
 }
