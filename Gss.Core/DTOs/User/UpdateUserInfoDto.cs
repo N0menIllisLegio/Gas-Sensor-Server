@@ -5,6 +5,8 @@ namespace Gss.Core.DTOs.User
 {
   public class UpdateUserInfoDto
   {
+    public string AvatarPath { get; set; }
+
     [Phone]
     public string PhoneNumber { get; set; }
 

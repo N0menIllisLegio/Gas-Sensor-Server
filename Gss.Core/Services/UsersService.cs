@@ -206,6 +206,7 @@ namespace Gss.Core.Services
     {
       var user = await _userManager.FindByEmailAsync(updateUserInfoModel.Email);
 
+      user.AvatarPath = updateUserInfoModel.AvatarPath;
       user.FirstName = updateUserInfoModel.FirstName;
       user.LastName = updateUserInfoModel.LastName;
       user.Gender = updateUserInfoModel.Gender;

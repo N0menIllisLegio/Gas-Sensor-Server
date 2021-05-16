@@ -10,6 +10,7 @@ namespace Gss.Core.DTOs.User
     public string LastName { get; set; }
     public string AvatarPath { get; set; }
     public string Gender { get; set; }
+    public string PhoneNumber { get; set; }
     public DateTime? Birthday { get; set; }
   }
 }
