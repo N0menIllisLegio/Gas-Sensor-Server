@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2)
   },
   inputsRow: {
-    margin: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     display: 'flex',
     justifyContent: 'space-between', 
     alignItems: 'center'
@@ -60,18 +60,14 @@ export default function UserMicrocontrollersList(props) {
   const [totalPagesNumber, setTotalPagesNumber] = useState(1);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [userMicrocontrollersUrl, setUserMicrocontrollersUrl] = useState(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetUserMicrocontrollers/${props.userID}`);
-  const { data: pagedResponse, isPending } = usePagedPost(userMicrocontrollersUrl, currentPageNumber, pageSize, searchString);
+  const { data: pagedResponse, isPending } = usePagedPost(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetUserMicrocontrollers/${props.userID}`, currentPageNumber, pageSize, searchString);
 
   const [microcontrollers, setMicrocontrollers] = useState(null);
-
-  console.log(pageSize, pageSize);
   
   useEffect(() => {
     if (pagedResponse != null) {
       setMicrocontrollers(pagedResponse.Items);
       setTotalPagesNumber(Math.ceil(pagedResponse.TotalItemsCount / pagedResponse.PagedInfo.PageSize));
-      console.log(microcontrollers);
     }
   }, [pagedResponse]);
 
