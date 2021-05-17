@@ -5,13 +5,15 @@ import UserDetailsCard from './UserDetailsCard';
 import UserMicrocontrollersList from './UserMicrocontrollersList';
 import { useState, useEffect } from 'react';
 import UserEdit from './UserEdit';
+import AddButton from '../AddButton';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex'
   },
   rightColumn: {
-    marginLeft: theme.spacing(3) + theme.userDetailsCard.width
+    marginLeft: theme.spacing(3) + theme.userDetailsCard.width,
+    width: '100%'
   },
   userDetailsCardWrapper: {
     position: 'fixed'
@@ -46,8 +48,9 @@ export default function User() {
             userDetailsChanged={userDetailsChanged}/>}
       </div>
       <div className={classes.rightColumn}>
-        <UserMicrocontrollersList />
+        <UserMicrocontrollersList userID={id} />
       </div>
+      <AddButton/>
     </div>
   );
 }
