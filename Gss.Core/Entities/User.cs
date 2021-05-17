@@ -9,10 +9,6 @@ namespace Gss.Core.Entities
 {
   public class User : IdentityUser<Guid>, IEntity
   {
-    [NotMapped]
-    [ExpressionsBuilder]
-    public Guid ID { get => Id; set => Id = value; }
-
     [ExpressionsBuilder]
     public string FirstName { get; set; }
 

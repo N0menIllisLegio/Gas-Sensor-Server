@@ -9,7 +9,7 @@ namespace Gss.Core.Entities
   public class Sensor : IEntity
   {
     [ExpressionsBuilder]
-    public Guid ID { get; set; }
+    public Guid Id { get; set; }
 
     [Required]
     [MaxLength(200)]

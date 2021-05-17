@@ -30,7 +30,7 @@ namespace Gss.Core.Services
     public async Task<PagedResultDto<SensorDto>> GetAllSensors(PagedInfoDto pagedInfoDto)
     {
       var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
-                sensor => new { sensor.ID, sensor.Name, sensor.Description },
+                sensor => new { sensor.Id, sensor.Name, sensor.Description },
                 include: query => query.Include((sensor) => sensor.Type));
 
       return pagedResult.Convert<SensorDto>(_mapper);
@@ -39,7 +39,7 @@ namespace Gss.Core.Services
     public async Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID, PagedInfoDto pagedInfoDto)
     {
       var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
-        sensor => new { sensor.ID, sensor.Name, sensor.Description },
+        sensor => new { sensor.Id, sensor.Name, sensor.Description },
         sensor => sensor.SensorMicrocontrollers.Any(microcontollerSensor => microcontollerSensor.MicrocontrollerID == microcontrollerID),
         query => query.Include(sensor => sensor.Type));
 

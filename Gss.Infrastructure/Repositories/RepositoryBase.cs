@@ -73,7 +73,7 @@ namespace Gss.Infrastructure.Repositories
       }
 
       query = pagedInfoDto.SortOptions is null
-        ? query.OrderBy(entity => entity.ID)
+        ? query.OrderBy(entity => entity.Id)
         : query.OrderBy(pagedInfoDto.SortOptions);
 
       if (include is not null)
@@ -96,7 +96,7 @@ namespace Gss.Infrastructure.Repositories
 
     public virtual async Task<TEntity> FindAsync(Guid id)
     {
-      return await DbSet.FirstOrDefaultAsync(entity => entity.ID == id);
+      return await DbSet.FirstOrDefaultAsync(entity => entity.Id == id);
     }
 
     public virtual TEntity Update(TEntity entity)
@@ -106,9 +106,9 @@ namespace Gss.Infrastructure.Repositories
 
     public virtual TEntity Add(TEntity entity)
     {
-      if (entity.ID == Guid.Empty)
+      if (entity.Id == Guid.Empty)
       {
-        entity.ID = Guid.NewGuid();
+        entity.Id = Guid.NewGuid();
       }
 
       return DbSet.Add(entity).Entity;

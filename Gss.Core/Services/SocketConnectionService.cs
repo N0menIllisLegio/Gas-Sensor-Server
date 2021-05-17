@@ -139,7 +139,7 @@ namespace Gss.Core.Services
               || !Int32.TryParse(receivedArguments[2], out int sensorValue))
             {
               _logger.LogWarning("Failed to parse data. Endpoint: {0}\tMicrocontroller: {1}\tRequest: {2}",
-                socket.RemoteEndPoint, connectedMicrocontroller.ID, request);
+                socket.RemoteEndPoint, connectedMicrocontroller.Id, request);
 
               socket.Shutdown(SocketShutdown.Both);
               socket.Close();
@@ -149,14 +149,14 @@ namespace Gss.Core.Services
 
             await SendMicrocontrollerResponse(socket, _okResponse);
 
-            if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerID == connectedMicrocontroller.ID
+            if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerID == connectedMicrocontroller.Id
               && sensorData.SensorID == sensorID
               && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
             {
               var sensorData = new SensorData
               {
-                ID = Guid.NewGuid(),
-                MicrocontrollerID = connectedMicrocontroller.ID,
+                Id = Guid.NewGuid(),
+                MicrocontrollerID = connectedMicrocontroller.Id,
                 SensorID = sensorID,
                 SensorValue = sensorValue,
                 ValueReadTime = sensorValueReadedDateTime,
@@ -199,7 +199,7 @@ namespace Gss.Core.Services
               || !Int32.TryParse(receivedArguments[2], out sensorValue))
               {
                 _logger.LogWarning("Failed to parse data. Endpoint: {0}\tMicrocontroller: {1}\tRequest: {2}",
-                  socket.RemoteEndPoint, connectedMicrocontroller.ID, request);
+                  socket.RemoteEndPoint, connectedMicrocontroller.Id, request);
 
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
@@ -213,8 +213,8 @@ namespace Gss.Core.Services
               var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
               unitOfWork.SensorsData.Add(new SensorData
               {
-                ID = Guid.NewGuid(),
-                MicrocontrollerID = connectedMicrocontroller.ID,
+                Id = Guid.NewGuid(),
+                MicrocontrollerID = connectedMicrocontroller.Id,
                 SensorID = sensorID,
                 SensorValue = sensorValue,
                 ValueReadTime = sensorValueReadedDateTime,
@@ -255,11 +255,11 @@ namespace Gss.Core.Services
       catch (OperationCanceledException)
       {
         _logger.LogWarning("Endpoint: {0}\tMicrocontroller {1} was disconnected after {2}ms timeout", socket.RemoteEndPoint,
-          connectedMicrocontroller?.ID, Settings.Socket.ReceiveTimeout);
+          connectedMicrocontroller?.Id, Settings.Socket.ReceiveTimeout);
       }
       catch (Exception exception)
       {
-        _logger.LogError(exception, "Endpoint: {0}\tConnected microcontroller: {1}", socket.RemoteEndPoint, connectedMicrocontroller?.ID);
+        _logger.LogError(exception, "Endpoint: {0}\tConnected microcontroller: {1}", socket.RemoteEndPoint, connectedMicrocontroller?.Id);
       }
       finally
       {

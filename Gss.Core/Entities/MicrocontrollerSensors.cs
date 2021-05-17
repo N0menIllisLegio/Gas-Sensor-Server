@@ -7,7 +7,7 @@ namespace Gss.Core.Entities
   public class MicrocontrollerSensors : IEntity
   {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid ID { get; set; }
+    public Guid Id { get; set; }
 
     public Guid MicrocontrollerID { get; set; }
     public virtual Microcontroller Microcontroller { get; set; }

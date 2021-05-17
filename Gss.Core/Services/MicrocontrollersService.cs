@@ -39,7 +39,7 @@ namespace Gss.Core.Services
     public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo)
     {
       var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
-        microcontroller => new { microcontroller.ID, microcontroller.Name, microcontroller.LastResponseTime }, mc => mc.Public);
+        microcontroller => new { microcontroller.Id, microcontroller.Name, microcontroller.LastResponseTime }, mc => mc.Public);
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }
@@ -47,7 +47,7 @@ namespace Gss.Core.Services
     public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo)
     {
       var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
-        microcontroller => new { microcontroller.ID, microcontroller.Name, microcontroller.LastResponseTime },
+        microcontroller => new { microcontroller.Id, microcontroller.Name, microcontroller.LastResponseTime },
         include: query => query.Include(mc => mc.Owner).Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
@@ -68,13 +68,13 @@ namespace Gss.Core.Services
       bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
 
       Expression<Func<Microcontroller, bool>> additionalCriteria = user == requestedBy || administratorClaim
-        ? mc => mc.Owner.ID == user.ID
-        : mc => mc.Owner.ID == user.ID && mc.Public;
+        ? mc => mc.Owner.Id == user.Id
+        : mc => mc.Owner.Id == user.Id && mc.Public;
 
       var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
-          microcontroller => new { microcontroller.ID, microcontroller.Name, microcontroller.LastResponseTime },
+          microcontroller => new { microcontroller.Id, microcontroller.Name, microcontroller.LastResponseTime },
           additionalCriteria,
-          query => query.Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
+          query => query.Include(mc => mc.Owner).Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
     }
@@ -312,7 +312,7 @@ namespace Gss.Core.Services
             HttpStatusCode.NotFound);
         }
 
-        microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == microcontrollerID);
+        microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.Id == microcontrollerID);
       }
 
       return microcontroller;
@@ -327,7 +327,7 @@ namespace Gss.Core.Services
         return null;
       }
 
-      var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.ID == microcontrollerID);
+      var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.Id == microcontrollerID);
 
       if (microcontroller is null && microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
       {
