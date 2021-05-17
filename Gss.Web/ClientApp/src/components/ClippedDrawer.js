@@ -17,7 +17,7 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../redux/reducers/authSlice';
 import { useState, useEffect } from 'react';
 
-const drawerWidth = 240;
+const drawerWidth = '17vw';
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
