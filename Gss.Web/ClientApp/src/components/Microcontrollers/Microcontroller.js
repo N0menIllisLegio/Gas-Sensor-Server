@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center'
   },
   titleIcon: {
+    marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2)
   },
   divider: {
@@ -51,14 +52,18 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    marginBottom: theme.spacing(3)
+    marginBottom: theme.spacing(4)
   },
   detailsCard: {
     width: '600px',
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(4)
   },
   detailsCardContent: {
     padding: theme.spacing(3)
+  },
+  detailsCardHeader: {
+    fontSize: 17,
+    marginBottom: theme.spacing(2)
   },
   actionsButtonsRow: {
     display: 'flex',
@@ -120,7 +125,7 @@ export default function Microcontroller() {
         </div>
 
         {/* Actions buttons */}
-        <Divider />
+        <Divider  style={{marginBottom: '1px'}}/>
           <Paper elevation={0} className={classes.actionsButtonsRow}>
             <Tooltip title="Edit microcontroller">
               <Button>
@@ -155,6 +160,12 @@ function UserDetailCard(props) {
       <Card className={classes.detailsCard} variant="outlined">
         <CardContent className={classes.detailsCardContent}>
           <Grid container>
+            <Grid item xs={12}>
+              <Typography className={classes.detailsCardHeader} color="textSecondary">
+                Owner Info
+              </Typography>
+            </Grid>
+
             <CardDetailRow icon={(<EmailTwoToneIcon />)} name="Email" content={userInfo.Email} />
             <CardDetailRow icon={(<AccountCircleTwoToneIcon />)} name="Full name" content={`${userInfo.FirstName} ${userInfo.LastName || '—'}`} />
             <CardDetailRow icon={(<WcTwoToneIcon />)} name="Gender" content={userInfo.Gender} />
@@ -174,6 +185,12 @@ function MicrocontrollerDetailCard(props) {
     <Card className={classes.detailsCard} variant="outlined">
       <CardContent className={classes.detailsCardContent}>
         <Grid container>
+          <Grid item xs={12}>
+            <Typography className={classes.detailsCardHeader} color="textSecondary">
+              Microcontroller Info
+            </Typography>
+          </Grid>
+
           <CardDetailRow icon={(<DnsTwoToneIcon />)} name="IP" content={microcontroller.IPAddress} />
           <CardDetailRow icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-US", dateTimeOptions)} />
           <CardDetailRow icon={(<LocationOnTwoToneIcon />)} name="Position" content={(<span><b>lat:</b> {microcontroller.Latitude || '—'} <b>long:</b> {microcontroller.Longitude || '—'}</span>)} />
