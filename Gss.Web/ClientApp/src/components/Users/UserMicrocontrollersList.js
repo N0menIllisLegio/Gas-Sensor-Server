@@ -106,7 +106,9 @@ export default function UserMicrocontrollersList(props) {
             </FormControl>
           </div>
           <div className={classes.root}>
-            <MicrocontrollersCardsList microcontrollers={microcontrollers} classes={classes} />
+            { microcontrollers && microcontrollers.map(microcontroller => (
+              <MicrocontrollersDetailCard key={microcontroller.ID} classes={classes} microcontroller={microcontroller} />
+            ))}
           </div>
         </div>
       )}
@@ -114,12 +116,14 @@ export default function UserMicrocontrollersList(props) {
   );
 }
 
-function MicrocontrollersCardsList(props) {
+function MicrocontrollersDetailCard(props) {
   const classes = props.classes;
-  
-  return props.microcontrollers && props.microcontrollers.map(microcontroller => (
-    <Link to={`/microcontroller/${microcontroller.ID}`} key={microcontroller.ID} style={{ textDecoration: 'none' }}>
-      <Card className={classes.card}>
+  const microcontroller = props.microcontroller;
+  const [ cardRaised, setCardRaised ] = useState(false);
+
+  return (
+    <Link to={`/microcontroller/${microcontroller.ID}`} style={{ textDecoration: 'none' }}>
+      <Card className={classes.card} raised={cardRaised} onMouseEnter={() => setCardRaised(true)} onMouseLeave={() => setCardRaised(false)}>
         <CardContent>
           <Grid container>
             <Grid item xs={12}>
@@ -136,7 +140,7 @@ function MicrocontrollersCardsList(props) {
         </CardContent>
       </Card>
     </Link>
-  ));
+  );
 }
 
 function MicrocontrollerDetail(props) {
