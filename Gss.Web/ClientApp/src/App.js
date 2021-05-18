@@ -17,6 +17,7 @@ import { useDispatch } from 'react-redux'
 import { initialize } from './redux/reducers/authSlice';
 import SignUp from './components/SignUp';
 import { Initialize } from './requests/Requests';
+import Microcontroller from './components/Microcontrollers/Microcontroller';
 
 export const theme = createMuiTheme({
   palette: {
@@ -88,6 +89,9 @@ export default function App() {
                 {/* Details */}
                 <Route path="/user/:id">
                   <User />
+                </Route>
+                <Route path="/microcontroller/:id">
+                  <Microcontroller />
                 </Route>
               </Switch>
           </main>
