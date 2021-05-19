@@ -2,13 +2,12 @@ import { useParams } from 'react-router-dom';
 import { Map, Marker } from 'pigeon-maps';
 import useGet from '../../hooks/useGet';
 import Progress from '../Progress';
-import { Grid, IconButton, Typography } from '@material-ui/core';
+import { Avatar, Grid, IconButton, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '@fontsource/roboto/300.css';
 import Divider from '@material-ui/core/Divider';
 import RouterTwoToneIcon from '@material-ui/icons/RouterTwoTone';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import DnsTwoToneIcon from '@material-ui/icons/DnsTwoTone';
@@ -28,6 +27,11 @@ import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
 import DeleteForeverTwoToneIcon from '@material-ui/icons/DeleteForeverTwoTone';
 import DescriptionTwoToneIcon from '@material-ui/icons/DescriptionTwoTone';
 import Tooltip from '@material-ui/core/Tooltip';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SensorsDataChart from './SensorsDataChart';
 
 const useStyles = makeStyles((theme) => ({
   map: {
@@ -88,12 +92,19 @@ export default function Microcontroller() {
   const { id } = useParams();
   const { data: microcontroller, isPending, errors } = useGet(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetMicrocontroller/${id}`);
   const [ userInfo, setUserInfo ] = useState(null);
+  const [ expanded, setExpanded ] = useState(false);
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   useEffect(() => {
     if (microcontroller != null) {
       setUserInfo(microcontroller.UserInfo);
     }
-  }, [microcontroller])
+  }, [microcontroller]);
+
+  console.log(microcontroller);
 
   return (<div>
     { isPending && <Progress /> }
@@ -145,10 +156,64 @@ export default function Microcontroller() {
           </Paper>
         <Divider className={classes.divider} />
 
+        {/* Sensors */}
+        { microcontroller.Sensors && microcontroller.Sensors.map((sensor) => (
+          <SensorsAccordion key={sensor.ID} sensor={sensor} handleChange={handleAccordionChange} expanded={expanded}/>
+        ))}
       </div>
     )}
   </div>
   )
+}
+
+const useAccordionStyles = makeStyles((theme) => ({
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%'
+  },
+  avatar: {
+    marginRight: theme.spacing(2)
+  },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    flexBasis: '33.33%',
+    flexShrink: 0,
+  },
+  secondaryHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    color: theme.palette.text.secondary,
+  },
+  details: {
+    flexDirection: 'column'
+  }
+}));
+
+function SensorsAccordion(props) {
+  const classes = useAccordionStyles();
+  const sensor = props.sensor;
+  const sensorType = sensor.SensorType;
+
+  return (
+    <Accordion expanded={props.expanded === sensor.ID} onChange={props.handleChange(sensor.ID)}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <div className={classes.header}>
+          <Avatar src={sensorType.Icon} className={classes.avatar}>{sensorType.Units}</Avatar>
+          <Typography className={classes.heading}>{sensor.Name}</Typography>
+          <Typography className={classes.secondaryHeading}>{sensorType.Name}</Typography>
+        </div>
+      </AccordionSummary>
+      <AccordionDetails className={classes.details}>
+        {sensor.Description && (
+          <Typography>
+            {sensor.Description}
+          </Typography>
+        )}
+        
+        {props.expanded === sensor.ID && (<SensorsDataChart id={sensor.ID} />)}
+      </AccordionDetails>
+    </Accordion>
+  );
 }
 
 function UserDetailCard(props) {
