@@ -229,7 +229,7 @@ export default function SensorType(props) {
           </Button>
         )}
 
-        <Button onClick={handleClose} color="secondary" disabled={isPending}>
+        <Button onClick={handleClose} disabled={isPending}>
           Cancel
         </Button>
         <Button onClick={handleSave} color="primary" disabled={isPending}>
