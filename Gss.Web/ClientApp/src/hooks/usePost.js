@@ -87,20 +87,25 @@ export function useSensorDataPost(url, microcontrollerID, sensorID, period, watc
           WatchingDates: watchingDates
         })
       });
+
+    if (watchingDates == null || watchingDates.length == 0) {
+      setIsPending(false);
+    } else {
     
-    MakeAuthorizedRequest(postRequestFactory, user)
-      .then(response => {
-        if (response.status === 200) {
-          setData(response.data);
-          setError(null);
-        } else if (response.errors[0] === 'AbortError') {
-          console.log(`Fetch from ${url} aborted.`);
-        } else {
-          setError(response.errors);
-        }
-      
-        setIsPending(false);
-      });
+      MakeAuthorizedRequest(postRequestFactory, user)
+        .then(response => {
+          if (response.status === 200) {
+            setData(response.data);
+            setError(null);
+          } else if (response.errors[0] === 'AbortError') {
+            console.log(`Fetch from ${url} aborted.`);
+          } else {
+            setError(response.errors);
+          }
+        
+          setIsPending(false);
+        });
+    }
 
     return () => abortCont.abort();
   }, [url, user, microcontrollerID, sensorID, period, watchingDates]);
