@@ -123,6 +123,9 @@
   <data name="AzureUploadFailedErrorString" xml:space="preserve">
     <value>Failed to upload image to cloud.</value>
   </data>
+  <data name="BadRequestErrorString" xml:space="preserve">
+    <value>Invalid input data.</value>
+  </data>
   <data name="CreationFailedErrorString" xml:space="preserve">
     <value>{0} creation failed.</value>
   </data>

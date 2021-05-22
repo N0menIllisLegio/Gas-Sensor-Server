@@ -79,6 +79,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid input data..
+        /// </summary>
+        public static string BadRequestErrorString {
+            get {
+                return ResourceManager.GetString("BadRequestErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} creation failed..
         /// </summary>
         public static string CreationFailedErrorString {
