@@ -1,5 +1,5 @@
-import { Button, Chip, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
-import { AreaChart, Area, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Button, Chip, FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import { AreaChart, Area, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { makeStyles } from '@material-ui/core/styles';
 import { useEffect, useState } from 'react';
 import DateFnsUtils from '@date-io/date-fns';
@@ -71,7 +71,7 @@ export default function SensorsDataChart(props) {
       processedSensorData = processedSensorData.sort((d1, d2) => d1.RawValueReadTime - d2.RawValueReadTime);
       setData(processedSensorData);
     }
-  }, [sensorData])
+  }, [sensorData, period])
   
   return (
     <div>
@@ -211,6 +211,8 @@ function currentValueReadTimeRetrieverPicker(period) {
       return currentValueReadMonth;
     case 'Year':
       return currentValueReadYear;
+    default:
+        throw period;
   }
 }
 

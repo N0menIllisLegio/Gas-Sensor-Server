@@ -32,6 +32,11 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SensorsDataChart from './SensorsDataChart';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../redux/reducers/authSlice';
+import { useHistory } from 'react-router-dom'
+import { MakeAuthorizedRequest, DeleteRequest } from '../../requests/Requests';
+import FormErrors from '../FormErrors';
 
 const useStyles = makeStyles((theme) => ({
   map: {
@@ -73,6 +78,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     width: '100%',
     justifyContent: 'center'
+  },
+  errorsRoot: {
+    margin: theme.spacing(2),
+    display: 'flex',
+    justifyContent: 'center'
   }
 }));
 
@@ -89,14 +99,37 @@ const dateTimeOptions = {
 
 export default function Microcontroller() {
   const classes = useStyles();
+  const history = useHistory();
   const { id } = useParams();
-  const { data: microcontroller, isPending, errors } = useGet(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetMicrocontroller/${id}`);
+  const { data: microcontroller, isPending } = useGet(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetMicrocontroller/${id}`);
   const [ userInfo, setUserInfo ] = useState(null);
   const [ expanded, setExpanded ] = useState(false);
+
+  const [serverErrors, setServerErrors] = useState(null);
+  const user = useSelector(selectUser);
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
+
+  const handleMicrocontrollerDeletion = async () => {
+    const deleteMicrocontrollerRequestFactory = (token) =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/Delete/${id}`, token);
+  
+    const response = await MakeAuthorizedRequest(deleteMicrocontrollerRequestFactory, user);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setServerErrors(response.errors);
+      }
+    } else {
+      history.push(`/user/${user.UserID}`);
+    }
+  }
 
   useEffect(() => {
     if (microcontroller != null) {
@@ -144,7 +177,7 @@ export default function Microcontroller() {
               </Button>
             </Tooltip>
             <Tooltip title="Delete microcontroller" style={{marginLeft: '16px', marginRight: '16px'}}>
-              <Button>
+              <Button onClick={handleMicrocontrollerDeletion}>
                 <DeleteForeverTwoToneIcon fontSize="large" />
               </Button>
             </Tooltip>
@@ -155,6 +188,12 @@ export default function Microcontroller() {
             </Tooltip>
           </Paper>
         <Divider className={classes.divider} />
+
+        {serverErrors && (
+          <div className={classes.errorsRoot}>
+            <FormErrors errors={serverErrors} />
+          </div>
+        )}
 
         {/* Sensors */}
         { microcontroller.Sensors && microcontroller.Sensors.map((sensor) => (

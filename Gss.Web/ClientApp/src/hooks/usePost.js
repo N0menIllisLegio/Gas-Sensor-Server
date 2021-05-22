@@ -88,7 +88,7 @@ export function useSensorDataPost(url, microcontrollerID, sensorID, period, watc
         })
       });
 
-    if (watchingDates == null || watchingDates.length == 0) {
+    if (watchingDates == null || watchingDates.length === 0) {
       setIsPending(false);
     } else {
     
