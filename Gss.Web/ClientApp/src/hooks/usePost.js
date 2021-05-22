@@ -63,3 +63,47 @@ export function usePagedPost(url, pageNumber, pageSize,
 
   return { data, isPending, error };
 }
+
+export function useSensorDataPost(url, microcontrollerID, sensorID, period, watchingDates) {
+  const [data, setData] = useState(null);
+  const [isPending, setIsPending] = useState(true);
+  const [error, setError] = useState(null);
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    const abortCont = new AbortController();
+    const postRequestFactory = (token) =>
+      Request(url, {
+        signal: abortCont.signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token ?? ''}`
+        },
+        body: JSON.stringify({
+          MicrocontrollerID: microcontrollerID,
+          SensorID: sensorID,
+          Period: period,
+          WatchingDates: watchingDates
+        })
+      });
+    
+    MakeAuthorizedRequest(postRequestFactory, user)
+      .then(response => {
+        if (response.status === 200) {
+          setData(response.data);
+          setError(null);
+        } else if (response.errors[0] === 'AbortError') {
+          console.log(`Fetch from ${url} aborted.`);
+        } else {
+          setError(response.errors);
+        }
+      
+        setIsPending(false);
+      });
+
+    return () => abortCont.abort();
+  }, [url, user, microcontrollerID, sensorID, period, watchingDates]);
+  
+  return { data, isPending, error };
+}

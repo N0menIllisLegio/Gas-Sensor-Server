@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Map, Marker } from 'pigeon-maps';
 import useGet from '../../hooks/useGet';
 import Progress from '../Progress';
-import { Avatar, Grid, IconButton, Typography } from '@material-ui/core';
+import { Avatar, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '@fontsource/roboto/300.css';
 import Divider from '@material-ui/core/Divider';
@@ -158,7 +158,12 @@ export default function Microcontroller() {
 
         {/* Sensors */}
         { microcontroller.Sensors && microcontroller.Sensors.map((sensor) => (
-          <SensorsAccordion key={sensor.ID} sensor={sensor} handleChange={handleAccordionChange} expanded={expanded}/>
+          <SensorsAccordion
+            key={sensor.ID}
+            microcontrollerID={microcontroller.ID}
+            sensor={sensor}
+            handleChange={handleAccordionChange}
+            expanded={expanded}/>
         ))}
       </div>
     )}
@@ -210,7 +215,7 @@ function SensorsAccordion(props) {
           </Typography>
         )}
         
-        {props.expanded === sensor.ID && (<SensorsDataChart id={sensor.ID} />)}
+        {props.expanded === sensor.ID && (<SensorsDataChart microcontrollerID={props.microcontrollerID} sensor={sensor} />)}
       </AccordionDetails>
     </Accordion>
   );
