@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Gss.Core.DTOs;
@@ -383,7 +381,8 @@ namespace Gss.Core.Services
       return microcontroller;
     }
 
-    public async Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword)
+    public async Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID,
+      string microcontrollerPassword, string ipaddress)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
@@ -398,6 +397,11 @@ namespace Gss.Core.Services
       {
         return null;
       }
+
+      microcontroller.IPAddress = ipaddress;
+      microcontroller.LastResponseTime = DateTime.UtcNow;
+
+      await _unitOfWork.SaveAsync();
 
       return microcontroller;
     }

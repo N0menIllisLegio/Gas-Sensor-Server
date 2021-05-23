@@ -20,6 +20,6 @@ namespace Gss.Core.Interfaces.Services
     Task<MicrocontrollerDto> RemoveSensorAsync(string requestedByEmail, RemoveSensorDto removeSensorDto);
 
     // For connection service
-    Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword);
+    Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress);
   }
 }

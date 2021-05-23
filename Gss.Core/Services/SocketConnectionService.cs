@@ -110,7 +110,8 @@ namespace Gss.Core.Services
           var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
 
           connectedMicrocontroller = await microcontrollersService
-            .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, receivedArguments[2]);
+            .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, receivedArguments[2],
+              socket.RemoteEndPoint.ToString());
         }
 
         if (connectedMicrocontroller is null)
