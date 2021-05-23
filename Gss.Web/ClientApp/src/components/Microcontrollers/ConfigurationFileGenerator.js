@@ -6,13 +6,14 @@ import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom';
 import FormErrors from '../FormErrors';
 import '@fontsource/roboto/300.css';
-import { Button, ButtonGroup, Divider, FormControl, Grid, InputLabel, MenuItem, TextField, Tooltip, Typography } from '@material-ui/core';
+import { Button, ButtonGroup, Divider, FormControl, Grid, InputLabel, MenuItem, Snackbar, TextField, Tooltip, Typography } from '@material-ui/core';
 import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
 import { makeStyles } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import Select from '@material-ui/core/Select';
 import FileCopyTwoToneIcon from '@material-ui/icons/FileCopyTwoTone';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ipRegex = /^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
@@ -46,6 +47,7 @@ export default function ConfigurationFileGenerator() {
   const user = useSelector(selectUser);
   const history = useHistory();
   const [serverErrors, setServerErrors] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const [ date, setDate ] = useState(new Date());
   const [ writeSDPeriodSeconds, setWriteSDPeriodSeconds ] = useState(60);
@@ -167,6 +169,14 @@ export default function ConfigurationFileGenerator() {
     }
  
     return { error: false, errorMessage: secondsToString(number) };
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenSnackbar(false);
   };
 
   return (
@@ -328,19 +338,26 @@ export default function ConfigurationFileGenerator() {
             <Grid item xs={12} className={classes.buttons}>
               <ButtonGroup color="primary">
                 <Tooltip title="Copy to clipboard">
-                  <Button onClick={() => navigator.clipboard.writeText(configText)}><FileCopyTwoToneIcon /></Button>
+                  <Button onClick={() => {
+                    navigator.clipboard.writeText(configText);
+                    setOpenSnackbar(true);
+                  }}><FileCopyTwoToneIcon /></Button>
                 </Tooltip>
                 <Button onClick={() => download('config.txt', configText)}>Download config file</Button>
               </ButtonGroup>
             </Grid>
-
           </Grid>
-          
         </Grid>
-
       </Grid>
 
       {serverErrors && (<FormErrors errors={serverErrors} />)}
+
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <MuiAlert elevation={6} variant="filled" onClose={handleSnackbarClose} severity="info">
+          Config file content copied to clipboard!
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
 }
