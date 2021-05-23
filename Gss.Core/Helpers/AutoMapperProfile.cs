@@ -40,8 +40,10 @@ namespace Gss.Core.Helpers
       CreateMap<Microcontroller, MicrocontrollerDto>()
         .ForMember(dest => dest.Sensors, opt => opt.MapFrom(src => src.MicrocontrollerSensors.Select(s => s.Sensor).ToList()))
         .ForMember(dest => dest.UserInfo, opt => opt.MapFrom(src => src.Owner));
-      CreateMap<CreateMicrocontrollerDto, Microcontroller>();
-      CreateMap<UpdateMicrocontrollerDto, Microcontroller>();
+      CreateMap<CreateMicrocontrollerDto, Microcontroller>()
+        .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
+      CreateMap<UpdateMicrocontrollerDto, Microcontroller>()
+        .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
     }
   }
 }

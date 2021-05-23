@@ -36,16 +36,5 @@ namespace Gss.Core.Entities
     public virtual User Owner { get; set; }
 
     public virtual IList<MicrocontrollerSensors> MicrocontrollerSensors { get; set; }
-
-    // ----- NOT IN DB
-
-    public SensorData TryParseData(string data)
-    {
-      return null;
-    }
-
-    public void LeaveConversationRequest()
-    {
-    }
   }
 }
