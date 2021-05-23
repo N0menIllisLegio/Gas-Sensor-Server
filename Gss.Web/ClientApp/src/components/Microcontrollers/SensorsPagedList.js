@@ -96,7 +96,7 @@ export default function SensorsPagedList(props) {
                 color="primary"
                 disableElevation
                 size="large"
-                disabled={!props.addSensorButtonEnabled}
+                disabled={!props.addSensorButtonEnabled || !selectedSensor}
                 className={classes.button}
                 onClick={() => props.handleSensorClick(selectedSensor)}
                 style={{width: '100%'}}>Add Sensor</Button>
