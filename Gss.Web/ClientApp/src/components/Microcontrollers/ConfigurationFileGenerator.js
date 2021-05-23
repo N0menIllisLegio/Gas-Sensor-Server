@@ -91,7 +91,7 @@ export default function ConfigurationFileGenerator() {
         }
       });
     }
-  }, [ _microcontrollerID, user ]);
+  }, [ _microcontrollerID, user, history ]);
 
   useEffect(() => {
     if (user != null) {
@@ -181,7 +181,6 @@ export default function ConfigurationFileGenerator() {
 
   return (
     <div>
-      {/* Name */}
       <Typography className={classes.title} variant="h3">
         <SettingsTwoToneIcon fontSize="large" className={classes.titleIcon}/>
         Configuration File Generator
@@ -329,6 +328,12 @@ export default function ConfigurationFileGenerator() {
                 onChange={(e) => setConfigText(e.target.value)} />
             </Grid>
 
+            {serverErrors && (
+              <Grid item xs={12}>
+                <FormErrors errors={serverErrors} />
+              </Grid>
+            )}
+
             <Grid item xs={12}>
               <Typography variant="caption">
                 This file needs to be saved in microSD's root directory.
@@ -349,8 +354,6 @@ export default function ConfigurationFileGenerator() {
           </Grid>
         </Grid>
       </Grid>
-
-      {serverErrors && (<FormErrors errors={serverErrors} />)}
 
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
