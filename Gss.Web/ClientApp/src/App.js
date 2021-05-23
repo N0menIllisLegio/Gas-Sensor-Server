@@ -19,6 +19,7 @@ import SignUp from './components/SignUp';
 import { Initialize } from './requests/Requests';
 import Microcontroller from './components/Microcontrollers/Microcontroller';
 import ConfigurationFileGenerator from './components/Microcontrollers/ConfigurationFileGenerator';
+import EditMicrocontroller from './components/Microcontrollers/EditMicrocontroller';
 
 export const theme = createMuiTheme({
   palette: {
@@ -88,15 +89,19 @@ export default function App() {
                 </Route>
 
                 {/* Details */}
-                <Route path="/user/:id">
+                <Route exact path="/user/:id">
                   <User />
                 </Route>
-                <Route path="/microcontroller/:id">
+                <Route exact path="/microcontroller/:id">
                   <Microcontroller />
                 </Route>
 
-                <Route path="/configFileGenerator/:microcontrollerID?">
+                <Route exact path="/configFileGenerator/:microcontrollerID?">
                   <ConfigurationFileGenerator />
+                </Route>
+
+                <Route exact path="/edit/microcontroller/:id?">
+                  <EditMicrocontroller />
                 </Route>
               </Switch>
           </main>

@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import useGet from '../../hooks/useGet';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import UserDetailsCard from './UserDetailsCard';
 import UserMicrocontrollersList from './UserMicrocontrollersList';
 import { useState, useEffect } from 'react';
@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function User() {
   const classes = useStyles();
+  const history = useHistory();
   const { id } = useParams();
   const [ isEditingUserInfo, setIsEditingUserInfo ] = useState(false);
   const [userDetailsChanged, setUserDetailsChanged] = useState(false);
@@ -50,7 +51,7 @@ export default function User() {
       <div className={classes.rightColumn}>
         <UserMicrocontrollersList userID={id} />
       </div>
-      <AddButton/>
+      <AddButton handleClick={() => history.push('/edit/microcontroller')}/>
     </div>
   );
 }

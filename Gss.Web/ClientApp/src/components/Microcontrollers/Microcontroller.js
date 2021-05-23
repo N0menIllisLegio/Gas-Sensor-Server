@@ -172,7 +172,7 @@ export default function Microcontroller() {
         <Divider  style={{marginBottom: '1px'}}/>
           <Paper elevation={0} className={classes.actionsButtonsRow}>
             <Tooltip title="Edit microcontroller">
-              <Button>
+              <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
                 <EditTwoToneIcon fontSize="large" />
               </Button>
             </Tooltip>

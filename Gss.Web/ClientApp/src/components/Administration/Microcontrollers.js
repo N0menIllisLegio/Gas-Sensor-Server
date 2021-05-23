@@ -49,7 +49,7 @@ export default function Users() {
   return (
     <div>
       <PagedTable columns={columns} url={'api/Microcontrollers/GetAllMicrocontrollers'} detailsUrl={'/microcontroller/'} />
-      <AddButton handleClick={() => history.push('/microcontroller/create')} />
+      <AddButton handleClick={() => history.push('/edit/microcontroller')} />
     </div>
   );
 }
