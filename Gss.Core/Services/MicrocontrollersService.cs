@@ -118,6 +118,12 @@ namespace Gss.Core.Services
     public async Task<MicrocontrollerDto> AddMicrocontrollerAsync(string requestedByEmail,
       CreateMicrocontrollerDto createMicrocontrollerDto)
     {
+      if (createMicrocontrollerDto is null
+        || createMicrocontrollerDto.SensorIDs?.Count > 5)
+      {
+        throw new AppException(Messages.BadRequestErrorString, HttpStatusCode.BadRequest);
+      }
+
       var user = await _userManager.FindByEmailAsync(requestedByEmail);
 
       if (user is null)
@@ -129,6 +135,23 @@ namespace Gss.Core.Services
       var microcontroller = _mapper.Map<Microcontroller>(createMicrocontrollerDto);
       microcontroller.Owner = user;
       microcontroller = _unitOfWork.Microcontrollers.Add(microcontroller);
+
+      if (createMicrocontrollerDto.SensorIDs is not null
+        && createMicrocontrollerDto.SensorIDs.Count > 0)
+      {
+        var sensors = await _unitOfWork.Sensors.GetAllByWhereAsync(
+          sensor => createMicrocontrollerDto.SensorIDs.Contains(sensor.Id));
+
+        if (sensors.Count > 0)
+        {
+          microcontroller.MicrocontrollerSensors = sensors.Select(sensor =>
+            new MicrocontrollerSensors
+            {
+              Microcontroller = microcontroller,
+              Sensor = sensor
+            }).ToList();
+        }
+      }
 
       bool success = await _unitOfWork.SaveAsync();
 
@@ -144,6 +167,12 @@ namespace Gss.Core.Services
     public async Task<MicrocontrollerDto> UpdateMicrocontrollerAsync(string requestedByEmail, Guid microcontrollerID,
       UpdateMicrocontrollerDto updateMicrocontrollerDto)
     {
+      if (updateMicrocontrollerDto is null
+        || updateMicrocontrollerDto.SensorIDs?.Count > 5)
+      {
+        throw new AppException(Messages.BadRequestErrorString, HttpStatusCode.BadRequest);
+      }
+
       var microcontroller = await TryGetMicrocontroller(microcontrollerID, requestedByEmail);
 
       if (microcontroller is null)
@@ -153,6 +182,37 @@ namespace Gss.Core.Services
       }
 
       _mapper.Map(updateMicrocontrollerDto, microcontroller);
+
+      if (updateMicrocontrollerDto.SensorIDs is not null
+        && updateMicrocontrollerDto.SensorIDs.Count > 0)
+      {
+        var newSensors = await _unitOfWork.Sensors.GetAllByWhereAsync(
+          sensor => updateMicrocontrollerDto.SensorIDs.Contains(sensor.Id));
+
+        foreach (var currentSensor in microcontroller.MicrocontrollerSensors.ToArray())
+        {
+          var newSensor = newSensors.FirstOrDefault(sensor => sensor.Id == currentSensor.SensorID);
+
+          if (newSensor is null)
+          {
+            microcontroller.MicrocontrollerSensors.Remove(currentSensor);
+          }
+          else
+          {
+            newSensors.Remove(newSensor);
+          }
+        }
+
+        if (newSensors.Count > 0)
+        {
+          newSensors.ForEach(sensor => microcontroller.MicrocontrollerSensors.Add(
+            new MicrocontrollerSensors
+            {
+              Microcontroller = microcontroller,
+              Sensor = sensor
+            }));
+        }
+      }
 
       bool success = await _unitOfWork.SaveAsync();
 
@@ -227,6 +287,11 @@ namespace Gss.Core.Services
       {
         throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
           HttpStatusCode.NotFound);
+      }
+
+      if (microcontroller.MicrocontrollerSensors.Count > 5)
+      {
+        throw new AppException(Messages.BadRequestErrorString, HttpStatusCode.BadRequest);
       }
 
       var sensor = await _unitOfWork.Sensors.FindAsync(dto.SensorID);
