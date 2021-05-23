@@ -34,7 +34,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SensorsDataChart from './SensorsDataChart';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../redux/reducers/authSlice';
-import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom';
 import { MakeAuthorizedRequest, DeleteRequest } from '../../requests/Requests';
 import FormErrors from '../FormErrors';
 
@@ -182,7 +182,7 @@ export default function Microcontroller() {
               </Button>
             </Tooltip>
             <Tooltip title="Generate configuration file">
-              <Button>
+              <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
                 <DescriptionTwoToneIcon fontSize="large" />
               </Button>
             </Tooltip>

@@ -18,6 +18,7 @@ import { initialize } from './redux/reducers/authSlice';
 import SignUp from './components/SignUp';
 import { Initialize } from './requests/Requests';
 import Microcontroller from './components/Microcontrollers/Microcontroller';
+import ConfigurationFileGenerator from './components/Microcontrollers/ConfigurationFileGenerator';
 
 export const theme = createMuiTheme({
   palette: {
@@ -92,6 +93,10 @@ export default function App() {
                 </Route>
                 <Route path="/microcontroller/:id">
                   <Microcontroller />
+                </Route>
+
+                <Route path="/configFileGenerator/:microcontrollerID?">
+                  <ConfigurationFileGenerator />
                 </Route>
               </Switch>
           </main>

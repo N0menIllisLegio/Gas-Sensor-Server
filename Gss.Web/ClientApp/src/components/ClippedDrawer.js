@@ -16,6 +16,7 @@ import AccountTreeTwoToneIcon from '@material-ui/icons/AccountTreeTwoTone';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../redux/reducers/authSlice';
 import { useState, useEffect } from 'react';
+import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
 
 const drawerWidth = '17vw';
 
@@ -33,6 +34,11 @@ const useStyles = makeStyles((theme) => ({
   link: {
     color: 'inherit',
     textDecoration: 'none',
+  },
+  text: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   }
 }));
 
@@ -53,38 +59,45 @@ export default function ClippedDrawer() {
         <Toolbar />
         <div className={classes.drawerContainer}>
           <List>
-            <Link to="/" key="123" className={classes.link}>
+            <Link to="/" key="Main" className={classes.link}>
               <ListItem button>
                 <ListItemIcon><InboxIcon /></ListItemIcon>
-                <ListItemText primary="Main" />
+                <ListItemText primary="Main" className={classes.text} />
+              </ListItem>
+            </Link>
+            <Link to="/configFileGenerator" key="Config file" className={classes.link}>
+              <ListItem button>
+                <ListItemIcon><SettingsTwoToneIcon /></ListItemIcon>
+                <ListItemText primary="Config file generator" className={classes.text} />
               </ListItem>
             </Link>
           </List>
-          <Divider />
 
+          <Divider />
+          
           <List hidden={!displayAdminPanel}>
             <Link to="/users" key="users" className={classes.link}>
               <ListItem button>
                 <ListItemIcon><PeopleAltTwoToneIcon /></ListItemIcon>
-                <ListItemText primary="Users" />
+                <ListItemText primary="Users" className={classes.text} />
               </ListItem>
             </Link>
             <Link to="/microcontrollers" key="microcontrollers" className={classes.link}>
               <ListItem button>
                 <ListItemIcon><RouterTwoToneIcon /></ListItemIcon>
-                <ListItemText primary="Microcontrollers" />
+                <ListItemText primary="Microcontrollers" className={classes.text} />
               </ListItem>
             </Link>
             <Link to="/sensors" key="sensors" className={classes.link}>
               <ListItem button>
                 <ListItemIcon><MemoryTwoToneIcon /></ListItemIcon>
-                <ListItemText primary="Sensors" />
+                <ListItemText primary="Sensors" className={classes.text} />
               </ListItem>
             </Link>
             <Link to="/sensorTypes" key="sensorTypes" className={classes.link}>
               <ListItem button>
                 <ListItemIcon><AccountTreeTwoToneIcon /></ListItemIcon>
-                <ListItemText primary="Sensor Types" />
+                <ListItemText primary="Sensor Types" className={classes.text} />
               </ListItem>
             </Link>
           </List>
