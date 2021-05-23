@@ -85,7 +85,7 @@ export default function ConfigurationFileGenerator() {
         } else {
           setMicrocontrollerID(response.data.ID);
           setOwnerID(response.data.UserInfo.ID);
-          setSensorID(response.data.Sensors[0]?.ID);
+          setSensorID(response.data.Sensors[0]?.ID ?? '');
 
           console.log(response);
         }
