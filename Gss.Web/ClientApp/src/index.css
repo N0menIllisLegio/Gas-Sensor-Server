@@ -9,6 +9,7 @@ Not supports in Firefox and IE */
 *::-webkit-scrollbar {
   background-color: inherit;
   width: 8px;
+  height: 8px;
 }
 
 /* background of the scrollbar except button or resizer */
