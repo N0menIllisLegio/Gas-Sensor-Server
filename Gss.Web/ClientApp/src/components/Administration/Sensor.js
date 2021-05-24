@@ -238,7 +238,9 @@ export default function Sensor(props) {
               margin="dense"
               label="Sensor's Type"
               fullWidth
-              disabled
+              InputProps={{
+                readOnly: true,
+              }}
               error={isSensorTypeError}
               helperText={sensorTypeError} />
           </Grid>
