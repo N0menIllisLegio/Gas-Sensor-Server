@@ -50,6 +50,7 @@ export default function UserBadge() {
   };
 
   const handleLogout = () => {
+    handleClose();
     dispatch(logout());
     history.push('/');
   };
@@ -77,7 +78,13 @@ export default function UserBadge() {
 
   return userName ? (
       <div>
-        <Button aria-haspopup="true" variant="contained" color="primary" onClick={handleClick} disableElevation>
+        <Button
+          className={classes.button}
+          aria-haspopup="true"
+          variant="contained"
+          color="primary"
+          onClick={handleClick}
+          disableElevation>
           <Avatar src={userAvatarSrc} className={classes.avatar}/>
           <Typography className={classes.name}>{userName}</Typography>
         </Button>
@@ -90,7 +97,10 @@ export default function UserBadge() {
           keepMounted
           open={Boolean(anchorElement)}
           onClose={handleClose}>
-          <MenuItem onClick={() => history.push(`/user/${user.UserID}`)}>Profile</MenuItem>
+          <MenuItem onClick={() => {
+            history.push(`/user/${user.UserID}`);
+            handleClose();
+          }}>Profile</MenuItem>
           <MenuItem onClick={handleLogout} className={classes.logout}>Logout</MenuItem>
         </Menu>
       </div>
