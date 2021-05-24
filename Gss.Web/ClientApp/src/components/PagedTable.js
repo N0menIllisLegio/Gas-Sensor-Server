@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
+  },
+  tableWrapper: {
+
   }
 }));
 
@@ -83,7 +86,12 @@ export default function PagedTable(props) {
               </FormControl>
             </div>
 
-            <div style={{ height: props.tableHeight != null ? props.tableHeight : '80vh', width: '100%', cursor: 'pointer' }}>
+            <div style={{
+              height: props.tableHeight != null ? props.tableHeight : '80vh',
+              width: '100%',
+              cursor: 'pointer',
+              background: 'white'
+            }}>
               <DataGrid
                 disableColumnMenu
                 hideFooter

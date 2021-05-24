@@ -20,6 +20,8 @@ import { Initialize } from './requests/Requests';
 import Microcontroller from './components/Microcontrollers/Microcontroller';
 import ConfigurationFileGenerator from './components/Microcontrollers/ConfigurationFileGenerator';
 import EditMicrocontroller from './components/Microcontrollers/EditMicrocontroller';
+import MicrocontrollersMap from './components/MicrocontrollersMap';
+import MicrocontrollersPublicTable from './components/MicrocontrollersPublicTable';
 
 const mainContentPadding = 3;
 const mainContentMarginTop = 8;
@@ -75,7 +77,11 @@ export default function App() {
           <main className={classes.content}>
             <Switch>
               <Route exact path="/">
-                <Dashboard />
+                <MicrocontrollersMap />
+              </Route>
+
+              <Route path="/public/microcontrollers">
+                <MicrocontrollersPublicTable />
               </Route>
 
               {/* Auth */}

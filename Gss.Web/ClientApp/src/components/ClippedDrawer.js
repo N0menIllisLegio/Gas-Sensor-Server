@@ -17,6 +17,8 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../redux/reducers/authSlice';
 import { useState, useEffect } from 'react';
 import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
+import MapTwoToneIcon from '@material-ui/icons/MapTwoTone';
+import NotesTwoToneIcon from '@material-ui/icons/NotesTwoTone';
 
 const drawerWidth = '17vw';
 
@@ -59,10 +61,16 @@ export default function ClippedDrawer() {
         <Toolbar />
         <div className={classes.drawerContainer}>
           <List>
-            <Link to="/" key="Main" className={classes.link}>
+            <Link to="/" key="Map" className={classes.link}>
               <ListItem button>
-                <ListItemIcon><InboxIcon /></ListItemIcon>
-                <ListItemText primary="Main" className={classes.text} />
+                <ListItemIcon><MapTwoToneIcon /></ListItemIcon>
+                <ListItemText primary="Map" className={classes.text} />
+              </ListItem>
+            </Link>
+            <Link to="/public/microcontrollers" key="Public MCs" className={classes.link}>
+              <ListItem button>
+                <ListItemIcon><NotesTwoToneIcon /></ListItemIcon>
+                <ListItemText primary="Public microcontrollers" className={classes.text} />
               </ListItem>
             </Link>
             <Link to="/configFileGenerator" key="Config file" className={classes.link}>

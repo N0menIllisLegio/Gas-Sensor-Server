@@ -112,3 +112,52 @@ export function useSensorDataPost(url, microcontrollerID, sensorID, period, watc
   
   return { data, isPending, error };
 }
+
+export function useVisibleMicrocontrollers(url, neLat, neLong, swLat, swLong) {
+  const [data, setData] = useState(null);
+  const [isPending, setIsPending] = useState(true);
+  const [error, setError] = useState(null);
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    const abortCont = new AbortController();
+    const postRequestFactory = (token) =>
+      Request(url, {
+        signal: abortCont.signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token ?? ''}`
+        },
+        body: JSON.stringify({
+          SouthWestLatitude: swLat,
+          SouthWestLongitude: swLong,
+          NorthEastLatitude: neLat,
+          NorthEastLongitude: neLong
+        })
+      });
+
+    if (neLat == null || neLong == null || swLat == null || swLong == null) {
+      setIsPending(false);
+    } else {
+    
+      MakeAuthorizedRequest(postRequestFactory, user)
+        .then(response => {
+          if (response.status === 200) {
+            setData(response.data);
+            setError(null);
+          } else if (response.errors[0] === 'AbortError') {
+            console.log(`Fetch from ${url} aborted.`);
+          } else {
+            setError(response.errors);
+          }
+        
+          setIsPending(false);
+        });
+    }
+
+    return () => abortCont.abort();
+  }, [url, user, neLat, neLong, swLat, swLong]);
+  
+  return { data, isPending, error };
+}

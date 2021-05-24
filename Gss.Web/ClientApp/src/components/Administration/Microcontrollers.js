@@ -8,7 +8,7 @@ const dateTimeOptions = {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
-  weekday: 'long',
+  weekday: 'short',
   hour: 'numeric',
   minute: 'numeric',
   second: 'numeric',
@@ -17,12 +17,12 @@ const dateTimeOptions = {
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
-  { field: 'Name', headerName: 'Name', flex: 1 },
-  { field: 'IPAddress', headerName: 'IP', flex: 1 },
-  { field: 'LastResponseTime', headerName: 'LRT', flex: 1, type: 'dateTime', description: 'Last Response Time', valueFormatter: (params) => new Date(params.value).toLocaleString("en-US", dateTimeOptions) },
-  { field: 'Public', headerName: 'Public', flex: 0.2, type: 'boolean' },
-  { field: 'Sensors', headerName: 'Sensors Connected', flex: 0.4, valueFormatter: (params) => params.value.length, type: 'number', sortComparator: (v1, v2, cellParams1, cellParams2) => v1.length - v2.length},
-  { field: 'UserInfo', headerName: 'Owner Email', flex: 0.6, align: 'center', headerAlign: 'center',
+  { field: 'Name', headerName: 'Name', flex: 0.8 },
+  { field: 'IPAddress', headerName: 'IP', flex: 0.8 },
+  { field: 'LastResponseTime', headerName: 'LRT', flex: 0.8, type: 'dateTime', description: 'Last Response Time', valueFormatter: (params) => new Date(params.value).toLocaleString("en-US", dateTimeOptions) },
+  { field: 'Public', headerName: 'Public', flex: 0.3, type: 'boolean' },
+  { field: 'Sensors', headerName: 'Sensors Connected', flex: 0.5, valueFormatter: (params) => params.value.length, type: 'number', sortComparator: (v1, v2, cellParams1, cellParams2) => v1.length - v2.length},
+  { field: 'UserInfo', headerName: 'Owner Email', flex: 1, align: 'center', headerAlign: 'center',
     sortComparator: (v1, v2, cellParams1, cellParams2) => {
       if (v1 !== null && v2 !== null) {
         return v1.Email.localeCompare(v2.Email);
@@ -43,7 +43,7 @@ const columns = [
   )}
 ];
 
-export default function Users() {
+export default function Microcontrollers() {
   const history = useHistory();
 
   return (
