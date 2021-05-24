@@ -18,7 +18,8 @@ namespace Gss.Infrastructure.Repositories
     {
       return await DbSet.Where(mc => mc.Latitude.HasValue && mc.Longitude.HasValue
         && mc.Latitude > southWestLatitude && mc.Latitude < northEastLatitude
-        && mc.Longitude > southWestLongitude && mc.Longitude < northEastLongitude)
+        && mc.Longitude > southWestLongitude && mc.Longitude < northEastLongitude
+        && mc.Public)
         .OrderBy(mc => mc.Name)
         .Take(100)
         .ToListAsync();
