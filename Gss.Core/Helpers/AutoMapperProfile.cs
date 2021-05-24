@@ -44,6 +44,9 @@ namespace Gss.Core.Helpers
         .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
       CreateMap<UpdateMicrocontrollerDto, Microcontroller>()
         .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
+
+      CreateMap<Microcontroller, MapMicrocontrollerDto>()
+        .ForMember(dest => dest.MicrocontrollerID, opt => opt.MapFrom(src => src.Id));
     }
   }
 }
