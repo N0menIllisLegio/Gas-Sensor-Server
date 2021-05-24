@@ -12,11 +12,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex'
   },
   rightColumn: {
-    marginLeft: theme.spacing(3) + theme.userDetailsCard.width,
-    width: '100%'
-  },
-  userDetailsCardWrapper: {
-    position: 'fixed'
+    marginLeft: theme.spacing(3),
+    overflow: 'scroll',
+    height: theme.mainContent.height,
+    width: '100%',
+    overflowX: 'hidden',
+    marginRight: -theme.spacing(theme.mainContent.padding)
   }
 }));
 
@@ -39,7 +40,7 @@ export default function User() {
 
   return (
     <div className={classes.root}>
-      <div className={classes.userDetailsCardWrapper} >
+      <div>
         { !userDetailsIsPending && !isEditingUserInfo && <UserDetailsCard user={user} handleEditClick={() => setIsEditingUserInfo(true)} />}
         { !userDetailsIsPending && isEditingUserInfo
           && <UserEdit

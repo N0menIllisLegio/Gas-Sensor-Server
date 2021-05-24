@@ -21,6 +21,9 @@ import Microcontroller from './components/Microcontrollers/Microcontroller';
 import ConfigurationFileGenerator from './components/Microcontrollers/ConfigurationFileGenerator';
 import EditMicrocontroller from './components/Microcontrollers/EditMicrocontroller';
 
+const mainContentPadding = 3;
+const mainContentMarginTop = 8;
+
 export const theme = createMuiTheme({
   palette: {
     primary: teal,
@@ -29,23 +32,33 @@ export const theme = createMuiTheme({
 
   userDetailsCard: {
     width: 500
+  },
+
+  mainContent: {
+    marginTop: mainContentMarginTop,
+    padding: mainContentPadding    
   }
 });
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((them) => ({
   root: {
     display: 'flex',
     flexGrow: 1,
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    marginTop: them.spacing(mainContentMarginTop),
+    paddingTop: them.spacing(mainContentPadding),
+    paddingRight: them.spacing(mainContentPadding),
+    paddingLeft: them.spacing(mainContentPadding),
   },
 }));
 
 export default function App() {
   const classes = useStyles();
   const dispatch = useDispatch();
+
+  theme.mainContent.height = `calc(100vh - (${theme.spacing(mainContentMarginTop)}px + ${theme.spacing(mainContentPadding)}px))`;
 
   useEffect(() => {
     dispatch(initialize());
@@ -60,50 +73,49 @@ export default function App() {
           <Navbar />
           <ClippedDrawer />
           <main className={classes.content}>
-            <Toolbar/>
-              <Switch>
-                <Route exact path="/">
-                  <Dashboard />
-                </Route>
+            <Switch>
+              <Route exact path="/">
+                <Dashboard />
+              </Route>
 
-                {/* Auth */}
-                <Route path="/login">
-                  <Login />
-                </Route>
-                <Route path="/signup">
-                  <SignUp />
-                </Route>
+              {/* Auth */}
+              <Route path="/login">
+                <Login />
+              </Route>
+              <Route path="/signup">
+                <SignUp />
+              </Route>
 
-                {/* Administration catalogs */}
-                <Route path="/users">
-                  <Users />
-                </Route>
-                <Route path="/microcontrollers">
-                  <Microcontrollers />
-                </Route>
-                <Route path="/sensors">
-                  <Sensors />
-                </Route>
-                <Route path="/sensorTypes">
-                  <SensorTypes />
-                </Route>
+              {/* Administration catalogs */}
+              <Route path="/users">
+                <Users />
+              </Route>
+              <Route path="/microcontrollers">
+                <Microcontrollers />
+              </Route>
+              <Route path="/sensors">
+                <Sensors />
+              </Route>
+              <Route path="/sensorTypes">
+                <SensorTypes />
+              </Route>
 
-                {/* Details */}
-                <Route exact path="/user/:id">
-                  <User />
-                </Route>
-                <Route exact path="/microcontroller/:id">
-                  <Microcontroller />
-                </Route>
+              {/* Details */}
+              <Route exact path="/user/:id">
+                <User />
+              </Route>
+              <Route exact path="/microcontroller/:id">
+                <Microcontroller />
+              </Route>
 
-                <Route exact path="/configFileGenerator/:microcontrollerID?">
-                  <ConfigurationFileGenerator />
-                </Route>
+              <Route exact path="/configFileGenerator/:microcontrollerID?">
+                <ConfigurationFileGenerator />
+              </Route>
 
-                <Route exact path="/edit/microcontroller/:id?">
-                  <EditMicrocontroller />
-                </Route>
-              </Switch>
+              <Route exact path="/edit/microcontroller/:id?">
+                <EditMicrocontroller />
+              </Route>
+            </Switch>
           </main>
         </div>
       </Router>
