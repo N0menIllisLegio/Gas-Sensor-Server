@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
@@ -42,6 +43,17 @@ namespace Gss.Web.Controllers
       var pagedResultDto = await _microcontrollerService.GetPublicMicrocontrollersAsync(dto);
 
       return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [SwaggerOperation(Description = "Gets all public microcontrollers. For map.")]
+    [SwaggerResponse(200, type: typeof(Response<List<MapMicrocontrollerDto>>))]
+    public async Task<IActionResult> GetPublicMicrocontrollersMap([FromBody] MapRequestDto dto)
+    {
+      var mapResponse = await _microcontrollerService.GetPublicMicrocontrollersMapAsync(dto);
+
+      return Ok(new Response<List<MapMicrocontrollerDto>>(mapResponse));
     }
 
     [HttpPost("{userID}")]
