@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -37,9 +38,27 @@ namespace Gss.Core.Services
     public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo)
     {
       var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo,
-        microcontroller => new { microcontroller.Id, microcontroller.Name, microcontroller.LastResponseTime }, mc => mc.Public);
+        microcontroller => new { microcontroller.Id, microcontroller.Name, microcontroller.LastResponseTime }, mc => mc.Public,
+        include: query => query.Include(mc => mc.Owner).Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
 
       return pagedResultDto.Convert<MicrocontrollerDto>(_mapper);
+    }
+
+    public async Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto)
+    {
+      if (mapRequestDto is null
+        || mapRequestDto.NorthEastLatitude > 90 || mapRequestDto.NorthEastLatitude < -90
+        || mapRequestDto.SouthWestLatitude > 90 || mapRequestDto.SouthWestLatitude < -90
+        || mapRequestDto.NorthEastLongitude > 180 || mapRequestDto.NorthEastLongitude < -180
+        || mapRequestDto.SouthWestLongitude > 180 || mapRequestDto.SouthWestLongitude < -180)
+      {
+        throw new AppException(Messages.BadRequestErrorString, HttpStatusCode.BadRequest);
+      }
+
+      var visibleMicrocontrollers = await _unitOfWork.Microcontrollers.GetVisibleMicrocontrollers(
+        mapRequestDto.SouthWestLatitude, mapRequestDto.SouthWestLongitude, mapRequestDto.NorthEastLatitude, mapRequestDto.NorthEastLongitude);
+
+      return visibleMicrocontrollers.Select(_mapper.Map<MapMicrocontrollerDto>).ToList();
     }
 
     public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo)
