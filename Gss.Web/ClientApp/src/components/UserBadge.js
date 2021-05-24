@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
   },
   logout: {
     color: theme.palette.secondary.main
+  },
+  button: {
+    height: theme.spacing(theme.mainContent.marginTop)
   }
 }));
 

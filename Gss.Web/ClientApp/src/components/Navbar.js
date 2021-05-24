@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+    height: theme.spacing(theme.mainContent.marginTop)
   },
   link: {
     color: 'inherit',
