@@ -45,7 +45,7 @@ namespace Gss.Web
 
       services.AddDbContext<AppDbContext>(options =>
           options.UseLazyLoadingProxies()
-            .UseSqlServer(Configuration.GetConnectionString("LocalDB"))
+            .UseSqlServer(Configuration.GetConnectionString("AzureDB"))
             .EnableSensitiveDataLogging());
 
       services.AddDefaultIdentity<User>(options =>
