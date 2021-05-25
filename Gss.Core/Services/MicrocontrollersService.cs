@@ -81,7 +81,7 @@ namespace Gss.Core.Services
           HttpStatusCode.NotFound);
       }
 
-      var requestedBy = await _userManager.FindByEmailAsync(requestedByEmail);
+      var requestedBy = requestedByEmail is null ? null : await _userManager.FindByEmailAsync(requestedByEmail);
       bool administratorClaim = await _userManager.IsAdministrator(requestedByEmail);
 
       Expression<Func<Microcontroller, bool>> additionalCriteria = user == requestedBy || administratorClaim
@@ -124,7 +124,6 @@ namespace Gss.Core.Services
         return _mapper.Map<MicrocontrollerDto>(microcontroller, options => options.AfterMap(
           (src, dst) =>
           {
-            dst.Latitude = dst.Longitude = null;
             dst.IPAddress = null;
           }));
       }
