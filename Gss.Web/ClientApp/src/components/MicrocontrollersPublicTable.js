@@ -23,6 +23,17 @@ const columns = [
   { field: 'Longitude', headerName: 'Longitude', flex: 0.8 },
   { field: 'LastResponseTime', headerName: 'LRT', flex: 0.8, type: 'dateTime', description: 'Last Response Time', valueFormatter: (params) => new Date(params.value).toLocaleString("en-US", dateTimeOptions) },
   { field: 'Sensors', headerName: 'Sensors Connected', flex: 0.5,
+    sortComparator: (v1, v2, cellParams1, cellParams2) => {
+      if (v1 !== null && v2 !== null) {
+        return v1.length - v2.length;
+      } else if (v1 === v2) {
+        return 0;
+      } else if (v1 === null) {
+        return -1;
+      } else {
+        return 1;
+      }
+    },
     renderCell: (params) => (<Sensors cellContent={params.value.length} popoverContent={params.value} />)},
   { field: 'UserInfo', headerName: 'Owner Email', flex: 1, align: 'center', headerAlign: 'center',
     sortComparator: (v1, v2, cellParams1, cellParams2) => {
