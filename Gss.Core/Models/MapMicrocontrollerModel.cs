@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gss.Core.DTOs.SensorType;
+using Gss.Core.Entities;
 
-namespace Gss.Core.DTOs.Microcontroller
+namespace Gss.Core.Models
 {
-  public class MapMicrocontrollerDto
+  public class MapMicrocontrollerModel
   {
     public Guid MicrocontrollerID { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-    public List<SensorTypeDto> SensorTypes { get; set; }
+    public List<SensorType> SensorTypes { get; set; }
   }
 }
