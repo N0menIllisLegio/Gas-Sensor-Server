@@ -6,6 +6,11 @@ import UserMicrocontrollersList from './UserMicrocontrollersList';
 import { useState, useEffect } from 'react';
 import UserEdit from './UserEdit';
 import AddButton from '../AddButton';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../redux/reducers/authSlice';
+
+const extendedUserUrl = `${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/`;
+const userUrl = `${process.env.REACT_APP_SERVER_URL}api/Users/GetUserByID/`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,16 +30,20 @@ export default function User() {
   const classes = useStyles();
   const history = useHistory();
   const { id } = useParams();
+  const authorizedUser = useSelector(selectUser);
+  const hasExtendedRights = authorizedUser?.Administrator === true || authorizedUser?.UserID === id;
+  const usingUrl = hasExtendedRights ? extendedUserUrl : userUrl;
+
   const [ isEditingUserInfo, setIsEditingUserInfo ] = useState(false);
   const [userDetailsChanged, setUserDetailsChanged] = useState(false);
-  const [userDetailsUrl, setUserDetailsUrl] = useState(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}`);
+  const [userDetailsUrl, setUserDetailsUrl] = useState(usingUrl + id);
   const { data: user, isPending: userDetailsIsPending } = useGet(userDetailsUrl);
 
   useEffect(() => {
     if (userDetailsChanged) {
-      setUserDetailsUrl(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}/`);
+      setUserDetailsUrl(usingUrl + id + '/');
     } else {
-      setUserDetailsUrl(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${id}`);
+      setUserDetailsUrl(usingUrl + id);
     }
   }, [userDetailsChanged, id]);
 

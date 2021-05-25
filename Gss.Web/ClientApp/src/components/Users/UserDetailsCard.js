@@ -8,6 +8,8 @@ import Typography from '@material-ui/core/Typography';
 import UserDetailsList from './UserDetailsList';
 import { Divider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../redux/reducers/authSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,8 +47,11 @@ const dateTimeOptions = {
 
 export default function UserDetailsCard(props) {
   const classes = useStyles();
+  const authorizedUser = useSelector(selectUser);
   const user = props.user;
 
+  const hasExtendedRights = authorizedUser?.Administrator === true || authorizedUser?.UserID === user.ID;
+  
   return user && (
     <div>
       <Card className={classes.root}>
@@ -61,9 +66,11 @@ export default function UserDetailsCard(props) {
                 {user.FirstName} {user.LastName}
               </strong>
             </Typography>
-            <IconButton size="medium" onClick={props.handleEditClick} color="primary">
-              <EditTwoToneIcon />
-            </IconButton>
+            { hasExtendedRights && (
+              <IconButton size="medium" onClick={props.handleEditClick} color="primary">
+                <EditTwoToneIcon />
+              </IconButton>
+            )}
           </div>
 
           <UserDetailsList user={user} />
