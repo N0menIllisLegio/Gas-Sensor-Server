@@ -70,8 +70,10 @@ export default function SensorsDataChart(props) {
       let processedSensorData = sensorData.reduce((acc, el) => groupByReadTime(acc, el, retriever), []);
       processedSensorData = processedSensorData.sort((d1, d2) => d1.RawValueReadTime - d2.RawValueReadTime);
       setData(processedSensorData);
+    } else {
+      setData(null);
     }
-  }, [sensorData, period])
+  }, [sensorData, period]);
   
   return (
     <div>
