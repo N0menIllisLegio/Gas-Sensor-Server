@@ -74,7 +74,7 @@ export default function UserBadge() {
         userBadgeAvatarSrc: null
       }));
     }
-  }, [user?.UserID]);
+  }, [user?.UserID, dispatch]);
 
   return userName ? (
       <div>

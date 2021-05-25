@@ -1,7 +1,6 @@
 import PagedTable from "./PagedTable";
 import { Link } from 'react-router-dom'
 import { Button } from "@material-ui/core";
-import { useHistory } from 'react-router-dom';
 import { useState } from "react";
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
@@ -47,8 +46,6 @@ const columns = [
 ];
 
 export default function MicrocontrollersPublicTable() {
-  const history = useHistory();
-
   return (
     <PagedTable columns={columns} url={'api/Microcontrollers/GetPublicMicrocontrollers'} detailsUrl={'/microcontroller/'} />
   )

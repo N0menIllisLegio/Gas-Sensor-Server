@@ -1,6 +1,5 @@
-import Dashboard from './components/Administration/Dashboard';
 import Navbar from './components/Navbar';
-import { unstable_createMuiStrictModeTheme as createMuiTheme, ThemeProvider, Toolbar } from '@material-ui/core'
+import { unstable_createMuiStrictModeTheme as createMuiTheme, ThemeProvider } from '@material-ui/core'
 import { red, teal } from '@material-ui/core/colors'
 import ClippedDrawer from './components/ClippedDrawer';
 import CssBaseline from '@material-ui/core/CssBaseline';

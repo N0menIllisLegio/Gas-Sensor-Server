@@ -45,7 +45,7 @@ export default function User() {
     } else {
       setUserDetailsUrl(usingUrl + id);
     }
-  }, [userDetailsChanged, id]);
+  }, [userDetailsChanged, id, usingUrl]);
 
   return (
     <div className={classes.root}>
