@@ -137,8 +137,6 @@ export default function Microcontroller() {
     }
   }, [microcontroller]);
 
-  console.log(microcontroller);
-
   return (<div>
     { isPending && <Progress /> }
     { microcontroller && (

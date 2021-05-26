@@ -37,7 +37,6 @@ export const authSlice = createSlice({
     },
     authorize: (state, action) => {
       const user = buildUser(action.payload);
-      console.log(user);
 
       if (user != null) {
         state.user = user;

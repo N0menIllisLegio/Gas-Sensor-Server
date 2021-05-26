@@ -52,8 +52,7 @@ export default function MicrocontrollersMap() {
 
           setSwLatitude(e.bounds.sw[0]);
           setSwLongitude(e.bounds.sw[1]);
-        }}
-        onClick={e => console.log(e)}>
+        }}>
           { visibleMicrocontrollers && visibleMicrocontrollers.length > 0 && (
             visibleMicrocontrollers.map(mc => (
               <Marker

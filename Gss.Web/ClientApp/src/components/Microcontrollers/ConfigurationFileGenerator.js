@@ -86,8 +86,6 @@ export default function ConfigurationFileGenerator() {
           setMicrocontrollerID(response.data.ID);
           setOwnerID(response.data.UserInfo.ID);
           setSensorID(response.data.Sensors[0]?.ID ?? '');
-
-          console.log(response);
         }
       });
     }
@@ -243,7 +241,7 @@ export default function ConfigurationFileGenerator() {
                 <InputLabel>Wifi privacy mode</InputLabel>
                 <Select
                   value={privateMode ?? 0}
-                  onChange={(e) => { console.log(e.target.value); setPrivateMode(e.target.value)}}
+                  onChange={e => setPrivateMode(e.target.value)}
                   label="Wifi privacy mode">
                   <MenuItem value={0}><em>None</em></MenuItem>
                   <MenuItem value={1}>WEP</MenuItem>
@@ -373,7 +371,6 @@ function ConfigTextField(props) {
   const handleValueChange = (e) => {
     const value = e.target.value;
     const validationResult = valueValidator(value);
-    console.log(validationResult);
 
     setError(validationResult.error);
     setErrorMessage(validationResult.errorMessage);

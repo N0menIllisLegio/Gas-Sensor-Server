@@ -89,8 +89,6 @@ export default function EditMicrocontroller() {
           setLatitude(response.data.Latitude);
           setLongitude(response.data.Longitude);
           setSensors(response.data.Sensors);
-
-          console.log(response.data);
         }
       });
     }
