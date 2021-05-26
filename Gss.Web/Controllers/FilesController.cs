@@ -2,12 +2,13 @@
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.File;
 using Gss.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  // TODO [Authorize]
+  [Authorize]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class FilesController: ControllerBase
@@ -19,9 +20,8 @@ namespace Gss.Web.Controllers
       _filesService = filesService;
     }
 
-    //[Authorize]
     [HttpPost]
-    [SwaggerOperation("Administrator Only", "Uploads image in cloud storage.")]
+    [SwaggerOperation("Authorized", "Uploads image in cloud storage.")]
     [SwaggerResponse(200, type: typeof(Response<FileDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> AvatarUpload([FromForm] UploadFileDto dto)
@@ -31,7 +31,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<FileDto>(fileDto));
     }
 
-    //[Authorize]
+    [Authorize(Roles = "Administrator")]
     [HttpDelete]
     [SwaggerOperation("Administrator Only", "Deletes image from cloud storage.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]

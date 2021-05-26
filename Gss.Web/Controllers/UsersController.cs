@@ -28,7 +28,7 @@ namespace Gss.Web.Controllers
       _mapper = mapper;
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Gets all users existing in database. Paged.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<ExtendedUserDto>>))]
@@ -39,9 +39,8 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<ExtendedUserDto>>(pagedResultDto));
     }
 
-    // [Authorize]
     [HttpGet("{id}")]
-    [SwaggerOperation("Authorized", "Gets user by id.")]
+    [SwaggerOperation(description: "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<UserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     [SwaggerResponse(404, type: typeof(Response<object>))]
@@ -52,7 +51,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<UserDto>(userDto));
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpGet("{id}")]
     [SwaggerOperation("Administrator Only", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
@@ -64,7 +63,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Creates user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
@@ -76,7 +75,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
@@ -89,7 +88,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpPatch]
     [SwaggerOperation("Administrator Only", "Updates user's password.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
@@ -102,7 +101,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpPatch]
     [SwaggerOperation("Administrator Only", "Adds role to user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
@@ -115,7 +114,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
 
-    //[Authorize] Role = Administrator
+    [Authorize(Roles = "Administrator")]
     [HttpDelete("{id}")]
     [SwaggerOperation("Administrator Only", "Deletes user.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]

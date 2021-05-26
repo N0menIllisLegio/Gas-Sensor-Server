@@ -3,12 +3,13 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Sensor;
 using Gss.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  //[Authorize] Role = Administrator
+  [Authorize]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class SensorsController : ControllerBase
@@ -20,9 +21,8 @@ namespace Gss.Web.Controllers
       _sensorsService = sensorsService;
     }
 
-    // anon
     [HttpPost]
-    [SwaggerOperation("Administrator Only", "Gets all sensors.")]
+    [SwaggerOperation("Authorized", "Gets all sensors.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetAllSensors([FromBody] PagedInfoDto pagedRequest)
@@ -32,9 +32,9 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<SensorDto>>(pagedResultDto));
     }
 
-    // anon, access if public
+    [Authorize(Roles = "Administrator")]
     [HttpPost("{microcontrollerID}")]
-    [SwaggerOperation("Authorized", "Gets all sensors of microcontroller.")]
+    [SwaggerOperation("Administrator Only", "Gets all sensors of microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetMicrocontrollerSensors([FromRoute] Guid microcontrollerID, [FromBody] PagedInfoDto pagedRequest)
@@ -44,9 +44,9 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<SensorDto>>(pagedResult));
     }
 
-    // anon, access if public
+    [Authorize(Roles = "Administrator")]
     [HttpGet("{id}")]
-    [SwaggerOperation("Authorized", "Gets sensor by id.")]
+    [SwaggerOperation("Administrator Only", "Gets sensor by id.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetSensor([FromRoute] Guid id)
@@ -56,6 +56,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<SensorDto>(sensorDto));
     }
 
+    [Authorize(Roles = "Administrator")]
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Creates sensor.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
@@ -67,6 +68,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<SensorDto>(sensorDto));
     }
 
+    [Authorize(Roles = "Administrator")]
     [HttpPut("{id}")]
     [SwaggerOperation("Administrator Only", "Updates sensor.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
@@ -78,6 +80,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<SensorDto>(sensorDto));
     }
 
+    [Authorize(Roles = "Administrator")]
     [HttpDelete("{id}")]
     [SwaggerOperation("Administrator Only", "Deletes sensor.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]
@@ -89,6 +92,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<SensorDto>(sensorDto));
     }
 
+    [Authorize(Roles = "Administrator")]
     [HttpPatch]
     [SwaggerOperation("Administrator Only", "Changes sensor's type.")]
     [SwaggerResponse(200, type: typeof(Response<SensorDto>))]

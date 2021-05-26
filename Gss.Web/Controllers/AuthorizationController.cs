@@ -21,7 +21,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
-    [SwaggerOperation(description: "Adds new user to database.")]
+    [SwaggerOperation(description: "Registers new user.")]
     [SwaggerResponse(200, type: typeof(Response<object>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> Register([FromBody] CreateUserDto registerModel)

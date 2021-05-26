@@ -22,7 +22,7 @@ namespace Gss.Web.Controllers
       _microcontrollerService = microcontrollerService;
     }
 
-    // Admin only
+    [Authorize(Roles = "Administrator")]
     [HttpPost]
     [SwaggerOperation("Administrator Only", "Gets all microcontrollers. Paged.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
@@ -34,7 +34,6 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
-    [AllowAnonymous]
     [HttpPost]
     [SwaggerOperation(Description = "Gets all public microcontrollers.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
@@ -45,7 +44,6 @@ namespace Gss.Web.Controllers
       return Ok(new Response<PagedResultDto<MicrocontrollerDto>>(pagedResultDto));
     }
 
-    [AllowAnonymous]
     [HttpPost]
     [SwaggerOperation(Description = "Gets all public microcontrollers. For map.")]
     [SwaggerResponse(200, type: typeof(Response<List<MapMicrocontrollerDto>>))]
@@ -57,7 +55,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost("{userID}")]
-    [SwaggerOperation("Authorized", "Gets all microcontrollers that belongs to user.")]
+    [SwaggerOperation(description: "Gets all microcontrollers that belongs to user.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<MicrocontrollerDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetUserMicrocontrollers([FromRoute] Guid userID, [FromBody] PagedInfoDto pagedInfoDto)
@@ -68,7 +66,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{id}")]
-    [SwaggerOperation("Authorized", "Gets microcontroller by id.")]
+    [SwaggerOperation(description: "Gets microcontroller by id.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetMicrocontroller([FromRoute] Guid id)
@@ -78,6 +76,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
+    [Authorize]
     [HttpPost]
     [SwaggerOperation("Authorized", "Creates microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
@@ -89,6 +88,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
+    [Authorize]
     [HttpPut("{microcontrollerID}")]
     [SwaggerOperation("Authorized", "Updates microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
@@ -100,6 +100,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     [SwaggerOperation("Authorized", "Deletes microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
@@ -112,7 +113,7 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
-    // Admin only
+    [Authorize(Roles = "Administrator")]
     [HttpPatch]
     [SwaggerOperation("Administrator Only", "Changes microcontroller owner.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
@@ -125,8 +126,9 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
+    [Authorize(Roles = "Administrator")]
     [HttpPatch]
-    [SwaggerOperation("Authorized", "Adds sensor to microcontroller.")]
+    [SwaggerOperation("Administrator Only", "Adds sensor to microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> AddSensor([FromBody] AddSensorDto dto)
@@ -136,8 +138,9 @@ namespace Gss.Web.Controllers
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
     }
 
+    [Authorize(Roles = "Administrator")]
     [HttpPatch]
-    [SwaggerOperation("Authorized", "Removes sensor from microcontroller.")]
+    [SwaggerOperation("Administrator Only", "Removes sensor from microcontroller.")]
     [SwaggerResponse(200, type: typeof(Response<MicrocontrollerDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> RemoveSensor([FromBody] RemoveSensorDto dto)

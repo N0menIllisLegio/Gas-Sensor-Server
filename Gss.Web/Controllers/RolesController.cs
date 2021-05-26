@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Role;
 using Gss.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  // TODO [Authorize] Role = Administrator
-  // TODO 200 -> 201
+  [Authorize(Roles = "Administrator")]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class RolesController: ControllerBase

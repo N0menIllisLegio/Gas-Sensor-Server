@@ -3,12 +3,13 @@ using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  //[Authorize], even make all gets anon
+  [Authorize(Roles = "Administrator")]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class SensorsTypesController: ControllerBase
@@ -20,7 +21,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpPost]
-    [SwaggerOperation(Description = "Gets all sensor's types.")]
+    [SwaggerOperation("Administrator Only", "Gets all sensor's types.")]
     [SwaggerResponse(200, type: typeof(Response<PagedResultDto<SensorTypeDto>>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetAllSensorsTypes([FromBody] PagedInfoDto pagedRequest)
@@ -31,7 +32,7 @@ namespace Gss.Web.Controllers
     }
 
     [HttpGet("{id}")]
-    [SwaggerOperation(Description = "Gets sensor's type by id.")]
+    [SwaggerOperation("Administrator Only", "Gets sensor's type by id.")]
     [SwaggerResponse(200, type: typeof(Response<SensorTypeDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetSensorType([FromRoute] Guid id)
