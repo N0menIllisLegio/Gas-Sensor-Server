@@ -39,6 +39,9 @@ import { MakeAuthorizedRequest, DeleteRequest } from '../../requests/Requests';
 import FormErrors from '../FormErrors';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingBottom: theme.spacing(3)
+  },
   map: {
     marginBottom: theme.spacing(2)
   },
@@ -137,7 +140,7 @@ export default function Microcontroller() {
     }
   }, [microcontroller]);
 
-  return (<div>
+  return (<div className={classes.root}>
     { isPending && <Progress /> }
     { microcontroller && (
       <div>
@@ -300,7 +303,7 @@ function MicrocontrollerDetailCard(props) {
 
           <CardDetailRow icon={(<DnsTwoToneIcon />)} name="IP" content={microcontroller.IPAddress} />
           <CardDetailRow icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-US", dateTimeOptions)} />
-          <CardDetailRow icon={(<LocationOnTwoToneIcon />)} name="Position" content={(<span><b>lat:</b> {microcontroller.Latitude || '—'} <b>long:</b> {microcontroller.Longitude || '—'}</span>)} />
+          <CardDetailRow icon={(<LocationOnTwoToneIcon />)} name="Position" content={(<span><b>lat:</b>&nbsp;{microcontroller.Latitude || '—'} <b>long:</b>&nbsp;{microcontroller.Longitude || '—'}</span>)} />
           <CardDetailRow icon={(<VpnLockTwoToneIcon />)} name="Privacy" content={(<span style={{color: microcontroller.Public ? lightGreen[500] : red[300]}}>{microcontroller.Public ? 'Public' : 'Private'}</span>)} />
         </Grid>
       </CardContent>
