@@ -9,8 +9,14 @@ import { selectUser, selectUserBadgeName, selectUserBadgeAvatarSrc, logout, save
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
+import NotificationCenter from './NotificationCenter';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   avatar: {
     margin: theme.spacing(1),
   },
@@ -28,7 +34,8 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.main
   },
   button: {
-    height: theme.spacing(theme.mainContent.marginTop)
+    height: theme.spacing(theme.mainContent.marginTop),
+    marginLeft: theme.spacing(2)
   }
 }));
 
@@ -57,7 +64,7 @@ export default function UserBadge() {
 
   useEffect(() => {
     if (user != null) {
-      const getUserRequestFactory = (token) => GetRequest(`${process.env.REACT_APP_SERVER_URL}api/Users/GetUserByID/${user.UserID}`, token);
+      const getUserRequestFactory = (token) => GetRequest(`${process.env.REACT_APP_SERVER_URL}api/Users/GetExtendedUserByID/${user.UserID}`, token);
 
       MakeAuthorizedRequest(getUserRequestFactory, user)
         .then(response => {
@@ -77,7 +84,9 @@ export default function UserBadge() {
   }, [user?.UserID, dispatch]);
 
   return userName ? (
-      <div>
+      <div className={classes.root}>
+        <NotificationCenter />
+        
         <Button
           className={classes.button}
           aria-haspopup="true"

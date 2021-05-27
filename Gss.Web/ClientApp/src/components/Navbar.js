@@ -2,7 +2,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Avatar, Toolbar, Typography } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import UserBadge from './UserBadge';
-import NotificationCenter from './NotificationCenter';
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -33,8 +32,6 @@ export default function Navbar() {
         <Typography variant="h6" className={classes.title}>
           Sensors System
         </Typography>
-
-        <NotificationCenter />
         <UserBadge />
       </Toolbar>
     </AppBar>
