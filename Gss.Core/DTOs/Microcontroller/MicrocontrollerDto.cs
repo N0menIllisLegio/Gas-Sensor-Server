@@ -15,6 +15,7 @@ namespace Gss.Core.DTOs.Microcontroller
     public string IPAddress { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+    public Guid? RequestedSensorID { get; set; }
 
     public UserDto UserInfo { get; set; }
 

@@ -105,13 +105,15 @@ namespace Gss.Core.Services
           return;
         }
 
+        string ownerEmail = null;
+
         using (var scope = _serviceScopeFactory.CreateScope())
         {
           var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
 
-          connectedMicrocontroller = await microcontrollersService
+          (connectedMicrocontroller, ownerEmail) = await microcontrollersService
             .AuthenticateMicrocontrollersAsync(userID, microcontrollerID, receivedArguments[2],
-              socket.RemoteEndPoint.ToString());
+              (socket.RemoteEndPoint as IPEndPoint).Address.ToString());
         }
 
         if (connectedMicrocontroller is null)

@@ -88,6 +88,15 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to save requested sensor ID..
+        /// </summary>
+        public static string ChangeReuqestedSensorIDFailedErrorString {
+            get {
+                return ResourceManager.GetString("ChangeReuqestedSensorIDFailedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} creation failed..
         /// </summary>
         public static string CreationFailedErrorString {

@@ -10,7 +10,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Gss.Web.Controllers
 {
-  //[Authorize]
   [Route("api/[controller]/[action]")]
   [ApiController]
   public class MicrocontrollersController : ControllerBase
@@ -148,6 +147,19 @@ namespace Gss.Web.Controllers
       var microcontrollerDto = await _microcontrollerService.RemoveSensorAsync(User.Identity.Name, dto);
 
       return Ok(new Response<MicrocontrollerDto>(microcontrollerDto));
+    }
+
+    [Authorize]
+    [HttpPatch]
+    [SwaggerOperation("Authorized", "Requests sensor's value from microcontroller.")]
+    [SwaggerResponse(200, type: typeof(Response<RequestSensorValueResponseDto>))]
+    [SwaggerResponse(400, type: typeof(Response<object>))]
+    public async Task<IActionResult> RequestSensorValue([FromBody] RequestSensorValueDto requestSensorValueDto)
+    {
+      var response = await _microcontrollerService.RequestSensorValue(
+        User.Identity.Name, requestSensorValueDto.MicrocontrollerID, requestSensorValueDto.SensorID);
+
+      return Ok(new Response<RequestSensorValueResponseDto>(response));
     }
   }
 }

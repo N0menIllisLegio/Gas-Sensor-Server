@@ -126,6 +126,9 @@
   <data name="BadRequestErrorString" xml:space="preserve">
     <value>Invalid input data.</value>
   </data>
+  <data name="ChangeReuqestedSensorIDFailedErrorString" xml:space="preserve">
+    <value>Failed to save requested sensor ID.</value>
+  </data>
   <data name="CreationFailedErrorString" xml:space="preserve">
     <value>{0} creation failed.</value>
   </data>

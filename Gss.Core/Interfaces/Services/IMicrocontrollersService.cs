@@ -20,8 +20,9 @@ namespace Gss.Core.Interfaces.Services
     Task<MicrocontrollerDto> ChangeMicrocontrollerOwnerAsync(Guid microcontrollerID, Guid newOwnerID);
     Task<MicrocontrollerDto> AddSensorAsync(string requestedByEmail, AddSensorDto addSensorDto);
     Task<MicrocontrollerDto> RemoveSensorAsync(string requestedByEmail, RemoveSensorDto removeSensorDto);
+    Task<RequestSensorValueResponseDto> RequestSensorValue(string requestedByEmail, Guid microcontrollerID, Guid sensorID);
 
     // For connection service
-    Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress);
+    Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress);
   }
 }

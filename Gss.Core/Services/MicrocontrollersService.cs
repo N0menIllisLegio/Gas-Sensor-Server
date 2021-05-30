@@ -198,6 +198,7 @@ namespace Gss.Core.Services
       }
 
       _mapper.Map(updateMicrocontrollerDto, microcontroller);
+      microcontroller.RequestedSensorID = null;
 
       if (updateMicrocontrollerDto.SensorIDs is not null
         && updateMicrocontrollerDto.SensorIDs.Count > 0)
@@ -399,21 +400,21 @@ namespace Gss.Core.Services
       return microcontroller;
     }
 
-    public async Task<Microcontroller> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID,
-      string microcontrollerPassword, string ipaddress)
+    public async Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(
+      Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress)
     {
       var user = await _userManager.FindByIdAsync(userID);
 
       if (user is null)
       {
-        return null;
+        return (null, null);
       }
 
       var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.Id == microcontrollerID);
 
       if (microcontroller is null && microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
       {
-        return null;
+        return (null, null);
       }
 
       microcontroller.IPAddress = ipaddress;
@@ -421,7 +422,42 @@ namespace Gss.Core.Services
 
       await _unitOfWork.SaveAsync();
 
-      return microcontroller;
+      return (microcontroller, user.Email);
+    }
+
+    public async Task<RequestSensorValueResponseDto> RequestSensorValue(string requestedByEmail, Guid microcontrollerID, Guid sensorID)
+    {
+      var microcontroller = await TryGetMicrocontroller(microcontrollerID, requestedByEmail);
+
+      if (microcontroller.RequestedSensorID == sensorID)
+      {
+        return new RequestSensorValueResponseDto
+        {
+          PreviousRequestedSensorID = sensorID,
+          CurrentRequestedSensorID = sensorID
+        };
+      }
+
+      var sensor = microcontroller.MicrocontrollerSensors.FirstOrDefault(ms => ms.SensorID == sensorID)
+        ?? throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor), HttpStatusCode.NotFound);
+
+      var result = new RequestSensorValueResponseDto
+      {
+        PreviousRequestedSensorID = microcontroller.RequestedSensorID,
+        CurrentRequestedSensorID = sensorID
+      };
+
+      microcontroller.RequestedSensorID = sensorID;
+
+      bool success = await _unitOfWork.SaveAsync();
+
+      if (!success)
+      {
+        throw new AppException(String.Format(Messages.ChangeReuqestedSensorIDFailedErrorString),
+          HttpStatusCode.BadRequest);
+      }
+
+      return result;
     }
   }
 }
