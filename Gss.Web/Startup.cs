@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Gss.Core.DTOs;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
@@ -20,6 +21,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +34,8 @@ namespace Gss.Web
 {
   public class Startup
   {
+    public const string NotificationHubUrl = "/api/notifications";
+
     public Startup(IConfiguration configuration)
     {
       Configuration = configuration;
@@ -45,7 +49,8 @@ namespace Gss.Web
 
       services.AddDbContext<AppDbContext>(options =>
           options.UseLazyLoadingProxies()
-            .UseSqlServer(Configuration.GetConnectionString("AzureDB"))
+            .UseSqlServer(Configuration.GetConnectionString("AzureDB"),
+              builder => builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null))
             .EnableSensitiveDataLogging());
 
       services.AddDefaultIdentity<User>(options =>
@@ -81,28 +86,48 @@ namespace Gss.Web
           options.JsonSerializerOptions.PropertyNamingPolicy = null;
         });
 
-      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+      services.AddAuthentication(options =>
+      {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+      })
+      .AddJwtBearer(options =>
+      {
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-          options.RequireHttpsMetadata = false;
-          options.TokenValidationParameters = new TokenValidationParameters
-          {
-            ValidateIssuer = true,
-            ValidIssuer = Settings.JWT.Issuer,
-            ValidateAudience = true,
-            ValidAudience = Settings.JWT.Audience,
-            ValidateLifetime = true,
-            IssuerSigningKey = Settings.JWT.Key,
-            ValidateIssuerSigningKey = true,
-          };
-        })
-        .AddGoogle(options =>
-        {
-          var googleAuthNSection = Configuration.GetSection("Authentication:Google");
+          ValidateIssuer = true,
+          ValidIssuer = Settings.JWT.Issuer,
+          ValidateAudience = true,
+          ValidAudience = Settings.JWT.Audience,
+          ValidateLifetime = true,
+          IssuerSigningKey = Settings.JWT.Key,
+          ValidateIssuerSigningKey = true,
+        };
 
-          options.ClientId = googleAuthNSection["ClientID"];
-          options.ClientSecret = googleAuthNSection["ClientSecret"];
-        });
+        options.Events = new JwtBearerEvents
+        {
+          OnMessageReceived = context =>
+          {
+            string accessToken = context.Request.Query["access_token"];
+
+            if (!String.IsNullOrEmpty(accessToken)
+              && context.HttpContext.Request.Path.StartsWithSegments(NotificationHubUrl))
+            {
+              context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+          }
+        };
+      })
+      .AddGoogle(options =>
+      {
+        var googleAuthNSection = Configuration.GetSection("Authentication:Google");
+
+        options.ClientId = googleAuthNSection["ClientID"];
+        options.ClientSecret = googleAuthNSection["ClientSecret"];
+      });
 
       services.AddAutoMapper(typeof(AutoMapperProfile));
       services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -120,6 +145,9 @@ namespace Gss.Web
       services.AddScoped<ISensorsDataService, SensorsDataService>();
 
       services.AddSingleton<SocketConnectionService>();
+
+      services.AddSingleton<IUserIdProvider, UserEmailProvider>();
+      services.AddSignalR();
 
       services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
 
@@ -174,7 +202,7 @@ namespace Gss.Web
 
       app.UseRouting();
 
-      app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+      app.UseCors(builder => builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
       app.UseAuthentication();
       app.UseAuthorization();
 
@@ -184,6 +212,8 @@ namespace Gss.Web
       app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 
       socketConnectionService.RunAsync();
+
+      app.UseEndpoints(endpoints => endpoints.MapHub<NotificationsHub>(NotificationHubUrl));
 
       //app.UseSpa(spa =>
       //{

@@ -7,10 +7,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Gss.Core.DTOs.SensorData;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -228,6 +231,21 @@ namespace Gss.Core.Services
               unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
 
               await unitOfWork.SaveAsync();
+
+              var sensor = await unitOfWork.Sensors.GetFirstWhereAsync(sensor => sensor.Id == sensorID,
+                query => query.Include(sensor => sensor.Type));
+
+              var hub = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationsHub>>();
+
+              await hub.Clients.User(ownerEmail).SendAsync("Notification", new NotifySensorResponseDto
+              {
+                MicrocontrollerID = connectedMicrocontroller.Id,
+                SensorName = sensor.Name,
+                SensorType = sensor.Type.Name,
+                SensorValue = sensorValue,
+                SensorTypeIcon = sensor.Type.Icon,
+                SensorTypeUnits = sensor.Type.Units
+              });
             }
             else
             {
