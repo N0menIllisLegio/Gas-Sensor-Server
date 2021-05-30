@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import '@fontsource/roboto/300.css';
 import DeleteTwoToneIcon from '@material-ui/icons/DeleteTwoTone';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../redux/reducers/authSlice';
+import { selectNotifications, addNotification, removeNotification } from '../redux/reducers/notificationsSlice';
 import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
@@ -45,11 +46,12 @@ const useStyles = makeStyles((theme) => ({
 export default function NotificationCenter() {
   const classes = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
   const [ anchorEl, setAnchorEl ] = useState(null);
-  const [ notifications, setNotifications ] = useState([]);
-  const [ newNotification, setNewNotification ] = useState(null);
   const [ connection, setConnection ] = useState(null);
+
   const accessToken = useSelector(selectUser)?.AccessToken;
+  const notifications = useSelector(selectNotifications);
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
@@ -66,32 +68,16 @@ export default function NotificationCenter() {
       connection.start()
         .then(result => {
           connection.on('Notification', notification => {
-            if ('microcontrollerID' in notification
-              && 'sensorName' in notification
-              && 'sensorType' in notification
-              && 'sensorValue' in notification
-              && 'sensorTypeUnits' in notification) {
-                setNewNotification(notification);
-            }
+            dispatch(addNotification(notification));
           });
         })
         .catch(e => console.log('Connection failed: ', e));
     }
-  }, [connection]);
+  }, [connection, dispatch]);
 
-  useEffect(() => {
-    if (newNotification != null) {
-
-      let id = 1;
-
-      setNotifications([...notifications, newNotification].reduce((acc, notif) => {
-        notif.ID = id++;
-        return [...acc, notif];
-      }, []));
-
-      setNewNotification(null);
-    }
-  }, [ newNotification, notifications ]);
+  const handleDeleteNotification = (id) => {
+    dispatch(removeNotification(id));
+  }
 
   const handleOpenPopoverClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -103,16 +89,10 @@ export default function NotificationCenter() {
 
   const open = Boolean(anchorEl);
 
-  const handleDeleteNotification = (index) => {
-    let tempNotifications = [...notifications];
-    tempNotifications.splice(index, 1);
-    setNotifications(tempNotifications);
-  }
-
   return (
     <div>
       <IconButton className={classes.bellButton} onClick={handleOpenPopoverClick}>
-        <Badge color="secondary" variant="dot" invisible={notifications.length === 0}>
+        <Badge color="secondary" variant="dot" invisible={!notifications || notifications.length === 0}>
           <NotificationsNoneTwoToneIcon />
         </Badge>
       </IconButton>
@@ -153,7 +133,7 @@ export default function NotificationCenter() {
                         </Typography>
                       )} secondary={notification.sensorType} />
                       <ListItemSecondaryAction>
-                        <IconButton edge="end" onClick={() => handleDeleteNotification(index)}>
+                        <IconButton edge="end" onClick={() => handleDeleteNotification(notification.ID)}>
                           <DeleteTwoToneIcon color="secondary"/>
                         </IconButton>
                       </ListItemSecondaryAction>

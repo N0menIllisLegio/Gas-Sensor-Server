@@ -32,12 +32,13 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SensorsDataChart from './SensorsDataChart';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom';
 import { MakeAuthorizedRequest, DeleteRequest, PatchRequest } from '../../requests/Requests';
 import FormErrors from '../FormErrors';
 import SwapVertTwoToneIcon from '@material-ui/icons/SwapVertTwoTone';
+import { selectNotifications, markMicrocontrollerNotificationsAsOld } from '../../redux/reducers/notificationsSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -115,6 +116,7 @@ const dateTimeOptions = {
 export default function Microcontroller() {
   const classes = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
   const { id } = useParams();
   const { data: microcontroller, isPending } = useGet(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetMicrocontroller/${id}`);
   const [ userInfo, setUserInfo ] = useState(null);
@@ -125,6 +127,21 @@ export default function Microcontroller() {
   const user = useSelector(selectUser);
   const [isAdministrator, setIsAdministrator] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+
+  const notifications = useSelector(selectNotifications);
+
+  useEffect(() => {
+    if (microcontroller?.Sensors && microcontroller.Sensors.length > 0
+      && notifications && notifications.length > 0) {
+      const requestedSensorNotification = notifications
+        .find(notification => notification.microcontrollerID === microcontroller.ID
+          && notification.isOld !== undefined && !notification.isOld && notification.sensorID === requestedSensorID);
+
+      if (requestedSensorNotification) {
+        setRequestedSensorID(null);
+      }
+    }
+  }, [notifications, microcontroller?.ID, microcontroller?.Sensors, requestedSensorID]);
 
   useEffect(() => {
     if (user != null && userInfo != null) {
@@ -183,6 +200,11 @@ export default function Microcontroller() {
         setServerErrors(response.errors);
       }
     } else {
+      dispatch(markMicrocontrollerNotificationsAsOld({
+        microcontrollerID: microcontroller.ID,
+        sensorID: response.data.CurrentRequestedSensorID
+      }));
+
       setRequestedSensorID(response.data.CurrentRequestedSensorID);
     }
   };

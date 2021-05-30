@@ -241,6 +241,7 @@ namespace Gss.Core.Services
               await hub.Clients.User(ownerEmail).SendAsync("Notification", new NotifySensorResponseDto
               {
                 MicrocontrollerID = connectedMicrocontroller.Id,
+                SensorID = sensorID,
                 SensorName = sensor.Name,
                 SensorType = sensor.Type.Name,
                 SensorValue = sensorValue,

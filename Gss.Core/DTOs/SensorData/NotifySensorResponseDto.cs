@@ -10,5 +10,6 @@ namespace Gss.Core.DTOs.SensorData
     public string SensorName { get; set; }
     public decimal SensorValue { get; set; }
     public Guid MicrocontrollerID { get; set; }
+    public Guid SensorID { get; set; }
   }
 }
