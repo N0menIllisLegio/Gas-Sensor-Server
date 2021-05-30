@@ -6,14 +6,16 @@ import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom';
 import FormErrors from '../FormErrors';
 import '@fontsource/roboto/300.css';
-import { Button, ButtonGroup, Divider, FormControl, Grid, InputLabel, MenuItem, Snackbar, TextField, Tooltip, Typography } from '@material-ui/core';
+import { Button, ButtonGroup, Divider, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Snackbar, TextField, Tooltip, Typography } from '@material-ui/core';
 import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
 import { makeStyles } from '@material-ui/core/styles';
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import Select from '@material-ui/core/Select';
 import FileCopyTwoToneIcon from '@material-ui/icons/FileCopyTwoTone';
 import MuiAlert from '@material-ui/lab/Alert';
+import TodayTwoToneIcon from '@material-ui/icons/TodayTwoTone';
+import { DateTimePicker } from "@material-ui/pickers";
 
 const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ipRegex = /^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
@@ -52,6 +54,7 @@ export default function ConfigurationFileGenerator() {
   const [ date, setDate ] = useState(new Date());
   const [ writeSDPeriodSeconds, setWriteSDPeriodSeconds ] = useState(60);
   const [ transmitPeriodSeconds, setTransmitPeriodSeconds ] = useState(1800);
+  const [ requestPeriodSeconds, setRequestPeriodSeconds ] = useState(900);
 
   const [ SSID, setSSID ] = useState('');
   const [ securityKey, setSecurityKey ] = useState('');
@@ -109,6 +112,7 @@ export default function ConfigurationFileGenerator() {
       '',
       `WriteSDPeriodSeconds=${writeSDPeriodSeconds};`,
       `TransmitPeriodSeconds=${transmitPeriodSeconds};`,
+      `RequestPeriodSeconds=${requestPeriodSeconds};`,
       '',
       `SSID=${SSID};`,
       `SecurityKey=${securityKey};`,
@@ -126,7 +130,7 @@ export default function ConfigurationFileGenerator() {
 
     setConfigText(lines.join('\n'));
 
-  }, [date, writeSDPeriodSeconds, transmitPeriodSeconds, SSID, securityKey,
+  }, [date, writeSDPeriodSeconds, transmitPeriodSeconds, requestPeriodSeconds, SSID, securityKey,
       protocol, privateMode, serverIP, serverPort, sensorID, ownerID,
       microcontrollerID, microcontrollerPassword]);
 
@@ -164,6 +168,17 @@ export default function ConfigurationFileGenerator() {
       return { error: true, errorMessage: 'NaN' };
     } else if (number < 1800 || number > 3195660) {
       return { error: true, errorMessage: 'Period should be in [1800, 3195660] interval' };
+    }
+ 
+    return { error: false, errorMessage: secondsToString(number) };
+  };
+
+  const requestPeriodValidator = (value) => {
+    const number = +value;
+    if (isNaN(number)) {
+      return { error: true, errorMessage: 'NaN' };
+    } else if (number < 900 || number > 3195660) {
+      return { error: true, errorMessage: 'Period should be in [900, 3195660] interval' };
     }
  
     return { error: false, errorMessage: secondsToString(number) };
@@ -296,14 +311,33 @@ export default function ConfigurationFileGenerator() {
                 valueValidator={transmitPeriodValidator} />
             </Grid>
             <Grid item xs={12}>
+              <ConfigTextField
+                label="Request period (seconds)"
+                value={requestPeriodSeconds}
+                setValue={setRequestPeriodSeconds}
+                valueValidator={requestPeriodValidator} />
+            </Grid>
+            <Grid item xs={12}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
+                <DateTimePicker
                   fullWidth
-                  label="Initial microcontroller DateTime"
-                  format="dd.MM.yyyy"
                   inputVariant="outlined"
+                  hideTabs
+                  ampm={false}
                   value={date}
-                  onChange={date => setDate(date)} />
+                  format="dd.MM.yyyy HH:mm"
+                  onChange={date => setDate(date)}
+                  minDate={new Date("2015-01-01")}
+                  helperText="Initial microcontroller DateTime"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton>
+                          <TodayTwoToneIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }} />
               </MuiPickersUtilsProvider>
             </Grid>
           </Grid>
@@ -316,7 +350,7 @@ export default function ConfigurationFileGenerator() {
                 fullWidth
                 label="config.txt"
                 multiline
-                rows={23}
+                rows={24}
                 variant="outlined"
                 InputProps={{
                   readOnly: true,
