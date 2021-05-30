@@ -99,7 +99,7 @@ export default function EditMicrocontroller() {
   }, [sensors]);
 
   const handleSensorClick = (sensor) => {
-    if (sensors.includes(sensor)) {
+    if (sensors.find((element, index, array) => element.ID === sensor.ID)) {
       setSnackbarMessage(`${sensor.Name} already added to microcontroller!`);
       setOpenSnackbar(true);
     } else {
