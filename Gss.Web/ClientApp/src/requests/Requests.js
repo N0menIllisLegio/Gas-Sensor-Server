@@ -24,6 +24,17 @@ export async function MakeAuthorizedRequest(requestFactory, user) {
   return response;
 }
 
+export async function PatchRequest(url, body, token) {
+  return await Request(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token ?? ''}`
+    },
+    body: JSON.stringify(body)
+  });
+}
+
 export async function PostRequest(url, body, token) {
   return await Request(url, {
     method: 'POST',
