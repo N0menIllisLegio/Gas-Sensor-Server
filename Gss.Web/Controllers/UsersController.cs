@@ -51,14 +51,15 @@ namespace Gss.Web.Controllers
       return Ok(new Response<UserDto>(userDto));
     }
 
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     [HttpGet("{id}")]
     [SwaggerOperation("Administrator Only", "Gets user by id.")]
     [SwaggerResponse(200, type: typeof(Response<ExtendedUserDto>))]
     [SwaggerResponse(400, type: typeof(Response<object>))]
     public async Task<IActionResult> GetExtendedUserByID([FromRoute] Guid id)
     {
-      var extendedUserDto = await _usersService.GetExtendedUserAsync(id);
+      string requestedBy = User.Identity.Name;
+      var extendedUserDto = await _usersService.GetExtendedUserAsync(requestedBy, id);
 
       return Ok(new Response<ExtendedUserDto>(extendedUserDto));
     }
