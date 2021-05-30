@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Map, Marker } from 'pigeon-maps';
 import useGet from '../../hooks/useGet';
 import Progress from '../Progress';
-import { Avatar, Grid, Typography } from '@material-ui/core';
+import { Avatar, Grid, IconButton, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '@fontsource/roboto/300.css';
 import Divider from '@material-ui/core/Divider';
@@ -35,8 +35,9 @@ import SensorsDataChart from './SensorsDataChart';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom';
-import { MakeAuthorizedRequest, DeleteRequest } from '../../requests/Requests';
+import { MakeAuthorizedRequest, DeleteRequest, PatchRequest } from '../../requests/Requests';
 import FormErrors from '../FormErrors';
+import SwapVertTwoToneIcon from '@material-ui/icons/SwapVertTwoTone';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -86,6 +87,17 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2),
     display: 'flex',
     justifyContent: 'center'
+  },
+  deleteMicrocontrollerIcon: {
+    marginRight: theme.spacing(2),
+    marginLeft: theme.spacing(2)
+  },
+  accordionRow: {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  requestSensorButton: {
+    marginRight: theme.spacing(2)
   }
 }));
 
@@ -107,9 +119,19 @@ export default function Microcontroller() {
   const { data: microcontroller, isPending } = useGet(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/GetMicrocontroller/${id}`);
   const [ userInfo, setUserInfo ] = useState(null);
   const [ expanded, setExpanded ] = useState(false);
+  const [ requestedSensorID, setRequestedSensorID ] = useState(null);
 
   const [serverErrors, setServerErrors] = useState(null);
   const user = useSelector(selectUser);
+  const [isAdministrator, setIsAdministrator] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    if (user != null && userInfo != null) {
+      setIsOwner(user.UserID === userInfo.ID);
+      setIsAdministrator(user.Administrator);
+    }
+  }, [user, userInfo])
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -137,8 +159,33 @@ export default function Microcontroller() {
   useEffect(() => {
     if (microcontroller != null) {
       setUserInfo(microcontroller.UserInfo);
+      setRequestedSensorID(microcontroller.RequestedSensorID);
     }
   }, [microcontroller]);
+
+  const handleSensorValueRequest = async (sensorID) => {
+    const body = {
+      MicrocontrollerID: microcontroller.ID,
+      SensorID: sensorID
+    };
+
+    const requestSensorValueRequestFactory = (token) =>
+      PatchRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/RequestSensorValue`, body, token);
+  
+    const response = await MakeAuthorizedRequest(requestSensorValueRequestFactory, user);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setServerErrors(response.errors);
+      }
+    } else {
+      setRequestedSensorID(response.data.CurrentRequestedSensorID);
+    }
+  };
 
   return (<div className={classes.root}>
     { isPending && <Progress /> }
@@ -170,25 +217,30 @@ export default function Microcontroller() {
         </div>
 
         {/* Actions buttons */}
-        <Divider  style={{marginBottom: '1px'}}/>
-          <Paper elevation={0} className={classes.actionsButtonsRow}>
-            <Tooltip title="Edit microcontroller">
-              <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
-                <EditTwoToneIcon fontSize="large" />
-              </Button>
-            </Tooltip>
-            <Tooltip title="Delete microcontroller" style={{marginLeft: '16px', marginRight: '16px'}}>
-              <Button onClick={handleMicrocontrollerDeletion}>
-                <DeleteForeverTwoToneIcon fontSize="large" />
-              </Button>
-            </Tooltip>
-            <Tooltip title="Generate configuration file">
-              <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
-                <DescriptionTwoToneIcon fontSize="large" />
-              </Button>
-            </Tooltip>
-          </Paper>
-        <Divider className={classes.divider} />
+
+        { (isOwner || isAdministrator) && (
+          <div>
+            <Divider style={{marginBottom: '1px'}}/>
+              <Paper elevation={0} className={classes.actionsButtonsRow}>
+                <Tooltip title="Edit microcontroller">
+                  <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
+                    <EditTwoToneIcon fontSize="large" />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Delete microcontroller" className={classes.deleteMicrocontrollerIcon}>
+                  <Button onClick={handleMicrocontrollerDeletion}>
+                    <DeleteForeverTwoToneIcon fontSize="large" color="secondary"/>
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Generate configuration file">
+                  <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
+                    <DescriptionTwoToneIcon fontSize="large" />
+                  </Button>
+                </Tooltip>
+              </Paper>
+            <Divider className={classes.divider} />
+          </div>
+        )}
 
         {serverErrors && (
           <div className={classes.errorsRoot}>
@@ -197,14 +249,41 @@ export default function Microcontroller() {
         )}
 
         {/* Sensors */}
-        { microcontroller.Sensors && microcontroller.Sensors.map((sensor) => (
-          <SensorsAccordion
-            key={sensor.ID}
-            microcontrollerID={microcontroller.ID}
-            sensor={sensor}
-            handleChange={handleAccordionChange}
-            expanded={expanded}/>
-        ))}
+        { microcontroller.Sensors && microcontroller.Sensors.map((sensor) => {
+            let marginBottom = '0px';
+            if (sensor.ID === expanded) {
+              marginBottom = '16px';
+            }
+
+            let tooltipTitle = requestedSensorID === sensor.ID
+             ? 'Sensor\'s value already requested. Pleas wait.'
+             : 'Request sensor\'s value';
+
+            return (
+              <div key={sensor.ID} className={classes.accordionRow} style={{marginBottom: marginBottom}}>
+                {isOwner && (
+                  <Tooltip title={tooltipTitle}>
+                    <span>
+                      <IconButton
+                        className={classes.requestSensorButton}
+                        disabled={requestedSensorID === sensor.ID}
+                        onClick={() => handleSensorValueRequest(sensor.ID)}>
+                        <SwapVertTwoToneIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
+
+                <SensorsAccordion
+                  requestedSensorID={requestedSensorID}
+                  microcontroller={microcontroller}
+                  sensor={sensor}
+                  handleChange={handleAccordionChange}
+                  expanded={expanded}/>
+              </div>
+            )
+          }
+        )}
       </div>
     )}
   </div>
@@ -212,6 +291,9 @@ export default function Microcontroller() {
 }
 
 const useAccordionStyles = makeStyles((theme) => ({
+  accordion: {
+    marginBottom: theme.spacing(1)
+  },
   header: {
     display: 'flex',
     alignItems: 'center',
@@ -222,15 +304,22 @@ const useAccordionStyles = makeStyles((theme) => ({
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
+    flexBasis: '25%',
     flexShrink: 0,
   },
   secondaryHeading: {
     fontSize: theme.typography.pxToRem(15),
     color: theme.palette.text.secondary,
+    flexBasis: '25%'
   },
   details: {
     flexDirection: 'column'
+  },
+  headerDivider: {
+    marginTop: -theme.spacing(1),
+    marginLeft: -theme.spacing(2),
+    marginRight: -theme.spacing(2),
+    marginBottom: theme.spacing(2),
   }
 }));
 
@@ -240,22 +329,29 @@ function SensorsAccordion(props) {
   const sensorType = sensor.SensorType;
 
   return (
-    <Accordion expanded={props.expanded === sensor.ID} onChange={props.handleChange(sensor.ID)}>
+    <Accordion
+      expanded={props.expanded === sensor.ID}
+      onChange={props.handleChange(sensor.ID)}
+      className={classes.accordion}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <div className={classes.header}>
           <Avatar src={sensorType.Icon} className={classes.avatar}>{sensorType.Units}</Avatar>
           <Typography className={classes.heading}>{sensor.Name}</Typography>
           <Typography className={classes.secondaryHeading}>{sensorType.Name}</Typography>
+          { props.requestedSensorID === sensor.ID && (
+            <Typography className={classes.secondaryHeading}>Awaiting sensor's response...</Typography>
+          )}
         </div>
       </AccordionSummary>
       <AccordionDetails className={classes.details}>
+        <Divider className={classes.headerDivider} />
         {sensor.Description && (
           <Typography>
             {sensor.Description}
           </Typography>
         )}
         
-        {props.expanded === sensor.ID && (<SensorsDataChart microcontrollerID={props.microcontrollerID} sensor={sensor} />)}
+        {props.expanded === sensor.ID && (<SensorsDataChart microcontrollerID={props.microcontroller.ID} sensor={sensor} />)}
       </AccordionDetails>
     </Accordion>
   );
