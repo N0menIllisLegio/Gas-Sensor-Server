@@ -1,8 +1,12 @@
 import { Avatar, Badge, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, makeStyles, Paper, Popover, Typography } from '@material-ui/core';
 import NotificationsNoneTwoToneIcon from '@material-ui/icons/NotificationsNoneTwoTone';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@fontsource/roboto/300.css';
 import DeleteTwoToneIcon from '@material-ui/icons/DeleteTwoTone';
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../redux/reducers/authSlice';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   bellButton: {
@@ -40,8 +44,54 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NotificationCenter() {
   const classes = useStyles();
+  const history = useHistory();
   const [ anchorEl, setAnchorEl ] = useState(null);
-  const [ notifications, setNotifications ] = useState([ 1,2,3,4 ]);
+  const [ notifications, setNotifications ] = useState([]);
+  const [ newNotification, setNewNotification ] = useState(null);
+  const [ connection, setConnection ] = useState(null);
+  const accessToken = useSelector(selectUser)?.AccessToken;
+
+  useEffect(() => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl(`${process.env.REACT_APP_SERVER_URL}api/notifications?access_token=${accessToken}`)
+      .configureLogging(LogLevel.Critical)
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(newConnection);
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (connection) {
+      connection.start()
+        .then(result => {
+          connection.on('Notification', notification => {
+            if ('microcontrollerID' in notification
+              && 'sensorName' in notification
+              && 'sensorType' in notification
+              && 'sensorValue' in notification
+              && 'sensorTypeUnits' in notification) {
+                setNewNotification(notification);
+            }
+          });
+        })
+        .catch(e => console.log('Connection failed: ', e));
+    }
+  }, [connection]);
+
+  useEffect(() => {
+    if (newNotification != null) {
+
+      let id = 1;
+
+      setNotifications([...notifications, newNotification].reduce((acc, notif) => {
+        notif.ID = id++;
+        return [...acc, notif];
+      }, []));
+
+      setNewNotification(null);
+    }
+  }, [ newNotification, notifications ]);
 
   const handleOpenPopoverClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -53,8 +103,10 @@ export default function NotificationCenter() {
 
   const open = Boolean(anchorEl);
 
-  const handleDeleteNotification = (id) => {
-    setNotifications(notifications.filter(notification => notification != id));
+  const handleDeleteNotification = (index) => {
+    let tempNotifications = [...notifications];
+    tempNotifications.splice(index, 1);
+    setNotifications(tempNotifications);
   }
 
   return (
@@ -86,21 +138,22 @@ export default function NotificationCenter() {
 
             {(notifications && notifications.length > 0 && (
               <List dense className={classes.notificationList}>
-                { notifications.map(notification => (
-                  <div key={notification}>
-                    <ListItem className={classes.listItem} >
+                { notifications.map((notification, index) => (
+                  <div key={index}>
+                    <ListItem className={classes.listItem} button
+                      onClick={() => history.push(`/microcontroller/${notification.microcontrollerID}`)}>
                       <ListItemAvatar>
-                        <Avatar>
-                          K
+                        <Avatar src={notification.sensorTypeIcon}>
+                          {notification.sensorTypeUnits}
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText primary={(
                         <Typography>
-                          Received value: <b>1234&nbsp;ooc</b> from sensor: <i>OMEGALUL</i>
+                          <b>{notification.sensorName}</b> - <b>{notification.sensorValue}&nbsp;{notification.sensorTypeUnits}</b>
                         </Typography>
-                      )} secondary="Air Quality sensor" />
+                      )} secondary={notification.sensorType} />
                       <ListItemSecondaryAction>
-                        <IconButton edge="end" onClick={() => handleDeleteNotification(notification)}>
+                        <IconButton edge="end" onClick={() => handleDeleteNotification(index)}>
                           <DeleteTwoToneIcon color="secondary"/>
                         </IconButton>
                       </ListItemSecondaryAction>
