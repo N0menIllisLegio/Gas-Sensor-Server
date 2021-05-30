@@ -16,6 +16,15 @@ namespace Gss.Infrastructure.Repositories
       : base(appDbContext)
     { }
 
+    public async Task SingleInsertIfNotExists(SensorData sensorData)
+    {
+      await DbSet.SingleInsertAsync(sensorData, options =>
+      {
+        options.AutoMapOutputDirection = false;
+        options.InsertIfNotExists = true;
+      });
+    }
+
     public async Task BulkInsertIfNotExists(List<SensorData> sensorData)
     {
       var dataForInsertion = new List<SensorData>();

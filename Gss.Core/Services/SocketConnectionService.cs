@@ -217,7 +217,11 @@ namespace Gss.Core.Services
 
               using var scope = _serviceScopeFactory.CreateScope();
               var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-              unitOfWork.SensorsData.Add(new SensorData
+
+              connectedMicrocontroller.RequestedSensorID = null;
+              unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
+
+              await unitOfWork.SensorsData.SingleInsertIfNotExists(new SensorData
               {
                 Id = Guid.NewGuid(),
                 MicrocontrollerID = connectedMicrocontroller.Id,
@@ -226,9 +230,6 @@ namespace Gss.Core.Services
                 ValueReadTime = sensorValueReadedDateTime,
                 ValueReceivedTime = DateTime.UtcNow
               });
-
-              connectedMicrocontroller.RequestedSensorID = null;
-              unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
 
               await unitOfWork.SaveAsync();
 
