@@ -58,9 +58,15 @@ namespace Gss.Core.Services
       return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<ExtendedUserDto> GetExtendedUserAsync(Guid userID)
+    public async Task<ExtendedUserDto> GetExtendedUserAsync(string requestedBy, Guid userID)
     {
-      var user = await _userManager.FindByIdAsync(userID);
+      var requestedByUser = await _userManager.FindByEmailAsync(requestedBy);
+
+      var user = requestedByUser.Id == userID
+        ? requestedByUser
+        : await _userManager.IsAdministrator(requestedBy)
+          ? await _userManager.FindByIdAsync(userID)
+          : null;
 
       if (user is null)
       {

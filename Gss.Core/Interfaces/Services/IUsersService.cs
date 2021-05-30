@@ -10,7 +10,7 @@ namespace Gss.Core.Interfaces.Services
   {
     Task<PagedResultDto<ExtendedUserDto>> GetAllUsersAsync(PagedInfoDto pagedInfoDto);
     Task<UserDto> GetUserAsync(Guid userID);
-    Task<ExtendedUserDto> GetExtendedUserAsync(Guid userID);
+    Task<ExtendedUserDto> GetExtendedUserAsync(string requestedBy, Guid userID);
     Task<ExtendedUserDto> GetUserAsync(string userEmail);
     Task<ExtendedUserDto> AddUserAsync(CreateUserDto createUserDto);
     Task<ExtendedUserDto> UpdateUserAsync(Guid userID, UpdateUserDto updateUserDto);
