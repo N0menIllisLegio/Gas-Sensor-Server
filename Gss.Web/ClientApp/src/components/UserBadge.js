@@ -81,7 +81,7 @@ export default function UserBadge() {
         userBadgeAvatarSrc: null
       }));
     }
-  }, [user?.UserID, dispatch]);
+  }, [user, dispatch]);
 
   return userName ? (
       <div className={classes.root}>

@@ -169,10 +169,10 @@ export default function UserEdit(props) {
       setGender(props.user.Gender ?? '');
       setValue('Gender', props.user.Gender ?? '');
 
-      birthdayValue = new Date(props.user.Birthday);
-      setValue('Birthday', birthdayValue);
+      setBirthday(new Date(props.user.Birthday));
+      setValue('Birthday', props.user.Birthday);
     }
-  }, [props.user]);
+  }, [props.user, setValue]);
   
   useEffect(() => {
     setIsFirstNameError(errors?.FirstName?.message != null);
