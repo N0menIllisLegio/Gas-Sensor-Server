@@ -99,9 +99,9 @@ export async function Request(url, requestInit) {
     let response = await fetch(url, requestInit);
 
     status = response.status;
-    response = await response.json();
 
-    if (response.Succeeded) {
+    if (response.ok) {
+      response = await response.json();
       data = response.Data;
     } else {
       errors = response.errors || response.Errors;

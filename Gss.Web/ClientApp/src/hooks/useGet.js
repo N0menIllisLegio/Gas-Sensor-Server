@@ -24,13 +24,15 @@ export default function useGet(url) {
       if (response.status === 200) {
         setData(response.data);
         setError(null);
+        setIsPending(false);
       } else if (response.errors[0] === 'AbortError') {
         console.log(`Fetch from ${url} aborted.`);
-      } else {
+        setIsPending(false);
+      } else if (response.errors.length > 0
+        && response.errors[0] != null) {
         setError(response.errors);
+        setIsPending(false);
       }
-    
-      setIsPending(false);
     });
 
     return () => abortCont.abort();
