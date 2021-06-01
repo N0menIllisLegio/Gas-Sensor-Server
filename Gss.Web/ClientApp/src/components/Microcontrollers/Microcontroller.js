@@ -420,7 +420,7 @@ function MicrocontrollerDetailCard(props) {
           </Grid>
 
           <CardDetailRow icon={(<DnsTwoToneIcon />)} name="IP" content={microcontroller.IPAddress} />
-          <CardDetailRow icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-US", dateTimeOptions)} />
+          <CardDetailRow icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-GB", dateTimeOptions)} />
           <CardDetailRow icon={(<LocationOnTwoToneIcon />)} name="Position" content={(<span><b>lat:</b>&nbsp;{microcontroller.Latitude || '—'} <b>long:</b>&nbsp;{microcontroller.Longitude || '—'}</span>)} />
           <CardDetailRow icon={(<VpnLockTwoToneIcon />)} name="Privacy" content={(<span style={{color: microcontroller.Public ? lightGreen[500] : red[300]}}>{microcontroller.Public ? 'Public' : 'Private'}</span>)} />
         </Grid>

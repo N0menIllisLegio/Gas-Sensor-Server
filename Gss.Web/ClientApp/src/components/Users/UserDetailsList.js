@@ -93,7 +93,7 @@ export default function UserDetailsList(props) {
               <CakeTwoToneIcon />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary="Birthday" secondary={new Date(user.Birthday).toLocaleString("en-US", dateTimeOptions)} />
+          <ListItemText primary="Birthday" secondary={formatBirthday(user.Birthday)} />
         </ListItem>
       )}
       
@@ -115,14 +115,28 @@ export default function UserDetailsList(props) {
               <TimerOffTwoToneIcon />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary="Lockout Ends" secondary={new Date(user.LockoutEnd).toLocaleString("en-US", dateTimeOptions)} />
+          <ListItemText primary="Lockout Ends" secondary={new Date(user.LockoutEnd).toLocaleString("en-GB", dateTimeOptions)} />
         </ListItem>
       )}
     </List>
   );
 }
 
+function formatBirthday(birthday) {
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
+  const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const date = new Date(birthday);
+  const weekday = date.getUTCDay();
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  const day = date.getUTCDate();
+
+  return `${weekdayNames[weekday]}, ${day} ${monthNames[month]} ${year}`;
+}
   /* 
   {user.CreationDate}
 

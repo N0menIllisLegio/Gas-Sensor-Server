@@ -93,7 +93,7 @@ export default function UserDetailsCard(props) {
                 </Grid>
                 <Grid item xs={8}>
                   <p className={classes.cardCaptionParagraph}>
-                    <i>{new Date(user.CreationDate).toLocaleString("en-US", dateTimeOptions)}</i>
+                    <i>{new Date(user.CreationDate).toLocaleString("en-GB", dateTimeOptions)}</i>
                   </p>
                 </Grid>
               </Grid>

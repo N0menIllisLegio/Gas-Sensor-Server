@@ -133,7 +133,7 @@ function MicrocontrollersDetailCard(props) {
             </Grid>
 
             <MicrocontrollerDetail icon={(<DnsTwoToneIcon />)} name="IP" content={microcontroller.IPAddress} />
-            <MicrocontrollerDetail icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-US", dateTimeOptions)} />
+            <MicrocontrollerDetail icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-GB", dateTimeOptions)} />
             <MicrocontrollerDetail icon={(<LocationOnTwoToneIcon />)} name="Position" content={(<span><b>lat:</b>&nbsp;{microcontroller.Latitude || '—'} <b>long:</b>&nbsp;{microcontroller.Longitude || '—'}</span>)} />
             <MicrocontrollerDetail icon={(<VpnLockTwoToneIcon />)} name="Privacy" content={(<span style={{color: microcontroller.Public ? lightGreen[500] : red[300]}}>{microcontroller.Public ? 'Public' : 'Private'}</span>)} />
           </Grid>
