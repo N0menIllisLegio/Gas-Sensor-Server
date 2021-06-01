@@ -49,7 +49,7 @@ export function usePagedPost(url, pageNumber, pageSize,
         if (response.status === 200) {
           setData(response.data);
           setError(null);
-        } else if (response.errors[0] === 'AbortError') {
+        } else if (response.errors?.length > 0 && response.errors[0] === 'AbortError') {
           console.log(`Fetch from ${url} aborted.`);
         } else {
           setError(response.errors);
