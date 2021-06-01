@@ -6,7 +6,7 @@ namespace Gss.Core.Models
   {
     public Guid MicrocontrollerID { get; set; }
     public Guid SensorID { get; set; }
-    public DateTime ValueReadTime { get; set; }
+    public DateTimeOffset ValueReadTime { get; set; }
     public decimal AverageSensorValue { get; set; }
   }
 }

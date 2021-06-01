@@ -43,7 +43,7 @@ namespace Gss.Infrastructure.Repositories
     }
 
     public async Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerID, Guid sensorID,
-      DateTime watchingDate, SensorDataPeriod period)
+      DateTimeOffset watchingDate, SensorDataPeriod period)
     {
       var query = period switch
       {
@@ -57,7 +57,7 @@ namespace Gss.Infrastructure.Repositories
     }
 
     private IQueryable<SensorDataModel> GetSensorDataQueryByYearPeriod(Guid microcontrollerID, Guid sensorID,
-      DateTime watchingDate)
+      DateTimeOffset watchingDate)
     {
       return from sensorData in DbSet
              where sensorData.MicrocontrollerID == microcontrollerID
@@ -84,13 +84,13 @@ namespace Gss.Infrastructure.Repositories
              {
                MicrocontrollerID = groupedData.Key.MicrocontrollerID,
                SensorID = groupedData.Key.SensorID,
-               ValueReadTime = new DateTime(groupedData.Key.Year, groupedData.Key.Month, 1),
+               ValueReadTime = DateTime.SpecifyKind(new DateTime(groupedData.Key.Year, groupedData.Key.Month, 1), DateTimeKind.Utc),
                AverageSensorValue = Math.Floor((decimal)groupedData.Average(s => s.SensorValue)),
              };
     }
 
     private IQueryable<SensorDataModel> GetSensorDataQueryByMonthPeriod(Guid microcontrollerID, Guid sensorID,
-      DateTime watchingDate)
+      DateTimeOffset watchingDate)
     {
       return from sensorData in DbSet
              where sensorData.MicrocontrollerID == microcontrollerID
@@ -117,13 +117,13 @@ namespace Gss.Infrastructure.Repositories
              {
                MicrocontrollerID = groupedData.Key.MicrocontrollerID,
                SensorID = groupedData.Key.SensorID,
-               ValueReadTime = groupedData.Key.Date,
+               ValueReadTime = DateTime.SpecifyKind(groupedData.Key.Date, DateTimeKind.Utc),
                AverageSensorValue = Math.Floor((decimal)groupedData.Average(s => s.SensorValue)),
              };
     }
 
     private IQueryable<SensorDataModel> GetSensorDataQueryByDayPeriod(Guid microcontrollerID, Guid sensorID,
-      DateTime watchingDate)
+      DateTimeOffset watchingDate)
     {
       return from sensorData in DbSet
              where sensorData.MicrocontrollerID == microcontrollerID
@@ -153,7 +153,7 @@ namespace Gss.Infrastructure.Repositories
                SensorID = groupedData.Key.SensorID,
                AverageSensorValue = Math.Floor((decimal)groupedData.Average(s => s.SensorValue)),
                ValueReadTime = new DateTime(groupedData.Key.Date.Year, groupedData.Key.Date.Month,
-                 groupedData.Key.Date.Day, groupedData.Key.Hours, 0, 0),
+                 groupedData.Key.Date.Day, groupedData.Key.Hours, 0, 0, DateTimeKind.Utc),
              };
     }
   }

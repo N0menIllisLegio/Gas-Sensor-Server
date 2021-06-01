@@ -156,8 +156,7 @@ namespace Gss.Core.Services
             await SendMicrocontrollerResponse(socket, _okResponse);
 
             if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerID == connectedMicrocontroller.Id
-              && sensorData.SensorID == sensorID
-              && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
+              && sensorData.SensorID == sensorID && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
             {
               var sensorData = new SensorData
               {
@@ -165,7 +164,7 @@ namespace Gss.Core.Services
                 MicrocontrollerID = connectedMicrocontroller.Id,
                 SensorID = sensorID,
                 SensorValue = sensorValue,
-                ValueReadTime = sensorValueReadedDateTime,
+                ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
                 ValueReceivedTime = DateTime.UtcNow
               };
 
@@ -227,7 +226,7 @@ namespace Gss.Core.Services
                 MicrocontrollerID = connectedMicrocontroller.Id,
                 SensorID = sensorID,
                 SensorValue = sensorValue,
-                ValueReadTime = sensorValueReadedDateTime,
+                ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
                 ValueReceivedTime = DateTime.UtcNow
               });
 
