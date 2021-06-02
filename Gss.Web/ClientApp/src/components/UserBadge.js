@@ -4,7 +4,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { MakeAuthorizedRequest, GetRequest } from '../requests/Requests';
+import { MakeAuthorizedRequest, GetRequest, PostRequest } from '../requests/Requests';
 import { selectUser, selectUserBadgeName, selectUserBadgeAvatarSrc, logout, saveBadgeData } from '../redux/reducers/authSlice';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
@@ -59,6 +59,15 @@ export default function UserBadge() {
   const handleLogout = () => {
     handleClose();
     dispatch(logout());
+
+    const logoutRequestFactory = (token) =>
+      PostRequest(`${process.env.REACT_APP_SERVER_URL}api/Authorization/LogOut`, {
+        AccessToken: user.AccessToken,
+        RefreshToken: user.RefreshToken
+      }, token);
+
+    MakeAuthorizedRequest(logoutRequestFactory, user);
+
     history.push('/');
   };
 
