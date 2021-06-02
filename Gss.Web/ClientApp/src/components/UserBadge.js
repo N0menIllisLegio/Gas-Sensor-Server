@@ -80,7 +80,7 @@ export default function UserBadge() {
           if (response.status === 200) {
             dispatch(saveBadgeData({
               userBadgeName: response.data.FirstName,
-              userBadgeAvatarSrc: response.data.AvatarPath?.replace('/images/','/thumbnails/')
+              userBadgeAvatarSrc: response.data.AvatarPath
             }));
           }
         });

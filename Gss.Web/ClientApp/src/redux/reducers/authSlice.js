@@ -51,7 +51,7 @@ export const authSlice = createSlice({
     },
     saveBadgeData: (state, action) => {
       state.userBadgeName = action.payload.userBadgeName;
-      state.userBadgeAvatarSrc = action.payload.userBadgeAvatarSrc;
+      state.userBadgeAvatarSrc = action.payload.userBadgeAvatarSrc?.replace('/images/','/thumbnails/');
     }
   }
 });
