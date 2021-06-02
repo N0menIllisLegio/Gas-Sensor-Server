@@ -368,7 +368,7 @@ function SensorsAccordion(props) {
       <AccordionDetails className={classes.details}>
         <Divider className={classes.headerDivider} />
         {sensor.Description && (
-          <Typography>
+          <Typography style={{whiteSpace: 'pre-line'}}>
             {sensor.Description}
           </Typography>
         )}
