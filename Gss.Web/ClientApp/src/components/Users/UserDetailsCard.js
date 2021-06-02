@@ -57,8 +57,7 @@ export default function UserDetailsCard(props) {
       <Card className={classes.root}>
         <CardMedia
           className={classes.media}
-          image={user.AvatarPath != null ? user.AvatarPath : process.env.REACT_APP_AVATAR_PLACEHOLDER_URL}
-          title="Contemplative Reptile" />
+          image={user.AvatarPath != null ? user.AvatarPath : process.env.REACT_APP_AVATAR_PLACEHOLDER_URL} />
         <CardContent style={{padding: '16px'}}>
           <div className={classes.namesHeader}>
             <Typography gutterBottom variant="h5" component="h2">
