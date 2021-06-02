@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../redux/reducers/authSlice';
 import { selectNotifications, addNotification, removeNotification } from '../redux/reducers/notificationsSlice';
 import { useHistory } from 'react-router-dom';
+import BellIcon from './BellIcon';
 
 const useStyles = makeStyles((theme) => ({
   bellButton: {
@@ -39,7 +40,8 @@ const useStyles = makeStyles((theme) => ({
   noNotificationsString: {
     margin: theme.spacing(4),
     display: 'flex',
-    justifyContent: 'center'
+    flexDirection: 'column',
+    alignItems: 'center',
   }
 }));
 
@@ -144,6 +146,8 @@ export default function NotificationCenter() {
               </List>
             )) || (
               <div className={classes.noNotificationsString}>
+                
+                <BellIcon />
                 <Typography variant="caption">
                   No notifications received!
                 </Typography>
