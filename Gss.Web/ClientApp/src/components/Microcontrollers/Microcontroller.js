@@ -314,7 +314,8 @@ export default function Microcontroller() {
 
 const useAccordionStyles = makeStyles((theme) => ({
   accordion: {
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    flexBasis: '100%'
   },
   header: {
     display: 'flex',
