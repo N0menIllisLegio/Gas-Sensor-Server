@@ -21,15 +21,15 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.Microcontroller", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("IPAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("LastResponseTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastResponseTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("float");
@@ -54,7 +54,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid?>("RequestedSensorID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
@@ -63,7 +63,7 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.MicrocontrollerSensors", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -73,7 +73,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid>("SensorID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("MicrocontrollerID");
 
@@ -84,12 +84,12 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.RefreshToken", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ExpirationDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
@@ -97,7 +97,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -106,7 +106,7 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -122,7 +122,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid>("TypeID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("TypeID");
 
@@ -137,14 +137,14 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid>("SensorID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ValueReadTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ValueReadTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("SensorValue")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ValueReceivedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ValueReceivedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("MicrocontrollerID", "SensorID", "ValueReadTime");
 
@@ -155,7 +155,7 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.SensorType", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -171,7 +171,7 @@ namespace Gss.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.ToTable("SensorsTypes");
                 });
@@ -188,16 +188,16 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<string>("AvatarPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Birthday")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("Birthday")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreationDate")
+                    b.Property<DateTimeOffset>("CreationDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)

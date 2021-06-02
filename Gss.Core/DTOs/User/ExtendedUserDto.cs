@@ -8,6 +8,6 @@ namespace Gss.Core.DTOs.User
     public bool LockoutEnabled { get; set; }
     public DateTimeOffset? LockoutEnd { get; set; }
     public int AccessFailedCount { get; set; }
-    public DateTime CreationDate { get; set; }
+    public DateTimeOffset CreationDate { get; set; }
   }
 }

@@ -57,7 +57,12 @@ export default function SensorsDataChart(props) {
 
   const handleAddWatchingDate = () => {
     if (watchingDate != null && watchingDates.length < 5 && !watchingDates.includes(watchingDate)) {
-      setWatchingDates([...watchingDates, watchingDate]);
+      const month = (watchingDate.getMonth() + 1).toString().padStart(2, '0');
+      const day = watchingDate.getDate().toString().padStart(2, '0');
+
+      setWatchingDates([...watchingDates,
+        new Date(`${watchingDate.getFullYear()}-${month}-${day}T00:00:00.000Z`)]);
+
       setColors([...colors, getRandomColor()]);
     }
   };
@@ -219,12 +224,12 @@ function currentValueReadTimeRetrieverPicker(period) {
 }
 
 function currentValueReadDay(currentValueReadTime) {
-  const rawValue = new Date(currentValueReadTime).getHours();
+  const rawValue = new Date(currentValueReadTime).getUTCHours();
   return { rawValue: rawValue, value: rawValue };
 }
 
 function currentValueReadMonth(currentValueReadTime) {
-  const rawValue = new Date(currentValueReadTime).getDate();
+  const rawValue = new Date(currentValueReadTime).getUTCDate();
   return { rawValue: rawValue, value: rawValue };
 }
 
@@ -234,7 +239,7 @@ function currentValueReadYear(currentValueReadTime) {
     'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
-  const rawValue = new Date(currentValueReadTime).getMonth();
+  const rawValue = new Date(currentValueReadTime).getUTCMonth();
   return { rawValue: rawValue, value: months[rawValue] };
 }
 

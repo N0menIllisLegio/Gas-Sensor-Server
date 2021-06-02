@@ -13,7 +13,7 @@ import Select from '@material-ui/core/Select';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import { theme as appTheme } from '../../App';
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from 'react';
 import FormErrors from '../FormErrors';
 import { MakeAuthorizedRequest, PutRequest, PostImageRequest } from '../../requests/Requests';
@@ -56,39 +56,15 @@ export default function UserEdit(props) {
   const history = useHistory();
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const { register, formState: { errors }, handleSubmit, getValues, setValue } = useForm();
+  const { formState: { errors }, handleSubmit, reset, control } = useForm();
 
   const [serverErrors, setServerErrors] = useState(null);
   const [isPending, setIsPending] = useState(false);
 
   const [avatarSrc, setAvatarSrc] = useState(null);
   const [avatar, setAvatar] = useState(null);
-  
-  const [email, setEmail] = useState('');
-  let emailValue = getValues('Email') ?? '';
-
-  const [firstName, setFirstName] = useState('');
-  let firstNameValue = getValues('FirstName') ?? '';
-
-  const [lastName, setLastName] = useState('');
-  let lastNameValue = getValues('LastName') ?? '';
-
-  const [phoneNumber, setPhoneNumber] = useState('');
-  let phoneNumberValue = getValues('PhoneNumber') ?? '';
-
-  const [gender, setGender] = useState('');
-  let genderValue = getValues('Gender') ?? '';
-
-  const [birthday, setBirthday] = useState(null);
-  let birthdayValue = getValues('Birthday');
-  
-  const [isFirstNameError, setIsFirstNameError] = useState(false);
-  const [isLastNameError, setIsLastNameError] = useState(false);
-  const [isBirthdayError, setIsBirthdayError] = useState(false);
-  const [isPhoneNumberError, setIsPhoneNumberError] = useState(false);
 
   const handleFormSubmit = async (body) => {
-    
     let uploadedAvatarUrl = null;
 
     if (avatar != null) {
@@ -153,69 +129,19 @@ export default function UserEdit(props) {
   useEffect(() => {
     if (props.user != null) {
       setAvatarSrc(props.user.AvatarPath || null);
-      
-      setEmail(props.user.Email ?? '');
-      setValue('Email', props.user.Email ?? '');
 
-      setFirstName(props.user.FirstName ?? '');
-      setValue('FirstName', props.user.FirstName ?? '');
+      const resetUser = {
+        Email: props.user.Email,
+        FirstName: props.user.FirstName,
+        LastName: props.user.LastName,
+        PhoneNumber: props.user.PhoneNumber,
+        Gender: props.user.Gender,
+        Birthday: new Date(props.user.Birthday)
+      };
 
-      setLastName(props.user.LastName ?? '');
-      setValue('LastName', props.user.LastName ?? '');
-
-      setPhoneNumber(props.user.PhoneNumber ?? '');
-      setValue('PhoneNumber', props.user.PhoneNumber ?? '');
-
-      setGender(props.user.Gender ?? '');
-      setValue('Gender', props.user.Gender ?? '');
-
-      setBirthday(new Date(props.user.Birthday));
-      setValue('Birthday', props.user.Birthday);
+      reset(resetUser);
     }
-  }, [props.user, setValue]);
-  
-  useEffect(() => {
-    setIsFirstNameError(errors?.FirstName?.message != null);
-    setIsLastNameError(errors?.LastName?.message != null);
-    setIsBirthdayError(errors?.Birthday?.message != null);
-    setIsPhoneNumberError(errors?.PhoneNumber?.message != null);
-  }, [
-    errors,
-    errors?.FirstName,
-    errors?.LastName,
-    errors?.Birthday,
-    errors?.PhoneNumber
-  ]);
-
-  useEffect(() => {
-    register('Birthday', {
-      validate: date => date == null || getAge(date) >= 15 || 'You must be older than 15'
-    });
-  }, [register]);
-  
-  useEffect(() => {
-    setEmail(emailValue);
-  }, [setEmail, emailValue]);
-
-  useEffect(() => {
-    setFirstName(firstNameValue);
-  }, [setFirstName, firstNameValue]);
-
-  useEffect(() => {
-    setLastName(lastNameValue);
-  }, [setLastName, lastNameValue]);
-
-  useEffect(() => {
-    setPhoneNumber(phoneNumberValue);
-  }, [setPhoneNumber, phoneNumberValue]);
-
-  useEffect(() => {
-    setGender(genderValue);
-  }, [setGender, genderValue]);
-
-  useEffect(() => {
-    setBirthday(birthdayValue || null);
-  }, [setBirthday, birthdayValue]);
+  }, [props.user, reset]);
 
   return (
     <form autoComplete="off" onSubmit={handleSubmit(handleFormSubmit)}>
@@ -233,108 +159,126 @@ export default function UserEdit(props) {
             </Grid>
 
             <Grid item xs={12} className={classes.formElement}>
-              <TextField
-                {...register('Email', {
+              <Controller
+                name="Email"
+                control={control}
+                rules={{
                   required: { value: true, message: "Email is required" },
                   minLength: { value: 4, message: "Minimum Email length is 4 characters" },
                   pattern: { value: /(?:^(?:.+)@(?:.+)\.(?:.+)$)|(?:^$)/, message: "Email is invalid" }
-                })}
-                value={email}
-                onChange={(e) => setValue('Email', e.target.value, { shouldValidate: true, shouldDirty: true })}
-
-                fullWidth
-                disabled
-                label="Email"
-                margin="normal"
-                variant="outlined" />
+                }}
+                render={({ field }) =>
+                <TextField
+                  {...field}
+                  fullWidth
+                  disabled
+                  label="Email"
+                  margin="normal"
+                  variant="outlined" />} />
             </Grid>
 
             <Grid item xs={12} className={classes.formElement}>
-              <TextField
-                {...register('FirstName', {
+              <Controller
+                name="FirstName"
+                control={control}
+                rules={{
                   required: { value: true, message: "First name is required" },
                   minLength: { value: 2, message: "Minimum first name length is 2 characters" },
                   maxLength: { value: 255, message: "Maximum first name length is 255 characters" },
                   pattern: { value: /(?:^[a-zA-Z]{2,255}$)|(?:^$)/, message: "First name should consist of english letters" }
-                })}
-                value={firstName}
-                onChange={(e) => setValue('FirstName', e.target.value, { shouldValidate: true, shouldDirty: true })}
-
-                fullWidth
-                label="First Name"
-                className={classes.textField}
-                margin="normal"
-                variant="outlined"
-                error={isFirstNameError}
-                helperText={errors.FirstName?.message}  />
+                }}
+                render={({ field }) =>
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="First Name"
+                  className={classes.textField}
+                  margin="normal"
+                  variant="outlined"
+                  error={errors.FirstName}
+                  helperText={errors.FirstName?.message} />} />
             </Grid>
 
             <Grid item xs={12} className={classes.formElement}>
-              <TextField
-                {...register('LastName', {
+              <Controller
+                name="LastName"
+                control={control}
+                rules={ {
                   minLength: { value: 2, message: "Minimum last name length is 2 characters" },
                   maxLength: { value: 255, message: "Maximum last name length is 255 characters" },
                   pattern: { value: /(?:^[a-zA-Z]{2,255}$)|(?:^$)/, message: "Last name should consist of english letters" }
-                })}
-                value={lastName}
-                onChange={(e) => setValue('LastName', e.target.value, { shouldValidate: true, shouldDirty: true })}
-                
-                fullWidth
-                label="Last Name"
-                className={classes.textField}
-                margin="normal"
-                variant="outlined"
-                error={isLastNameError}
-                helperText={errors.LastName?.message} />
+                }}
+                render={({ field }) =>
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Last Name"
+                  className={classes.textField}
+                  margin="normal"
+                  variant="outlined"
+                  error={errors.LastName}
+                  helperText={errors.LastName?.message} /> } />
             </Grid>
 
             <Grid item xs={12} className={classes.formElement}>
               <FormControl variant="outlined" className={classes.genderSelector}>
                 <InputLabel>Gender</InputLabel>
-                <Select
-                  {...register('Gender')}
-                  value={gender}
-                  onChange={(e) => setValue('Gender', e.target.value, { shouldValidate: true, shouldDirty: true })}
-                  label="Gender">
-                  <MenuItem value=""><em>None</em></MenuItem>
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
-                </Select>
+                <Controller
+                  name="Gender"
+                  control={control}
+                  defaultValue={true}
+                  render={({ field }) =>
+                  <Select
+                    {...field}
+                    label="Gender">
+                    <MenuItem value=""><em>None</em></MenuItem>
+                    <MenuItem value="Male">Male</MenuItem>
+                    <MenuItem value="Female">Female</MenuItem>
+                  </Select>} />
               </FormControl>
             </Grid>
 
             <Grid item xs={12} className={classes.formElement}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  fullWidth
-                  clearable
-                  value={birthday}
-                  onChange={(date) => setValue('Birthday', date, { shouldValidate: true, shouldDirty: true })}
-                  label="Birthday"
-                  format="dd.MM.yyyy"
-                  inputVariant="outlined"
-                  error={isBirthdayError}
-                  helperText={errors.Birthday?.message} />
-              </MuiPickersUtilsProvider>
+              <Controller
+                name="Birthday"
+                control={control}
+                rules={{
+                  validate: date => date == null || getAge(date) >= 15 || 'You must be older than 15'
+                }}
+                render={({ field }) =>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <KeyboardDatePicker
+                    {...field}
+                    fullWidth
+                    clearable
+                    label="Birthday"
+                    format="dd.MM.yyyy"
+                    inputVariant="outlined"
+                    error={errors.Birthday}
+                    helperText={errors.Birthday?.message} />
+                </MuiPickersUtilsProvider>} />
             </Grid>
 
             <Grid item xs={12} className={classes.formElement}>
-              <TextField
-                {...register('PhoneNumber', {
+              <Controller
+                name="PhoneNumber"
+                control={control}
+                rules={{
                   minLength: { value: 7, message: "Minimum phone number length is 7 characters" },
                   maxLength: { value: 12, message: "Maximum phone number length is 12 characters" },
                   pattern: { value: /(?:^\+?[0-9]{7,12}$)|(?:^$)/, message: "Phone number is invalid" }
-                })}
-                value={phoneNumber}
-                onChange={(e) => setValue('PhoneNumber', e.target.value, { shouldValidate: true, shouldDirty: true })}
-
-                fullWidth
-                label="Phone Number"
-                className={classes.textField}
-                margin="normal"
-                variant="outlined"
-                error={isPhoneNumberError}
-                helperText={errors.PhoneNumber?.message} />
+                }}
+                render={({ field }) => 
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Phone Number"
+                  className={classes.textField}
+                  margin="normal"
+                  variant="outlined"
+                  error={errors.PhoneNumber}
+                  helperText={errors.PhoneNumber?.message} />} />
+              
             </Grid>
             
             {serverErrors && (

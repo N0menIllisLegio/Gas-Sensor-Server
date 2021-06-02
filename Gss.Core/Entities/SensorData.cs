@@ -15,9 +15,9 @@ namespace Gss.Core.Entities
     public Guid SensorID { get; set; }
     public virtual Sensor Sensor { get; set; }
 
-    public DateTime ValueReadTime { get; set; }
+    public DateTimeOffset ValueReadTime { get; set; }
 
     public int SensorValue { get; set; }
-    public DateTime ValueReceivedTime { get; set; }
+    public DateTimeOffset ValueReceivedTime { get; set; }
   }
 }

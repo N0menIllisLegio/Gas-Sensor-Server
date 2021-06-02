@@ -10,90 +10,172 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gss.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201119193513_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210531211919_SquashMigration")]
+    partial class SquashMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.0");
+                .HasAnnotation("ProductVersion", "5.0.5")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Gss.Core.Entities.Microcontroller", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("IPAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastResponseTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastResponseTime")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<double>("Latitude")
+                    b.Property<double?>("Latitude")
                         .HasColumnType("float");
 
-                    b.Property<double>("Longitude")
+                    b.Property<double?>("Longitude")
                         .HasColumnType("float");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("Public")
                         .HasColumnType("bit");
 
-                    b.HasKey("ID");
+                    b.Property<Guid?>("RequestedSensorID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Microcontrollers");
                 });
 
-            modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
+            modelBuilder.Entity("Gss.Core.Entities.MicrocontrollerSensors", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("MicrocontrollerID")
+                    b.Property<Guid>("MicrocontrollerID")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("SensorID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MicrocontrollerID");
+
+                    b.HasIndex("SensorID");
+
+                    b.ToTable("MicrocontrollerSensors");
+                });
+
+            modelBuilder.Entity("Gss.Core.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ExpirationDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.HasKey("ID");
+                    b.Property<Guid>("TypeID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("MicrocontrollerID");
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeID");
 
                     b.ToTable("Sensors");
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.SensorData", b =>
                 {
-                    b.Property<DateTime>("ValueReadTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("MicrocontrollerID")
+                    b.Property<Guid>("MicrocontrollerID")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SensorID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ValueReadTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("SensorValue")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ValueReceivedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ValueReceivedTime")
+                        .HasColumnType("datetimeoffset");
 
-                    b.HasKey("ValueReadTime");
+                    b.HasKey("MicrocontrollerID", "SensorID", "ValueReadTime");
 
-                    b.HasIndex("MicrocontrollerID");
+                    b.HasIndex("SensorID");
 
                     b.ToTable("SensorsData");
+                });
+
+            modelBuilder.Entity("Gss.Core.Entities.SensorType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Units")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SensorsTypes");
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.User", b =>
@@ -105,9 +187,19 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("AvatarPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("Birthday")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -115,6 +207,15 @@ namespace Gss.Infrastructure.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -195,7 +296,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -218,7 +319,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -304,20 +405,63 @@ namespace Gss.Infrastructure.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Gss.Core.Entities.MicrocontrollerSensors", b =>
+                {
+                    b.HasOne("Gss.Core.Entities.Microcontroller", "Microcontroller")
+                        .WithMany("MicrocontrollerSensors")
+                        .HasForeignKey("MicrocontrollerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gss.Core.Entities.Sensor", "Sensor")
+                        .WithMany("SensorMicrocontrollers")
+                        .HasForeignKey("SensorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Microcontroller");
+
+                    b.Navigation("Sensor");
+                });
+
+            modelBuilder.Entity("Gss.Core.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Gss.Core.Entities.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
                 {
-                    b.HasOne("Gss.Core.Entities.Microcontroller", null)
+                    b.HasOne("Gss.Core.Entities.SensorType", "Type")
                         .WithMany("Sensors")
-                        .HasForeignKey("MicrocontrollerID");
+                        .HasForeignKey("TypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.SensorData", b =>
                 {
                     b.HasOne("Gss.Core.Entities.Microcontroller", "Microcontroller")
                         .WithMany()
-                        .HasForeignKey("MicrocontrollerID");
+                        .HasForeignKey("MicrocontrollerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gss.Core.Entities.Sensor", "Sensor")
+                        .WithMany()
+                        .HasForeignKey("SensorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Microcontroller");
+
+                    b.Navigation("Sensor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -373,12 +517,24 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.Microcontroller", b =>
                 {
+                    b.Navigation("MicrocontrollerSensors");
+                });
+
+            modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
+                {
+                    b.Navigation("SensorMicrocontrollers");
+                });
+
+            modelBuilder.Entity("Gss.Core.Entities.SensorType", b =>
+                {
                     b.Navigation("Sensors");
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.User", b =>
                 {
                     b.Navigation("Microcontrollers");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

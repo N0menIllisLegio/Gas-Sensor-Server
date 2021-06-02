@@ -17,8 +17,8 @@ namespace Gss.Core.Entities
     public string Name { get; set; }
     public string IPAddress { get; set; }
 
-    [ExpressionsBuilder]
-    public DateTime? LastResponseTime { get; set; }
+    //[ExpressionsBuilder]
+    public DateTimeOffset? LastResponseTime { get; set; }
 
     [ExpressionsBuilder]
     public bool Public { get; set; }

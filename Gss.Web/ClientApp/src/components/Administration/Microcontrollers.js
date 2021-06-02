@@ -4,26 +4,15 @@ import { Button } from "@material-ui/core";
 import AddButton from "../AddButton";
 import { useHistory } from 'react-router-dom';
 
-const dateTimeOptions = {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-  weekday: 'short',
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  hour12: false
-};
-
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
   { field: 'Name', headerName: 'Name', flex: 0.8 },
   { field: 'IPAddress', headerName: 'IP', flex: 0.8 },
-  { field: 'LastResponseTime', headerName: 'LRT', flex: 0.8, type: 'dateTime', description: 'Last Response Time', valueFormatter: (params) => new Date(params.value).toLocaleString("en-US", dateTimeOptions) },
+  { field: 'LastResponseTime', headerName: 'LRT', flex: 0.8, type: 'dateTime', description: 'Last Response Time', valueFormatter: (params) => new Date(params.value).toUTCString() },
   { field: 'Public', headerName: 'Public', flex: 0.3, type: 'boolean' },
-  { field: 'Sensors', headerName: 'Sensors Connected', flex: 0.5, valueFormatter: (params) => params.value.length, type: 'number', sortComparator: (v1, v2, cellParams1, cellParams2) => v1.length - v2.length},
+  { field: 'Sensors', headerName: 'Sensors Connected', flex: 0.5, valueFormatter: (params) => params.value.length, type: 'number', sortComparator: (v1, v2) => v1.length - v2.length},
   { field: 'UserInfo', headerName: 'Owner Email', flex: 1, align: 'center', headerAlign: 'center',
-    sortComparator: (v1, v2, cellParams1, cellParams2) => {
+    sortComparator: (v1, v2) => {
       if (v1 !== null && v2 !== null) {
         return v1.Email.localeCompare(v2.Email);
       } else if (v1 === v2) {

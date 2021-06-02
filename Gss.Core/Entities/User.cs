@@ -19,12 +19,12 @@ namespace Gss.Core.Entities
     [ExpressionsBuilder]
     public string Gender { get; set; }
 
-    [ExpressionsBuilder]
-    public DateTime? Birthday { get; set; }
+    // [ExpressionsBuilder]
+    public DateTimeOffset? Birthday { get; set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [ExpressionsBuilder]
-    public DateTime CreationDate { get; set; }
+    // [ExpressionsBuilder]
+    public DateTimeOffset CreationDate { get; set; }
 
     // ------ RELATIONSHIPS
 

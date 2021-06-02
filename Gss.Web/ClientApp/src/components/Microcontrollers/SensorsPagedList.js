@@ -104,7 +104,7 @@ export default function SensorsPagedList(props) {
 
             <Grid item xs={6}>
               <div className={classes.description}>
-                <Typography variant="caption" align="justify" display="block">
+                <Typography variant="caption" align="justify" display="block" style={{whiteSpace: 'pre-line'}}>
                   {selectedSensor?.Description}
                 </Typography>
               </div>

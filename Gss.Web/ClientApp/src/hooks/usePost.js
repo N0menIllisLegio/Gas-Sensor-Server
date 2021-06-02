@@ -49,13 +49,15 @@ export function usePagedPost(url, pageNumber, pageSize,
         if (response.status === 200) {
           setData(response.data);
           setError(null);
-        } else if (response.errors[0] === 'AbortError') {
+          setIsPending(false);
+        } else if (response.errors?.length > 0 && response.errors[0] === 'AbortError') {
           console.log(`Fetch from ${url} aborted.`);
-        } else {
+          setIsPending(false);
+        } else if (response.errors?.length > 0
+          && response.errors[0] != null) {
           setError(response.errors);
+          setIsPending(false);
         }
-      
-        setIsPending(false);
       });
 
     return () => abortCont.abort();
@@ -98,13 +100,16 @@ export function useSensorDataPost(url, microcontrollerID, sensorID, period, watc
           if (response.status === 200) {
             setData(response.data);
             setError(null);
-          } else if (response.errors[0] === 'AbortError') {
+            setIsPending(false);
+          } else if (response.errors?.length > 0
+            && response.errors[0] === 'AbortError') {
             console.log(`Fetch from ${url} aborted.`);
-          } else {
+            setIsPending(false);
+          } else if (response.errors?.length > 0
+            && response.errors[0] != null) {
             setError(response.errors);
+            setIsPending(false);
           }
-        
-          setIsPending(false);
         });
     }
 
@@ -147,13 +152,16 @@ export function useVisibleMicrocontrollers(url, neLat, neLong, swLat, swLong) {
           if (response.status === 200) {
             setData(response.data);
             setError(null);
-          } else if (response.errors[0] === 'AbortError') {
+            setIsPending(false);
+          } else if (response.errors?.length > 0
+            && response.errors[0] === 'AbortError') {
             console.log(`Fetch from ${url} aborted.`);
-          } else {
+            setIsPending(false);
+          } else if (response.errors?.length > 0
+            && response.errors[0] != null) {
             setError(response.errors);
+            setIsPending(false);
           }
-        
-          setIsPending(false);
         });
     }
 

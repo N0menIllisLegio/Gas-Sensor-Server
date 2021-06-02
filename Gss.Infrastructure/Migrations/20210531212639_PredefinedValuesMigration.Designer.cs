@@ -10,28 +10,28 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gss.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210120211847_RenameMicrocontrollerSensorMigration")]
-    partial class RenameMicrocontrollerSensorMigration
+    [Migration("20210531212639_PredefinedValuesMigration")]
+    partial class PredefinedValuesMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.5")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Gss.Core.Entities.Microcontroller", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("IPAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("LastResponseTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastResponseTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("float");
@@ -53,7 +53,10 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<bool>("Public")
                         .HasColumnType("bit");
 
-                    b.HasKey("ID");
+                    b.Property<Guid?>("RequestedSensorID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
@@ -62,7 +65,7 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.MicrocontrollerSensors", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -72,7 +75,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid>("SensorID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("MicrocontrollerID");
 
@@ -83,12 +86,12 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.RefreshToken", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ExpirationDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
@@ -96,7 +99,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -105,7 +108,7 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -121,7 +124,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid>("TypeID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("TypeID");
 
@@ -136,14 +139,14 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid>("SensorID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ValueReadTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ValueReadTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("SensorValue")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ValueReceivedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ValueReceivedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("MicrocontrollerID", "SensorID", "ValueReadTime");
 
@@ -154,7 +157,7 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.SensorType", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -170,7 +173,7 @@ namespace Gss.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.ToTable("SensorsTypes");
                 });
@@ -187,16 +190,16 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<string>("AvatarPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Birthday")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("Birthday")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreationDate")
+                    b.Property<DateTimeOffset>("CreationDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -293,7 +296,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -316,7 +319,7 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .UseIdentityColumn();
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -425,7 +428,8 @@ namespace Gss.Infrastructure.Migrations
                 {
                     b.HasOne("Gss.Core.Entities.User", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });

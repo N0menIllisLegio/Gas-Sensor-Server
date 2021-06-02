@@ -11,6 +11,6 @@ namespace Gss.Core.Interfaces.Repositories
   {
     Task SingleInsertIfNotExists(SensorData sensorData);
     Task BulkInsertIfNotExists(List<SensorData> sensorData);
-    Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerID, Guid sensorID, DateTime watchingDate, SensorDataPeriod period);
+    Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerID, Guid sensorID, DateTimeOffset watchingDate, SensorDataPeriod period);
   }
 }

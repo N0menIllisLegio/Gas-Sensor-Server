@@ -9,6 +9,6 @@ namespace Gss.Core.DTOs.SensorData
     public Guid MicrocontrollerID { get; set; }
     public Guid SensorID { get; set; }
     public SensorDataPeriod Period { get; set; }
-    public List<DateTime> WatchingDates { get; set; }
+    public List<DateTimeOffset> WatchingDates { get; set; }
   }
 }

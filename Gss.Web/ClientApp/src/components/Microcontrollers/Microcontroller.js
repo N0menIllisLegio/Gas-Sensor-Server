@@ -314,7 +314,8 @@ export default function Microcontroller() {
 
 const useAccordionStyles = makeStyles((theme) => ({
   accordion: {
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    flexBasis: '100%'
   },
   header: {
     display: 'flex',
@@ -368,7 +369,7 @@ function SensorsAccordion(props) {
       <AccordionDetails className={classes.details}>
         <Divider className={classes.headerDivider} />
         {sensor.Description && (
-          <Typography>
+          <Typography style={{whiteSpace: 'pre-line'}}>
             {sensor.Description}
           </Typography>
         )}
@@ -420,7 +421,7 @@ function MicrocontrollerDetailCard(props) {
           </Grid>
 
           <CardDetailRow icon={(<DnsTwoToneIcon />)} name="IP" content={microcontroller.IPAddress} />
-          <CardDetailRow icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-US", dateTimeOptions)} />
+          <CardDetailRow icon={(<AlarmTwoToneIcon />)} name="Last Response Time" content={new Date(microcontroller.LastResponseTime).toLocaleString("en-GB", dateTimeOptions)} />
           <CardDetailRow icon={(<LocationOnTwoToneIcon />)} name="Position" content={(<span><b>lat:</b>&nbsp;{microcontroller.Latitude || '—'} <b>long:</b>&nbsp;{microcontroller.Longitude || '—'}</span>)} />
           <CardDetailRow icon={(<VpnLockTwoToneIcon />)} name="Privacy" content={(<span style={{color: microcontroller.Public ? lightGreen[500] : red[300]}}>{microcontroller.Public ? 'Public' : 'Private'}</span>)} />
         </Grid>

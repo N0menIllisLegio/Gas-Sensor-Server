@@ -9,7 +9,7 @@ namespace Gss.Core.DTOs.Microcontroller
   {
     public Guid ID { get; set; }
     public string Name { get; set; }
-    public DateTime? LastResponseTime { get; set; }
+    public DateTimeOffset? LastResponseTime { get; set; }
     public bool Public { get; set; }
 
     public string IPAddress { get; set; }
