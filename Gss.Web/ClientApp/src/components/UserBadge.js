@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { MakeAuthorizedRequest, GetRequest, PostRequest } from '../requests/Requests';
 import { selectUser, selectUserBadgeName, selectUserBadgeAvatarSrc, logout, saveBadgeData } from '../redux/reducers/authSlice';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
 import NotificationCenter from './NotificationCenter';
@@ -39,6 +39,20 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const StyledMenu = withStyles({
+  paper: {
+    border: '1px solid #d3d4d5',
+    width: '200px'
+  },
+})((props) => (
+  <Menu
+    getContentAnchorEl={null}
+    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+    transformOrigin={{ vertical: "top", horizontal: "center" }}
+    {...props}
+  />
+));
+
 export default function UserBadge() {
   const classes = useStyles();
   const history = useHistory();
@@ -56,12 +70,32 @@ export default function UserBadge() {
     setAnchorElement(null);
   };
 
+  const handleProfileClick = () => {
+    handleClose();
+    history.push(`/user/${user.UserID}`);
+  };
+
   const handleLogout = () => {
     handleClose();
     dispatch(logout());
 
     const logoutRequestFactory = (token) =>
       PostRequest(`${process.env.REACT_APP_SERVER_URL}api/Authorization/LogOut`, {
+        AccessToken: user.AccessToken,
+        RefreshToken: user.RefreshToken
+      }, token);
+
+    MakeAuthorizedRequest(logoutRequestFactory, user);
+
+    history.push('/');
+  };
+
+  const handleLogoutAll = () => {
+    handleClose();
+    dispatch(logout());
+
+    const logoutRequestFactory = (token) =>
+      PostRequest(`${process.env.REACT_APP_SERVER_URL}api/Authorization/LogOutFromAllDevices`, {
         AccessToken: user.AccessToken,
         RefreshToken: user.RefreshToken
       }, token);
@@ -107,20 +141,15 @@ export default function UserBadge() {
           <Typography className={classes.name}>{userName}</Typography>
         </Button>
 
-        <Menu
-          getContentAnchorEl={null}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          transformOrigin={{ vertical: "top", horizontal: "center" }}
-          anchorEl={anchorElement}
+        <StyledMenu
           keepMounted
+          anchorEl={anchorElement}
           open={Boolean(anchorElement)}
           onClose={handleClose}>
-          <MenuItem onClick={() => {
-            history.push(`/user/${user.UserID}`);
-            handleClose();
-          }}>Profile</MenuItem>
+          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
           <MenuItem onClick={handleLogout} className={classes.logout}>Logout</MenuItem>
-        </Menu>
+          <MenuItem onClick={handleLogoutAll} className={classes.logout}>Logout from all devices</MenuItem>
+        </StyledMenu>
       </div>
     ) : (
     <Link to="/login" className={classes.link}>
