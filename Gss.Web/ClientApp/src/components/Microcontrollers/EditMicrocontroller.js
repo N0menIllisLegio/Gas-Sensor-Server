@@ -60,6 +60,7 @@ export default function EditMicrocontroller() {
   const [ addSensorButtonEnabled, setAddSensorButtonEnabled ] = useState(true);
   const [ openSnackbar, setOpenSnackbar ] = useState(false);
   const [ snackbarMessage, setSnackbarMessage ] = useState('');
+  const [ zoom, setZoom ] = useState(3);
 
   const [ name, setName ] = useState('');
   const [ password, setPassword ] = useState('');
@@ -268,7 +269,8 @@ export default function EditMicrocontroller() {
                 <Map
                   height={400}
                   center={[latitude, longitude]}
-                  zoom={3}
+                  zoom={zoom}
+                  onBoundsChanged={({ zoom }) => setZoom(zoom)}
                   onClick={handleMapClick}>
                   <Marker width={50} anchor={[latitude, longitude]} />
                 </Map>
