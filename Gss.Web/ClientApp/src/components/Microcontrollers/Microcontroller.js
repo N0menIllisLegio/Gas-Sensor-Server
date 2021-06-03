@@ -39,6 +39,7 @@ import { MakeAuthorizedRequest, DeleteRequest, PatchRequest } from '../../reques
 import FormErrors from '../FormErrors';
 import SwapVertTwoToneIcon from '@material-ui/icons/SwapVertTwoTone';
 import { selectNotifications, markMicrocontrollerNotificationsAsOld } from '../../redux/reducers/notificationsSlice';
+import ConfirmationPopup from '../ConfirmationPopup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -155,22 +156,7 @@ export default function Microcontroller() {
   };
 
   const handleMicrocontrollerDeletion = async () => {
-    const deleteMicrocontrollerRequestFactory = (token) =>
-      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/Delete/${id}`, token);
-  
-    const response = await MakeAuthorizedRequest(deleteMicrocontrollerRequestFactory, user);
-
-    if (response.status !== 200) {
-      if (response.status === 401) {
-        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
-      } else if (response.status === 500) {
-        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
-      } else {
-        setServerErrors(response.errors);
-      }
-    } else {
-      history.push(`/user/${user.UserID}`);
-    }
+    setOpenConfirmationPopup(true);
   }
 
   useEffect(() => {
@@ -209,6 +195,33 @@ export default function Microcontroller() {
     }
   };
 
+  const [openConfirmationPopup, setOpenConfirmationPopup] = useState(false);
+
+  let handleAgreeConfirmationPopupAction = async () => {
+    setOpenConfirmationPopup(false);
+    
+    const deleteMicrocontrollerRequestFactory = (token) =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/Delete/${id}`, token);
+  
+    const response = await MakeAuthorizedRequest(deleteMicrocontrollerRequestFactory, user);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setServerErrors(response.errors);
+      }
+    } else {
+      history.push(`/user/${user.UserID}`);
+    }
+  };
+
+  let handleDisagreeConfirmationPopupAction = () => {
+    setOpenConfirmationPopup(false);
+  };
+
   return (<div className={classes.root}>
     { isPending && <Progress /> }
     { microcontroller && (
@@ -243,24 +256,30 @@ export default function Microcontroller() {
         { (isOwner || isAdministrator) && (
           <div>
             <Divider style={{marginBottom: '1px'}}/>
-              <Paper elevation={0} className={classes.actionsButtonsRow}>
-                <Tooltip title="Edit microcontroller">
-                  <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
-                    <EditTwoToneIcon fontSize="large" />
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Delete microcontroller" className={classes.deleteMicrocontrollerIcon}>
-                  <Button onClick={handleMicrocontrollerDeletion}>
-                    <DeleteForeverTwoToneIcon fontSize="large" color="secondary"/>
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Generate configuration file">
-                  <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
-                    <DescriptionTwoToneIcon fontSize="large" />
-                  </Button>
-                </Tooltip>
-              </Paper>
+            <Paper elevation={0} className={classes.actionsButtonsRow}>
+              <Tooltip title="Edit microcontroller">
+                <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
+                  <EditTwoToneIcon fontSize="large" />
+                </Button>
+              </Tooltip>
+              <Tooltip title="Delete microcontroller" className={classes.deleteMicrocontrollerIcon}>
+                <Button onClick={handleMicrocontrollerDeletion}>
+                  <DeleteForeverTwoToneIcon fontSize="large" color="secondary"/>
+                </Button>
+              </Tooltip>
+              <Tooltip title="Generate configuration file">
+                <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
+                  <DescriptionTwoToneIcon fontSize="large" />
+                </Button>
+              </Tooltip>
+            </Paper>
             <Divider className={classes.divider} />
+            <ConfirmationPopup
+              open={openConfirmationPopup}
+              handleAgree={handleAgreeConfirmationPopupAction}
+              handleDisagree={handleDisagreeConfirmationPopupAction}
+              title="Delete Microcontroller?"
+              content={`Do you realy want to delete ${microcontroller.Name} microcontroller?`} />
           </div>
         )}
 

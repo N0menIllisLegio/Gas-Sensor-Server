@@ -13,6 +13,7 @@ import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom'
 import FormErrors from '../FormErrors';
 import PagedTable from '../PagedTable';
+import ConfirmationPopup from '../ConfirmationPopup';
 
 const useStyles = makeStyles((theme) => ({
   avatarContainer: {
@@ -128,27 +129,7 @@ export default function Sensor(props) {
   };
 
   const handleDelete = async () => {
-    setIsPending(true);
-
-    const deleteSensorRequestFactory = (token) =>
-      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Sensors/Delete/${props.selectedSensor.ID}`, token);
-  
-    const response = await MakeAuthorizedRequest(deleteSensorRequestFactory, user);
-
-    setIsPending(false);
-
-    if (response.status !== 200) {
-      if (response.status === 401) {
-        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
-      } else if (response.status === 500) {
-        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
-      } else {
-        setServerErrors(response.errors);
-      }
-    } else {
-      props.setSensorChanged(!props.sensorChanged);
-      handleClose();
-    }
+    setOpenConfirmationPopup(true);
   };
 
   const handleSave = async () => {
@@ -198,6 +179,37 @@ export default function Sensor(props) {
     if (e?.row != null) {
       setSensorType(e.row.ID);
     }
+  };
+
+  const [openConfirmationPopup, setOpenConfirmationPopup] = useState(false);
+
+  let handleAgreeConfirmationPopupAction = async () => {
+    setOpenConfirmationPopup(false);
+    setIsPending(true);
+
+    const deleteSensorRequestFactory = (token) =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Sensors/Delete/${props.selectedSensor.ID}`, token);
+  
+    const response = await MakeAuthorizedRequest(deleteSensorRequestFactory, user);
+
+    setIsPending(false);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setServerErrors(response.errors);
+      }
+    } else {
+      props.setSensorChanged(!props.sensorChanged);
+      handleClose();
+    }
+  };
+
+  let handleDisagreeConfirmationPopupAction = () => {
+    setOpenConfirmationPopup(false);
   };
 
   return (
@@ -271,6 +283,13 @@ export default function Sensor(props) {
           Save
         </Button>
       </DialogActions>
+      
+      <ConfirmationPopup
+        open={openConfirmationPopup}
+        handleAgree={handleAgreeConfirmationPopupAction}
+        handleDisagree={handleDisagreeConfirmationPopupAction}
+        title="Delete Sensor?"
+        content={`Do you realy want to delete ${sensorName} sensor?`} />
     </Dialog>
   );
 }

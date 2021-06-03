@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../../redux/reducers/authSlice';
 import { useHistory } from 'react-router-dom'
 import FormErrors from '../FormErrors';
+import ConfirmationPopup from '../ConfirmationPopup';
 
 const useStyles = makeStyles((theme) => ({
   avatarContainer: {
@@ -160,6 +161,13 @@ export default function SensorType(props) {
   };
 
   const handleDelete = async () => {
+    setOpenConfirmationPopup(true);
+  };
+
+  const [openConfirmationPopup, setOpenConfirmationPopup] = useState(false);
+
+  let handleAgreeConfirmationPopupAction = async () => {
+    setOpenConfirmationPopup(false);
     setIsPending(true);
 
     const deleteSensorTypeRequestFactory = (token) =>
@@ -181,6 +189,10 @@ export default function SensorType(props) {
       props.setSensorTypeChanged(!props.sensorTypeChanged);
       handleClose();
     }
+  };
+
+  let handleDisagreeConfirmationPopupAction = () => {
+    setOpenConfirmationPopup(false);
   };
 
   return (
@@ -237,6 +249,13 @@ export default function SensorType(props) {
           Save
         </Button>
       </DialogActions>
+
+      <ConfirmationPopup
+        open={openConfirmationPopup}
+        handleAgree={handleAgreeConfirmationPopupAction}
+        handleDisagree={handleDisagreeConfirmationPopupAction}
+        title="Delete Sensor Type?"
+        content={`Do you realy want to delete ${sensorTypeName} sensor type?`} />
     </Dialog>
   );
 }
