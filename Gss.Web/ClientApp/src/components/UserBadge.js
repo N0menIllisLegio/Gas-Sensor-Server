@@ -1,4 +1,4 @@
-import { Avatar, Typography } from '@material-ui/core';
+import { Avatar, ListItemIcon, ListItemText, Tooltip, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -10,6 +10,10 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
 import NotificationCenter from './NotificationCenter';
+
+import PhonelinkEraseTwoToneIcon from '@material-ui/icons/PhonelinkEraseTwoTone';
+import ExitToAppTwoToneIcon from '@material-ui/icons/ExitToAppTwoTone';
+import AccountBoxTwoToneIcon from '@material-ui/icons/AccountBoxTwoTone';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
   button: {
     height: theme.spacing(theme.mainContent.marginTop),
     marginLeft: theme.spacing(2)
+  },
+  menuIcon: {
+    minWidth: '0px',
+    marginRight: theme.spacing(1)
   }
 }));
 
@@ -146,9 +154,26 @@ export default function UserBadge() {
           anchorEl={anchorElement}
           open={Boolean(anchorElement)}
           onClose={handleClose}>
-          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-          <MenuItem onClick={handleLogout} className={classes.logout}>Logout</MenuItem>
-          <MenuItem onClick={handleLogoutAll} className={classes.logout}>Logout from all devices</MenuItem>
+          <MenuItem onClick={handleProfileClick}>
+            <ListItemIcon className={classes.menuIcon}>
+              <AccountBoxTwoToneIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Profile" />
+          </MenuItem>
+          <MenuItem onClick={handleLogout} className={classes.logout}>
+            <ListItemIcon className={classes.menuIcon}>
+              <ExitToAppTwoToneIcon fontSize="small" color="secondary" />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </MenuItem>
+          <MenuItem onClick={handleLogoutAll} className={classes.logout}>
+            <ListItemIcon className={classes.menuIcon}>
+              <PhonelinkEraseTwoToneIcon fontSize="small" color="secondary" />
+            </ListItemIcon>
+            <Tooltip title="Logout from all devices">
+              <ListItemText primary="Logout All" />
+            </Tooltip>
+          </MenuItem>
         </StyledMenu>
       </div>
     ) : (
