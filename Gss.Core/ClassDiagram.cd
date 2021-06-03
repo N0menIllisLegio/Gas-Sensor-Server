@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Gss.Core.Services.AuthenticationService" BaseTypeListCollapsed="true">
+    <Position X="20.5" Y="8.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAABABAgAAABDCgBgBBAAgSAAAAAoAgAAAAABIAEAA=</HashCode>
+      <FileName>Services\AuthenticationService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.EmailService" BaseTypeListCollapsed="true">
+    <Position X="17" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAAAAAAAAAMAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Services\EmailService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.FilesService" BaseTypeListCollapsed="true">
+    <Position X="11" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAgAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Services\FilesService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.MicrocontrollersService" BaseTypeListCollapsed="true">
+    <Position X="18" Y="8.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AhACBAAgAhAAAAAgAwABAAABBAAAAIACAAQAAAAABCA=</HashCode>
+      <FileName>Services\MicrocontrollersService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.RolesService" BaseTypeListCollapsed="true">
+    <Position X="13" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAQAAAAAAABAAAgAAAAAAAAAAARAACAAAE=</HashCode>
+      <FileName>Services\RolesService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.SensorsDataService" BaseTypeListCollapsed="true">
+    <Position X="18.75" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\SensorsDataService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.SensorsService" BaseTypeListCollapsed="true">
+    <Position X="20.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAACCAAACAAAAAAgAFAAAAQAAAAAAAAAACAAAAAAg=</HashCode>
+      <FileName>Services\SensorsService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.SensorsTypesService" BaseTypeListCollapsed="true">
+    <Position X="8.75" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAEAAAAAEAAAgABAAAAAAAAAAAAAAAAAAAUAAA=</HashCode>
+      <FileName>Services\SensorsTypesService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.SocketConnectionService">
+    <Position X="8.75" Y="8.5" Width="7" />
+    <TypeIdentifier>
+      <HashCode>AQAAAUAAAAAAQAAQAAAQIAAAIAAACAAAAggBgAEAACI=</HashCode>
+      <FileName>Services\SocketConnectionService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Gss.Core.Services.TokensService" BaseTypeListCollapsed="true">
+    <Position X="15" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAEAAAAAAAAEAAAEACAAAA=</HashCode>
+      <FileName>Services\TokensService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Gss.Core.Services.UsersService" BaseTypeListCollapsed="true">
+    <Position X="16" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgBAAAAAAAAAAAAAABgAQAAAABAIAACAAAQQQAAAA=</HashCode>
+      <FileName>Services\UsersService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

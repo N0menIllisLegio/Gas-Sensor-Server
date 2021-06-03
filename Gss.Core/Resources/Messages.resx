@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccessDeniedErrorString" xml:space="preserve">
+    <value>Access denied.</value>
+  </data>
+  <data name="AzureUploadFailedErrorString" xml:space="preserve">
+    <value>Failed to upload image to cloud.</value>
+  </data>
+  <data name="BadRequestErrorString" xml:space="preserve">
+    <value>Invalid input data.</value>
+  </data>
+  <data name="ChangeReuqestedSensorIDFailedErrorString" xml:space="preserve">
+    <value>Failed to save requested sensor ID.</value>
+  </data>
+  <data name="CreationFailedErrorString" xml:space="preserve">
+    <value>{0} creation failed.</value>
+  </data>
+  <data name="DeletionFailedErrorString" xml:space="preserve">
+    <value>{0} deletion failed.</value>
+  </data>
+  <data name="EmailAlreadyConfirmedErrorString" xml:space="preserve">
+    <value>Email already confirmed.</value>
+  </data>
+  <data name="EmailNotConfirmedErrorString" xml:space="preserve">
+    <value>Email is not confirmed.</value>
+  </data>
+  <data name="FailedAddingSensorToMicrocontrollerErrorString" xml:space="preserve">
+    <value>Failed to add sensor to microcontroller.</value>
+  </data>
+  <data name="FailedRemovingSensorFromMicrocontrollerErrorString" xml:space="preserve">
+    <value>Failed to remove sensor from microcontroller.</value>
+  </data>
+  <data name="FailedToSendEmailErrorString" xml:space="preserve">
+    <value>Failed to send {0}.</value>
+  </data>
+  <data name="InternalServerErrorString" xml:space="preserve">
+    <value>Internal Server Error (500)
+
+Ooops somthing went wrong on our end...</value>
+  </data>
+  <data name="InvalidEmailChangeTokenErrorString" xml:space="preserve">
+    <value>Invalid email change token.</value>
+  </data>
+  <data name="InvalidEmailConfirmationTokenErrorString" xml:space="preserve">
+    <value>Invalid email confirmation token.</value>
+  </data>
+  <data name="InvalidEmailErrorString" xml:space="preserve">
+    <value>Invalid email.</value>
+  </data>
+  <data name="InvalidEmailOrPasswordErrorString" xml:space="preserve">
+    <value>Invalid email or password.</value>
+  </data>
+  <data name="InvalidGuidErrorString" xml:space="preserve">
+    <value>Guid should contain 32 digits with 4 dashes (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).</value>
+  </data>
+  <data name="InvalidPasswordResetTokenErrorString" xml:space="preserve">
+    <value>Invalid password reset token.</value>
+  </data>
+  <data name="InvalidSettingsErrorString" xml:space="preserve">
+    <value>Invalid settings.</value>
+  </data>
+  <data name="InvalidUriErrorString" xml:space="preserve">
+    <value>Uri is invalid.</value>
+  </data>
+  <data name="MissingFileExtensionErrorString" xml:space="preserve">
+    <value>File extension is missing.</value>
+  </data>
+  <data name="MissingImageExtensionErrorString" xml:space="preserve">
+    <value>Image extension is missing,</value>
+  </data>
+  <data name="NotFoundErrorString" xml:space="preserve">
+    <value>{0} not found.</value>
+  </data>
+  <data name="RefreshTokenExpiredErrorString" xml:space="preserve">
+    <value>Refresh token expired.</value>
+  </data>
+  <data name="RefreshTokenNotExistsErrorString" xml:space="preserve">
+    <value>Refresh token doesn't exist.</value>
+  </data>
+  <data name="UnauthorizedMessageErrorString" xml:space="preserve">
+    <value>Unauthorized (401)
+
+Through a series of highly sophisticated and complex algorithms, this system has determined that you are not presently authorized to use this system function. It could be that you simply mistyped a password, or, it could be that you are some sort of interplanetary alien-being that has no hands and, thus, cannot type. If I were a gambler, I would bet that a cat (an orange tabby named Sierra or Harley) somehow jumped onto your keyboard and forgot some of the more important pointers from those typing lessons you paid for. Based on the actual error encountered, I would guess that the feline in question simply forgot to place one or both paws on the appropriate home keys before starting. Then again, I suppose it could have been a keyboard error caused by some form of cosmic radiation; this would fit nicely with my interplanetary alien-being theory. If you think this might be the cause, perhaps you could create some sort of underground bunker to help shield yourself from it. I don't know that it will work, but, you will probably feel better if you try something.</value>
+  </data>
+  <data name="UnsupportedImageExtensionErrorString" xml:space="preserve">
+    <value>Unsupported image extension. Supproted image extensions: {0}.</value>
+  </data>
+  <data name="UpdateFailedErrorString" xml:space="preserve">
+    <value>{0} update failed.</value>
+  </data>
+  <data name="UserIsLockedOutErrorString" xml:space="preserve">
+    <value>User is locked out.</value>
+  </data>
+</root>
