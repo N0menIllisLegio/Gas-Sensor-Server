@@ -14,5 +14,7 @@ namespace Gss.Core.Entities
 
     public Guid SensorID { get; set; }
     public virtual Sensor Sensor { get; set; }
+
+    public int? CriticalValue { get; set; }
   }
 }
