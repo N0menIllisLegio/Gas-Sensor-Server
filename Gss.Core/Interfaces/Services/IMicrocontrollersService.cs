@@ -21,6 +21,7 @@ namespace Gss.Core.Interfaces.Services
     Task<MicrocontrollerDto> AddSensorAsync(string requestedByEmail, AddSensorDto addSensorDto);
     Task<MicrocontrollerDto> RemoveSensorAsync(string requestedByEmail, RemoveSensorDto removeSensorDto);
     Task<RequestSensorValueResponseDto> RequestSensorValue(string requestedByEmail, Guid microcontrollerID, Guid sensorID);
+    Task SetSensorValueThreshold(string requestedByEmail, Guid microcontrollerID, Guid sensorID, int? criticalValue);
 
     // For connection service
     Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress);

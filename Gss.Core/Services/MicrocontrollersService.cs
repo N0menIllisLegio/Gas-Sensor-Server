@@ -403,14 +403,8 @@ namespace Gss.Core.Services
     public async Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(
       Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress)
     {
-      var user = await _userManager.FindByIdAsync(userID);
-
-      if (user is null)
-      {
-        return (null, null);
-      }
-
-      var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.Id == microcontrollerID);
+      var microcontroller = await _unitOfWork.Microcontrollers.GetFirstWhereAsync(mc => mc.Id == microcontrollerID && mc.OwnerId == userID,
+        include: query => query.Include(mc => mc.Owner).Include(mc => mc.MicrocontrollerSensors));
 
       if (microcontroller is null && microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
       {
@@ -422,12 +416,18 @@ namespace Gss.Core.Services
 
       await _unitOfWork.SaveAsync();
 
-      return (microcontroller, user.Email);
+      return (microcontroller, microcontroller.Owner.Email);
     }
 
     public async Task<RequestSensorValueResponseDto> RequestSensorValue(string requestedByEmail, Guid microcontrollerID, Guid sensorID)
     {
       var microcontroller = await TryGetMicrocontroller(microcontrollerID, requestedByEmail);
+
+      if (microcontroller is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
+          HttpStatusCode.NotFound);
+      }
 
       if (microcontroller.RequestedSensorID == sensorID)
       {
@@ -458,6 +458,28 @@ namespace Gss.Core.Services
       }
 
       return result;
+    }
+
+    public async Task SetSensorValueThreshold(string requestedByEmail, Guid microcontrollerID, Guid sensorID, int? criticalValue)
+    {
+      var microcontroller = await TryGetMicrocontroller(microcontrollerID, requestedByEmail);
+
+      if (microcontroller is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
+          HttpStatusCode.NotFound);
+      }
+
+      var microcontrollerSensor = microcontroller?.MicrocontrollerSensors.FirstOrDefault(ms => ms.SensorID == sensorID);
+
+      if (microcontrollerSensor is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor), HttpStatusCode.NotFound);
+      }
+
+      microcontrollerSensor.CriticalValue = criticalValue;
+
+      await _unitOfWork.SaveAsync();
     }
   }
 }
