@@ -12,7 +12,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0661C044-54CF-4283-A83D-5BA6E7BCA669}"
 	ProjectSection(SolutionItems) = preProject
 		CodeStyle\.editorconfig = CodeStyle\.editorconfig
-		CodeStyle\Softteco.ruleset = CodeStyle\Softteco.ruleset
 		CodeStyle\stylecop.json = CodeStyle\stylecop.json
 	EndProjectSection
 EndProject
