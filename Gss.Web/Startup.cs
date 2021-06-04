@@ -74,6 +74,7 @@ namespace Gss.Web
         // TODO app.UseHsts();
       }
 
+      app.UseMiddleware<EnableRequestBufferingMiddleware>();
       app.UseMiddleware<ExceptionMiddleware>();
 
       app.UseHttpsRedirection();
