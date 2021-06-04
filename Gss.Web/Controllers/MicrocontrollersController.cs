@@ -161,5 +161,18 @@ namespace Gss.Web.Controllers
 
       return Ok(new Response<RequestSensorValueResponseDto>(response));
     }
+
+    [Authorize]
+    [HttpPatch]
+    [SwaggerOperation("Authorized", "Sets sensor's critical value threshold, after reaching it email will be send.")]
+    [SwaggerResponse(200, type: typeof(Response<OkResult>))]
+    [SwaggerResponse(400, type: typeof(Response<BadRequestResult>))]
+    public async Task<IActionResult> SetSensorsCriticalValue([FromBody] SetSensorsCriticalValueDto dto)
+    {
+      await _microcontrollerService.SetSensorValueThreshold(User.Identity.Name,
+        dto.MicrocontrollerID, dto.SensorID, dto.CriticalValue);
+
+      return Ok();
+    }
   }
 }
