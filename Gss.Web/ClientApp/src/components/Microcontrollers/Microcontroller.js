@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Map, Marker } from 'pigeon-maps';
 import useGet from '../../hooks/useGet';
 import Progress from '../Progress';
-import { Avatar, Grid, IconButton, Typography } from '@material-ui/core';
+import { Avatar, CircularProgress, Grid, IconButton, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '@fontsource/roboto/300.css';
 import Divider from '@material-ui/core/Divider';
@@ -40,6 +40,7 @@ import FormErrors from '../FormErrors';
 import SwapVertTwoToneIcon from '@material-ui/icons/SwapVertTwoTone';
 import { selectNotifications, markMicrocontrollerNotificationsAsOld } from '../../redux/reducers/notificationsSlice';
 import ConfirmationPopup from '../ConfirmationPopup';
+import yellow from '@material-ui/core/colors/yellow';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -227,7 +228,7 @@ export default function Microcontroller() {
     { microcontroller && (
       <div>
         {/* Map */}
-        { microcontroller.Latitude && microcontroller.Longitude && (
+        { microcontroller.Latitude != null && microcontroller.Longitude != null && (
           <div className={classes.map}>
             <Map
               height={400}
@@ -316,6 +317,8 @@ export default function Microcontroller() {
                 )}
 
                 <SensorsAccordion
+                  isOwner={isOwner}
+                  user={user}
                   requestedSensorID={requestedSensorID}
                   microcontroller={microcontroller}
                   sensor={sensor}
@@ -362,13 +365,79 @@ const useAccordionStyles = makeStyles((theme) => ({
     marginLeft: -theme.spacing(2),
     marginRight: -theme.spacing(2),
     marginBottom: theme.spacing(2),
-  }
+  },
+  criticalValueRow: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: theme.spacing(4),
+    padding: theme.spacing(4),
+    backgroundColor: yellow[50]
+  },
+  criticalValueRowLabel: {
+    paddingBottom: theme.spacing(3/4),
+    marginRight: theme.spacing(2)
+  },
+  criticalValueRowButton: {
+    marginLeft: theme.spacing(2)
+  },
+  errorsRoot: {
+    margin: theme.spacing(2),
+    display: 'flex',
+    justifyContent: 'center'
+  },
 }));
 
 function SensorsAccordion(props) {
   const classes = useAccordionStyles();
   const sensor = props.sensor;
   const sensorType = sensor.SensorType;
+  const [ criticalValue, setCriticalValue ] = useState(sensor.CriticalValue);
+  const [ isPending, setIsPending ] = useState(false);
+  const [ errors, setErrors ] = useState(null);
+
+  const handleSaveCriticalValueClick = async () => {
+    if (criticalValue <= 0 || criticalValue > 10000) {
+      return;
+    }
+
+    setIsPending(true);
+    const body = {
+      MicrocontrollerID: props.microcontroller.ID,
+      SensorID: sensor.ID,
+      CriticalValue: isNaN(criticalValue) || criticalValue === ''
+        ? null
+        : criticalValue
+    };
+
+    const saveCriticalValueRequestFactory = (token) =>
+      PatchRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/SetSensorsCriticalValue`, body, token);
+  
+    const response = await MakeAuthorizedRequest(saveCriticalValueRequestFactory, props.user);
+
+    setIsPending(false);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        props.history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        props.history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setErrors(response.errors);
+      }
+    } else {
+      setErrors(null);
+    }
+  };
+
+  const handleCriticalValueChange = (e) => {
+    if (e.target.value <= 0 || e.target.value > 10000) {
+      setErrors(['Critical value can\'t be ≤ 0 or > 10000']);
+    } else {
+      setErrors(null);
+    }
+
+    setCriticalValue(e.target.value);
+  };
 
   return (
     <Accordion
@@ -387,6 +456,33 @@ function SensorsAccordion(props) {
       </AccordionSummary>
       <AccordionDetails className={classes.details}>
         <Divider className={classes.headerDivider} />
+        
+        {props.isOwner && (
+          <Card className={classes.criticalValueRow} variant="outlined">
+            <Typography className={classes.criticalValueRowLabel}>
+              Send email notification when sensor's value reaches threshold:
+            </Typography>
+            <TextField
+              value={criticalValue}
+              onChange={handleCriticalValueChange}
+              type="number"
+              label="Critical value"
+              helperText="Save empty field to turn off notifications" />
+            <Button
+              onClick={handleSaveCriticalValueClick}
+              className={classes.criticalValueRowButton}
+              variant="outlined"
+              color="primary">
+                {(isPending && (<CircularProgress size={20} />)) || (<span>Save</span>)}
+            </Button>
+            {errors && (
+              <div className={classes.errorsRoot}>
+                <FormErrors errors={errors} />
+              </div>
+            )}
+          </Card>
+        )}
+        
         {sensor.Description && (
           <Typography style={{whiteSpace: 'pre-line'}}>
             {sensor.Description}
