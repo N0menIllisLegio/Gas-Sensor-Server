@@ -68,6 +68,7 @@ export default function EditMicrocontroller() {
   const [ latitude, setLatitude ] = useState(50);
   const [ longitude, setLongitude ] = useState(15);
   const [ sensors, setSensors ] = useState([]);
+  const [ center, setCenter ] = useState([latitude, longitude]);
  
   useEffect(() => {
     if (id != null) {
@@ -90,6 +91,7 @@ export default function EditMicrocontroller() {
           setLatitude(response.data.Latitude);
           setLongitude(response.data.Longitude);
           setSensors(response.data.Sensors);
+          setCenter([response.data.Latitude, response.data.Longitude]);
         }
       });
     }
@@ -268,11 +270,16 @@ export default function EditMicrocontroller() {
 
                 <Map
                   height={400}
-                  center={[latitude, longitude]}
+                  center={center}
                   zoom={zoom}
-                  onBoundsChanged={({ zoom }) => setZoom(zoom)}
+                  onBoundsChanged={({ center: _center, zoom  }) => {
+                    setZoom(zoom);
+                    setCenter(_center);
+                  }}
                   onClick={handleMapClick}>
-                  <Marker width={50} anchor={[latitude, longitude]} />
+                    {latitude && longitude && !isNaN(latitude) && !isNaN(longitude) && (
+                      <Marker width={50} anchor={[latitude, longitude]} />
+                    )}
                 </Map>
               </Grid>
               
