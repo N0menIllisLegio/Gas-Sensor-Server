@@ -368,8 +368,7 @@ namespace Gss.Core.Services
       }
 
       var result = _mapper.Map<MicrocontrollerDto>(microcontroller);
-      result.Sensors = microcontroller.MicrocontrollerSensors
-        .Select(microcontrollerSensor => _mapper.Map<SensorDto>(microcontrollerSensor));
+      result.Sensors = microcontroller.MicrocontrollerSensors.Select(_mapper.Map<MicrocontrollerSensorDto>);
 
       return result;
     }
@@ -403,10 +402,12 @@ namespace Gss.Core.Services
     public async Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(
       Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress)
     {
-      var microcontroller = await _unitOfWork.Microcontrollers.GetFirstWhereAsync(mc => mc.Id == microcontrollerID && mc.OwnerId == userID,
-        include: query => query.Include(mc => mc.Owner).Include(mc => mc.MicrocontrollerSensors));
+      var microcontroller = await _unitOfWork.Microcontrollers
+        .GetFirstWhereAsync(mc => mc.Id == microcontrollerID && mc.OwnerId == userID, include: query => query
+          .Include(mc => mc.Owner)
+          .Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
 
-      if (microcontroller is null && microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
+      if (microcontroller is null || microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
       {
         return (null, null);
       }
