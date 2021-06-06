@@ -200,8 +200,7 @@ namespace Gss.Core.Services
       _mapper.Map(updateMicrocontrollerDto, microcontroller);
       microcontroller.RequestedSensorID = null;
 
-      if (updateMicrocontrollerDto.SensorIDs is not null
-        && updateMicrocontrollerDto.SensorIDs.Count > 0)
+      if (updateMicrocontrollerDto.SensorIDs is not null)
       {
         var newSensors = await _unitOfWork.Sensors.GetAllByWhereAsync(
           sensor => updateMicrocontrollerDto.SensorIDs.Contains(sensor.Id));
