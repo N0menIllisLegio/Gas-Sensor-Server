@@ -140,7 +140,7 @@ export default function Login() {
                 color="primary"
                 size="medium"
                 className={classes.loginButton}>
-                  {isPending && (<CircularProgress size={18} className={classes.progress} />)} Log in
+                  {(isPending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Log in</span>)}
               </Button>
             </Grid>
 

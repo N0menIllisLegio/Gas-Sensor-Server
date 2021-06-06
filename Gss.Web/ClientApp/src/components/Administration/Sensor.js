@@ -279,8 +279,7 @@ export default function Sensor(props) {
           Cancel
         </Button>
         <Button onClick={handleSave} color="primary" disabled={isPending}>
-          {isPending && (<CircularProgress className={classes.progress} size={15} />)}
-          Save
+          {(isPending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Save</span>)}
         </Button>
       </DialogActions>
       

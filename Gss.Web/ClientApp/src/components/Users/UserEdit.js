@@ -292,8 +292,7 @@ export default function UserEdit(props) {
         <CardActions className={classes.actionButtonsContainer}>
           <Button size="small" color="secondary" type="button" onClick={props.handleCloseClick}>Cancel</Button>
           <Button size="small" color="primary" type="submit">
-            {isPending && (<CircularProgress className={classes.progress} size={15} />)}
-            Save
+            {(isPending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Save</span>)}
           </Button>
         </CardActions>
       </Card>

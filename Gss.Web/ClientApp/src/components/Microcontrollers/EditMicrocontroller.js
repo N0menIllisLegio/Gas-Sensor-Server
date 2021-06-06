@@ -247,8 +247,7 @@ export default function EditMicrocontroller() {
                   type="submit"
                   style={{width: '100%'}}
                   disabled={isSavePending}>
-                  {isSavePending && (<CircularProgress className={classes.progress} size={15} />)}
-                  Save Microcontroller
+                  {(isSavePending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Save Microcontroller</span>)}
                 </Button>
               </Grid>
 
