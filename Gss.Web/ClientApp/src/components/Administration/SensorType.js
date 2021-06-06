@@ -255,7 +255,7 @@ export default function SensorType(props) {
         handleAgree={handleAgreeConfirmationPopupAction}
         handleDisagree={handleDisagreeConfirmationPopupAction}
         title="Delete Sensor Type?"
-        content={`Do you realy want to delete ${sensorTypeName} sensor type?`} />
+        content={<span>Do you realy want to delete <b>{sensorTypeName}</b> sensor type?</span>} />
     </Dialog>
   );
 }

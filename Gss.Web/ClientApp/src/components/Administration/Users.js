@@ -126,7 +126,7 @@ export default function Users() {
         handleAgree={() => deleteUserID && handleAgreeConfirmationPopupAction(deleteUserID)}
         handleDisagree={handleDisagreeConfirmationPopupAction}
         title="Delete User?"
-        content={`Do you realy want to delete ${deleteUserEmail} user?`} />
+        content={<span>Do you realy want to delete <b>{deleteUserEmail}</b> user?</span>} />
     </div>
   );
 }

@@ -279,7 +279,7 @@ export default function Microcontroller() {
               handleAgree={handleAgreeConfirmationPopupAction}
               handleDisagree={handleDisagreeConfirmationPopupAction}
               title="Delete Microcontroller?"
-              content={`Do you realy want to delete ${microcontroller.Name} microcontroller?`} />
+              content={<span>Do you realy want to delete <b>{microcontroller.Name}</b> microcontroller?</span>} />
           </div>
         )}
 
