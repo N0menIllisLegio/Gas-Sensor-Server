@@ -97,11 +97,29 @@ namespace Gss.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to City - Address - Postal code.
+        /// </summary>
+        public static string ContactInfoString {
+            get {
+                return ResourceManager.GetString("ContactInfoString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} creation failed..
         /// </summary>
         public static string CreationFailedErrorString {
             get {
                 return ResourceManager.GetString("CreationFailedErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!doctype html&gt;&lt;html ⚡4email data-css-strict&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style amp4email-boilerplate&gt;body{visibility:hidden}&lt;/style&gt;&lt;script async src=&quot;https://cdn.ampproject.org/v0.js&quot;&gt;&lt;/script&gt;&lt;style amp-custom&gt;.es-desk-hidden {	display:none;	float:left;	overflow:hidden;	width:0;	max-height:0;	line-height:0;}s {	text-decoration:line-through;}body {	width:100%;	font-family:lato, &quot;helvetica neue&quot;, helvetica, arial, sans-serif;}table {	border-collapse:collapse;	border-spacing:0px;}table td, html, body, .es-w [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string CriticalValueNotificationEmailTemplate {
+            get {
+                return ResourceManager.GetString("CriticalValueNotificationEmailTemplate", resourceCulture);
             }
         }
         
@@ -284,6 +302,15 @@ namespace Gss.Core.Resources {
         public static string RefreshTokenNotExistsErrorString {
             get {
                 return ResourceManager.GetString("RefreshTokenNotExistsErrorString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://localhost:5000.
+        /// </summary>
+        public static string SiteURLString {
+            get {
+                return ResourceManager.GetString("SiteURLString", resourceCulture);
             }
         }
         

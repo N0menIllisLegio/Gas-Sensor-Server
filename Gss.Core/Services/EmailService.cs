@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
+using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces.Services;
+using Gss.Core.Resources;
 using MailKit.Net.Smtp;
 using MimeKit;
 
@@ -62,6 +64,24 @@ namespace Gss.Core.Services
       emailMessage.Body = builder.ToMessageBody();
 
       return await SendEmailAsync(emailMessage);
+    }
+
+    public async Task SendCriticalValueEmail(string email, int receivedCriticalValue, int setCriticalValue,
+      Microcontroller microcontroller, Sensor sensor, SensorType sensorType)
+    {
+      string html = Messages.CriticalValueNotificationEmailTemplate
+        .Replace("{sensorName}", sensor.Name)
+        .Replace("{receivedSensorValue}", receivedCriticalValue.ToString())
+        .Replace("{microcontrollerName}", microcontroller.Name)
+        .Replace("{microcontrollerLatitude}", microcontroller.Latitude.ToString())
+        .Replace("{microcontrollerLongitude}", microcontroller.Longitude.ToString())
+        .Replace("{sensorType}", sensorType.Name)
+        .Replace("{sensorCriticalValue}", setCriticalValue.ToString())
+        .Replace("{microcontrollerPageUrl}", $"{Messages.SiteURLString}/microcontroller/{microcontroller.Id}")
+        .Replace("{contactInfo}", Messages.ContactInfoString)
+        .Replace("{siteUrl}", Messages.SiteURLString);
+
+      await SendHtmlEmailAsync(email, $"Sensor {sensor.Name} reached critical threshold - {receivedCriticalValue}!", html);
     }
   }
 }
