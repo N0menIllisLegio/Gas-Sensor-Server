@@ -396,7 +396,7 @@ function SensorsAccordion(props) {
   const [ errors, setErrors ] = useState(null);
 
   const handleSaveCriticalValueClick = async () => {
-    if (criticalValue <= 0 || criticalValue > 10000) {
+    if (criticalValue !== '' && (criticalValue <= 0 || criticalValue > 10000)) {
       return;
     }
 
@@ -430,13 +430,17 @@ function SensorsAccordion(props) {
   };
 
   const handleCriticalValueChange = (e) => {
-    if (e.target.value <= 0 || e.target.value > 10000) {
+    let number = e.target.value;
+
+    if (number === '') {
+      setErrors(null);
+    } else if (number <= 0 || number > 10000) {
       setErrors(['Critical value can\'t be ≤ 0 or > 10000']);
     } else {
       setErrors(null);
     }
 
-    setCriticalValue(e.target.value);
+    setCriticalValue(number);
   };
 
   return (

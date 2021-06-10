@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
-using Gss.Core.DTOs.Sensor;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
