@@ -29,6 +29,8 @@ namespace Gss.Core.Entities
 
     // ---- RELATIONSHIPS
 
+    public Guid? OwnerId { get; set; }
+
     [ExpressionsBuilder]
     public virtual User Owner { get; set; }
 

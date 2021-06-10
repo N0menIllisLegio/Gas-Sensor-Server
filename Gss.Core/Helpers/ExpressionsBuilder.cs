@@ -435,14 +435,14 @@ namespace Gss.Core.Helpers
         {
           case NullEvaluationStrategy.AlwaysFalse:
             return constantExpression.Value == null
-              ? (Expression)Expression.Constant(false)
+              ? Expression.Constant(false)
               : Expression.AndAlso(
                   Expression.NotEqual(memberExpression, Expression.Constant(null, constantExpression.Type)),
                   mainExpression);
 
           case NullEvaluationStrategy.AlwaysTrue:
             return constantExpression.Value == null
-              ? (Expression)Expression.Constant(true)
+              ? Expression.Constant(true)
               : Expression.OrElse(
                   Expression.Equal(memberExpression, Expression.Constant(null, constantExpression.Type)),
                   mainExpression);

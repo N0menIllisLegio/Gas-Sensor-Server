@@ -1,4 +1,4 @@
-import { Avatar, Typography } from '@material-ui/core';
+import { Avatar, ListItemIcon, ListItemText, Tooltip, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -6,10 +6,14 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { MakeAuthorizedRequest, GetRequest, PostRequest } from '../requests/Requests';
 import { selectUser, selectUserBadgeName, selectUserBadgeAvatarSrc, logout, saveBadgeData } from '../redux/reducers/authSlice';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
 import NotificationCenter from './NotificationCenter';
+
+import PhonelinkEraseTwoToneIcon from '@material-ui/icons/PhonelinkEraseTwoTone';
+import ExitToAppTwoToneIcon from '@material-ui/icons/ExitToAppTwoTone';
+import AccountBoxTwoToneIcon from '@material-ui/icons/AccountBoxTwoTone';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,8 +40,26 @@ const useStyles = makeStyles((theme) => ({
   button: {
     height: theme.spacing(theme.mainContent.marginTop),
     marginLeft: theme.spacing(2)
+  },
+  menuIcon: {
+    minWidth: '0px',
+    marginRight: theme.spacing(1)
   }
 }));
+
+const StyledMenu = withStyles({
+  paper: {
+    border: '1px solid #d3d4d5',
+    width: '200px'
+  },
+})((props) => (
+  <Menu
+    getContentAnchorEl={null}
+    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+    transformOrigin={{ vertical: "top", horizontal: "center" }}
+    {...props}
+  />
+));
 
 export default function UserBadge() {
   const classes = useStyles();
@@ -56,12 +78,32 @@ export default function UserBadge() {
     setAnchorElement(null);
   };
 
+  const handleProfileClick = () => {
+    handleClose();
+    history.push(`/user/${user.UserID}`);
+  };
+
   const handleLogout = () => {
     handleClose();
     dispatch(logout());
 
     const logoutRequestFactory = (token) =>
       PostRequest(`${process.env.REACT_APP_SERVER_URL}api/Authorization/LogOut`, {
+        AccessToken: user.AccessToken,
+        RefreshToken: user.RefreshToken
+      }, token);
+
+    MakeAuthorizedRequest(logoutRequestFactory, user);
+
+    history.push('/');
+  };
+
+  const handleLogoutAll = () => {
+    handleClose();
+    dispatch(logout());
+
+    const logoutRequestFactory = (token) =>
+      PostRequest(`${process.env.REACT_APP_SERVER_URL}api/Authorization/LogOutFromAllDevices`, {
         AccessToken: user.AccessToken,
         RefreshToken: user.RefreshToken
       }, token);
@@ -107,20 +149,32 @@ export default function UserBadge() {
           <Typography className={classes.name}>{userName}</Typography>
         </Button>
 
-        <Menu
-          getContentAnchorEl={null}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          transformOrigin={{ vertical: "top", horizontal: "center" }}
-          anchorEl={anchorElement}
+        <StyledMenu
           keepMounted
+          anchorEl={anchorElement}
           open={Boolean(anchorElement)}
           onClose={handleClose}>
-          <MenuItem onClick={() => {
-            history.push(`/user/${user.UserID}`);
-            handleClose();
-          }}>Profile</MenuItem>
-          <MenuItem onClick={handleLogout} className={classes.logout}>Logout</MenuItem>
-        </Menu>
+          <MenuItem onClick={handleProfileClick}>
+            <ListItemIcon className={classes.menuIcon}>
+              <AccountBoxTwoToneIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Profile" />
+          </MenuItem>
+          <MenuItem onClick={handleLogout} className={classes.logout}>
+            <ListItemIcon className={classes.menuIcon}>
+              <ExitToAppTwoToneIcon fontSize="small" color="secondary" />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </MenuItem>
+          <MenuItem onClick={handleLogoutAll} className={classes.logout}>
+            <ListItemIcon className={classes.menuIcon}>
+              <PhonelinkEraseTwoToneIcon fontSize="small" color="secondary" />
+            </ListItemIcon>
+            <Tooltip title="Logout from all devices">
+              <ListItemText primary="Logout All" />
+            </Tooltip>
+          </MenuItem>
+        </StyledMenu>
       </div>
     ) : (
     <Link to="/login" className={classes.link}>

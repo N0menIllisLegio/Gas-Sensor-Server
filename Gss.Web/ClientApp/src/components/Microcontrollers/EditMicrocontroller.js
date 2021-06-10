@@ -60,6 +60,7 @@ export default function EditMicrocontroller() {
   const [ addSensorButtonEnabled, setAddSensorButtonEnabled ] = useState(true);
   const [ openSnackbar, setOpenSnackbar ] = useState(false);
   const [ snackbarMessage, setSnackbarMessage ] = useState('');
+  const [ zoom, setZoom ] = useState(3);
 
   const [ name, setName ] = useState('');
   const [ password, setPassword ] = useState('');
@@ -67,6 +68,7 @@ export default function EditMicrocontroller() {
   const [ latitude, setLatitude ] = useState(50);
   const [ longitude, setLongitude ] = useState(15);
   const [ sensors, setSensors ] = useState([]);
+  const [ center, setCenter ] = useState([latitude, longitude]);
  
   useEffect(() => {
     if (id != null) {
@@ -89,6 +91,7 @@ export default function EditMicrocontroller() {
           setLatitude(response.data.Latitude);
           setLongitude(response.data.Longitude);
           setSensors(response.data.Sensors);
+          setCenter([response.data.Latitude, response.data.Longitude]);
         }
       });
     }
@@ -244,8 +247,7 @@ export default function EditMicrocontroller() {
                   type="submit"
                   style={{width: '100%'}}
                   disabled={isSavePending}>
-                  {isSavePending && (<CircularProgress className={classes.progress} size={15} />)}
-                  Save Microcontroller
+                  {(isSavePending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Save Microcontroller</span>)}
                 </Button>
               </Grid>
 
@@ -267,10 +269,16 @@ export default function EditMicrocontroller() {
 
                 <Map
                   height={400}
-                  center={[latitude, longitude]}
-                  zoom={3}
+                  center={center}
+                  zoom={zoom}
+                  onBoundsChanged={({ center: _center, zoom  }) => {
+                    setZoom(zoom);
+                    setCenter(_center);
+                  }}
                   onClick={handleMapClick}>
-                  <Marker width={50} anchor={[latitude, longitude]} />
+                    {latitude && longitude && !isNaN(latitude) && !isNaN(longitude) && (
+                      <Marker width={50} anchor={[latitude, longitude]} />
+                    )}
                 </Map>
               </Grid>
               

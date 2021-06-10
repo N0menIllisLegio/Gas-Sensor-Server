@@ -282,7 +282,7 @@ export default function SignUp() {
                 color="primary"
                 size="medium"
                 className={classes.loginButton}>
-                  {isPending && (<CircularProgress size={18} className={classes.progress} />)} Sign Up
+                {(isPending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Sign Up</span>)}
               </Button>
             </Grid>
 

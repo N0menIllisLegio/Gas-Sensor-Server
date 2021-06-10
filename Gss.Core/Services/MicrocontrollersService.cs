@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
-using Gss.Core.DTOs.Sensor;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
@@ -200,8 +199,7 @@ namespace Gss.Core.Services
       _mapper.Map(updateMicrocontrollerDto, microcontroller);
       microcontroller.RequestedSensorID = null;
 
-      if (updateMicrocontrollerDto.SensorIDs is not null
-        && updateMicrocontrollerDto.SensorIDs.Count > 0)
+      if (updateMicrocontrollerDto.SensorIDs is not null)
       {
         var newSensors = await _unitOfWork.Sensors.GetAllByWhereAsync(
           sensor => updateMicrocontrollerDto.SensorIDs.Contains(sensor.Id));
@@ -368,8 +366,7 @@ namespace Gss.Core.Services
       }
 
       var result = _mapper.Map<MicrocontrollerDto>(microcontroller);
-      result.Sensors = microcontroller.MicrocontrollerSensors
-        .Select(microcontrollerSensor => _mapper.Map<SensorDto>(microcontrollerSensor));
+      result.Sensors = microcontroller.MicrocontrollerSensors.Select(_mapper.Map<MicrocontrollerSensorDto>);
 
       return result;
     }
@@ -403,16 +400,12 @@ namespace Gss.Core.Services
     public async Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(
       Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress)
     {
-      var user = await _userManager.FindByIdAsync(userID);
+      var microcontroller = await _unitOfWork.Microcontrollers
+        .GetFirstWhereAsync(mc => mc.Id == microcontrollerID && mc.OwnerId == userID, include: query => query
+          .Include(mc => mc.Owner)
+          .Include(mc => mc.MicrocontrollerSensors).ThenInclude(ms => ms.Sensor).ThenInclude(s => s.Type));
 
-      if (user is null)
-      {
-        return (null, null);
-      }
-
-      var microcontroller = user.Microcontrollers.FirstOrDefault(mc => mc.Id == microcontrollerID);
-
-      if (microcontroller is null && microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
+      if (microcontroller is null || microcontroller.PasswordHash != CryptoHelper.GetHashString(microcontrollerPassword))
       {
         return (null, null);
       }
@@ -422,12 +415,18 @@ namespace Gss.Core.Services
 
       await _unitOfWork.SaveAsync();
 
-      return (microcontroller, user.Email);
+      return (microcontroller, microcontroller.Owner.Email);
     }
 
     public async Task<RequestSensorValueResponseDto> RequestSensorValue(string requestedByEmail, Guid microcontrollerID, Guid sensorID)
     {
       var microcontroller = await TryGetMicrocontroller(microcontrollerID, requestedByEmail);
+
+      if (microcontroller is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
+          HttpStatusCode.NotFound);
+      }
 
       if (microcontroller.RequestedSensorID == sensorID)
       {
@@ -458,6 +457,28 @@ namespace Gss.Core.Services
       }
 
       return result;
+    }
+
+    public async Task SetSensorValueThreshold(string requestedByEmail, Guid microcontrollerID, Guid sensorID, int? criticalValue)
+    {
+      var microcontroller = await TryGetMicrocontroller(microcontrollerID, requestedByEmail);
+
+      if (microcontroller is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _microcontroller),
+          HttpStatusCode.NotFound);
+      }
+
+      var microcontrollerSensor = microcontroller?.MicrocontrollerSensors.FirstOrDefault(ms => ms.SensorID == sensorID);
+
+      if (microcontrollerSensor is null)
+      {
+        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor), HttpStatusCode.NotFound);
+      }
+
+      microcontrollerSensor.CriticalValue = criticalValue;
+
+      await _unitOfWork.SaveAsync();
     }
   }
 }

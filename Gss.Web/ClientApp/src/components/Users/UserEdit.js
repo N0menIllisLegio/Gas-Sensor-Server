@@ -56,7 +56,16 @@ export default function UserEdit(props) {
   const history = useHistory();
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const { formState: { errors }, handleSubmit, reset, control } = useForm();
+  const { formState: { errors }, handleSubmit, reset, control } = useForm({
+    defaultValues: {
+      Email: '',
+      FirstName: '',
+      LastName: '',
+      Gender: '',
+      Birthday: null,
+      PhoneNumber: ''
+    }
+  });
 
   const [serverErrors, setServerErrors] = useState(null);
   const [isPending, setIsPending] = useState(false);
@@ -203,7 +212,7 @@ export default function UserEdit(props) {
               <Controller
                 name="LastName"
                 control={control}
-                rules={ {
+                rules={{
                   minLength: { value: 2, message: "Minimum last name length is 2 characters" },
                   maxLength: { value: 255, message: "Maximum last name length is 255 characters" },
                   pattern: { value: /(?:^[a-zA-Z]{2,255}$)|(?:^$)/, message: "Last name should consist of english letters" }
@@ -226,7 +235,6 @@ export default function UserEdit(props) {
                 <Controller
                   name="Gender"
                   control={control}
-                  defaultValue={true}
                   render={({ field }) =>
                   <Select
                     {...field}
@@ -245,10 +253,14 @@ export default function UserEdit(props) {
                 rules={{
                   validate: date => date == null || getAge(date) >= 15 || 'You must be older than 15'
                 }}
-                render={({ field }) =>
+                render={({ field: { name, onBlur, onChange, ref, value } }) =>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
-                    {...field}
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    inputRef={ref}
                     fullWidth
                     clearable
                     label="Birthday"
@@ -278,7 +290,6 @@ export default function UserEdit(props) {
                   variant="outlined"
                   error={errors.PhoneNumber}
                   helperText={errors.PhoneNumber?.message} />} />
-              
             </Grid>
             
             {serverErrors && (
@@ -292,8 +303,7 @@ export default function UserEdit(props) {
         <CardActions className={classes.actionButtonsContainer}>
           <Button size="small" color="secondary" type="button" onClick={props.handleCloseClick}>Cancel</Button>
           <Button size="small" color="primary" type="submit">
-            {isPending && (<CircularProgress className={classes.progress} size={15} />)}
-            Save
+            {(isPending && (<CircularProgress className={classes.progress} size={15} />)) || (<span>Save</span>)}
           </Button>
         </CardActions>
       </Card>

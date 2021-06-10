@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Map, Marker } from 'pigeon-maps';
 import useGet from '../../hooks/useGet';
 import Progress from '../Progress';
-import { Avatar, Grid, IconButton, Typography } from '@material-ui/core';
+import { Avatar, CircularProgress, Grid, IconButton, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import '@fontsource/roboto/300.css';
 import Divider from '@material-ui/core/Divider';
@@ -39,6 +39,8 @@ import { MakeAuthorizedRequest, DeleteRequest, PatchRequest } from '../../reques
 import FormErrors from '../FormErrors';
 import SwapVertTwoToneIcon from '@material-ui/icons/SwapVertTwoTone';
 import { selectNotifications, markMicrocontrollerNotificationsAsOld } from '../../redux/reducers/notificationsSlice';
+import ConfirmationPopup from '../ConfirmationPopup';
+import yellow from '@material-ui/core/colors/yellow';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -155,22 +157,7 @@ export default function Microcontroller() {
   };
 
   const handleMicrocontrollerDeletion = async () => {
-    const deleteMicrocontrollerRequestFactory = (token) =>
-      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/Delete/${id}`, token);
-  
-    const response = await MakeAuthorizedRequest(deleteMicrocontrollerRequestFactory, user);
-
-    if (response.status !== 200) {
-      if (response.status === 401) {
-        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
-      } else if (response.status === 500) {
-        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
-      } else {
-        setServerErrors(response.errors);
-      }
-    } else {
-      history.push(`/user/${user.UserID}`);
-    }
+    setOpenConfirmationPopup(true);
   }
 
   useEffect(() => {
@@ -209,12 +196,39 @@ export default function Microcontroller() {
     }
   };
 
+  const [openConfirmationPopup, setOpenConfirmationPopup] = useState(false);
+
+  let handleAgreeConfirmationPopupAction = async () => {
+    setOpenConfirmationPopup(false);
+    
+    const deleteMicrocontrollerRequestFactory = (token) =>
+      DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/Delete/${id}`, token);
+  
+    const response = await MakeAuthorizedRequest(deleteMicrocontrollerRequestFactory, user);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setServerErrors(response.errors);
+      }
+    } else {
+      history.push(`/user/${user.UserID}`);
+    }
+  };
+
+  let handleDisagreeConfirmationPopupAction = () => {
+    setOpenConfirmationPopup(false);
+  };
+
   return (<div className={classes.root}>
     { isPending && <Progress /> }
     { microcontroller && (
       <div>
         {/* Map */}
-        { microcontroller.Latitude && microcontroller.Longitude && (
+        { microcontroller.Latitude != null && microcontroller.Longitude != null && (
           <div className={classes.map}>
             <Map
               height={400}
@@ -243,24 +257,30 @@ export default function Microcontroller() {
         { (isOwner || isAdministrator) && (
           <div>
             <Divider style={{marginBottom: '1px'}}/>
-              <Paper elevation={0} className={classes.actionsButtonsRow}>
-                <Tooltip title="Edit microcontroller">
-                  <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
-                    <EditTwoToneIcon fontSize="large" />
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Delete microcontroller" className={classes.deleteMicrocontrollerIcon}>
-                  <Button onClick={handleMicrocontrollerDeletion}>
-                    <DeleteForeverTwoToneIcon fontSize="large" color="secondary"/>
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Generate configuration file">
-                  <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
-                    <DescriptionTwoToneIcon fontSize="large" />
-                  </Button>
-                </Tooltip>
-              </Paper>
+            <Paper elevation={0} className={classes.actionsButtonsRow}>
+              <Tooltip title="Edit microcontroller">
+                <Button onClick={() => history.push(`/edit/microcontroller/${microcontroller.ID}`)}>
+                  <EditTwoToneIcon fontSize="large" />
+                </Button>
+              </Tooltip>
+              <Tooltip title="Delete microcontroller" className={classes.deleteMicrocontrollerIcon}>
+                <Button onClick={handleMicrocontrollerDeletion}>
+                  <DeleteForeverTwoToneIcon fontSize="large" color="secondary"/>
+                </Button>
+              </Tooltip>
+              <Tooltip title="Generate configuration file">
+                <Button onClick={() => history.push(`/configFileGenerator/${microcontroller.ID}`)}>
+                  <DescriptionTwoToneIcon fontSize="large" />
+                </Button>
+              </Tooltip>
+            </Paper>
             <Divider className={classes.divider} />
+            <ConfirmationPopup
+              open={openConfirmationPopup}
+              handleAgree={handleAgreeConfirmationPopupAction}
+              handleDisagree={handleDisagreeConfirmationPopupAction}
+              title="Delete Microcontroller?"
+              content={<span>Do you realy want to delete <b>{microcontroller.Name}</b> microcontroller?</span>} />
           </div>
         )}
 
@@ -297,6 +317,8 @@ export default function Microcontroller() {
                 )}
 
                 <SensorsAccordion
+                  isOwner={isOwner}
+                  user={user}
                   requestedSensorID={requestedSensorID}
                   microcontroller={microcontroller}
                   sensor={sensor}
@@ -343,13 +365,83 @@ const useAccordionStyles = makeStyles((theme) => ({
     marginLeft: -theme.spacing(2),
     marginRight: -theme.spacing(2),
     marginBottom: theme.spacing(2),
-  }
+  },
+  criticalValueRow: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: theme.spacing(4),
+    padding: theme.spacing(4),
+    backgroundColor: yellow[50]
+  },
+  criticalValueRowLabel: {
+    paddingBottom: theme.spacing(3/4),
+    marginRight: theme.spacing(2)
+  },
+  criticalValueRowButton: {
+    marginLeft: theme.spacing(2)
+  },
+  errorsRoot: {
+    margin: theme.spacing(2),
+    display: 'flex',
+    justifyContent: 'center'
+  },
 }));
 
 function SensorsAccordion(props) {
   const classes = useAccordionStyles();
   const sensor = props.sensor;
   const sensorType = sensor.SensorType;
+  const [ criticalValue, setCriticalValue ] = useState(sensor.CriticalValue);
+  const [ isPending, setIsPending ] = useState(false);
+  const [ errors, setErrors ] = useState(null);
+
+  const handleSaveCriticalValueClick = async () => {
+    if (criticalValue !== '' && (criticalValue <= 0 || criticalValue > 10000)) {
+      return;
+    }
+
+    setIsPending(true);
+    const body = {
+      MicrocontrollerID: props.microcontroller.ID,
+      SensorID: sensor.ID,
+      CriticalValue: isNaN(criticalValue) || criticalValue === ''
+        ? null
+        : criticalValue
+    };
+
+    const saveCriticalValueRequestFactory = (token) =>
+      PatchRequest(`${process.env.REACT_APP_SERVER_URL}api/Microcontrollers/SetSensorsCriticalValue`, body, token);
+  
+    const response = await MakeAuthorizedRequest(saveCriticalValueRequestFactory, props.user);
+
+    setIsPending(false);
+
+    if (response.status !== 200) {
+      if (response.status === 401) {
+        props.history.push(process.env.REACT_APP_UNAUTHORIZED_URL);
+      } else if (response.status === 500) {
+        props.history.push(process.env.REACT_APP_SERVER_ERROR_URL);
+      } else {
+        setErrors(response.errors);
+      }
+    } else {
+      setErrors(null);
+    }
+  };
+
+  const handleCriticalValueChange = (e) => {
+    let number = e.target.value;
+
+    if (number === '') {
+      setErrors(null);
+    } else if (number <= 0 || number > 10000) {
+      setErrors(['Critical value can\'t be ≤ 0 or > 10000']);
+    } else {
+      setErrors(null);
+    }
+
+    setCriticalValue(number);
+  };
 
   return (
     <Accordion
@@ -368,6 +460,33 @@ function SensorsAccordion(props) {
       </AccordionSummary>
       <AccordionDetails className={classes.details}>
         <Divider className={classes.headerDivider} />
+        
+        {props.isOwner && (
+          <Card className={classes.criticalValueRow} variant="outlined">
+            <Typography className={classes.criticalValueRowLabel}>
+              Send email notification when sensor's value reaches threshold:
+            </Typography>
+            <TextField
+              value={criticalValue}
+              onChange={handleCriticalValueChange}
+              type="number"
+              label="Critical value"
+              helperText="Save empty field to turn off notifications" />
+            <Button
+              onClick={handleSaveCriticalValueClick}
+              className={classes.criticalValueRowButton}
+              variant="outlined"
+              color="primary">
+                {(isPending && (<CircularProgress size={20} />)) || (<span>Save</span>)}
+            </Button>
+            {errors && (
+              <div className={classes.errorsRoot}>
+                <FormErrors errors={errors} />
+              </div>
+            )}
+          </Card>
+        )}
+        
         {sensor.Description && (
           <Typography style={{whiteSpace: 'pre-line'}}>
             {sensor.Description}

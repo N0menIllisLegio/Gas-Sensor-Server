@@ -7,8 +7,11 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import ConfirmationPopup from "../ConfirmationPopup";
 
-let handleDeleteUserButtonClick = null;
+let deleteUserID = null;
+let deleteUserEmail = null;
+let openConfirmationPopupFunc = null;
 
 const columns = [
   { field: 'ID', headerName: 'ID', flex: 1 },
@@ -17,7 +20,7 @@ const columns = [
   { field: 'LastName', headerName: 'Last name', flex: 1 },
   { field: 'AccessFailedCount', headerName: 'Access failed times', flex: 0.4, type: 'number' },
   { field: 'id', headerName: 'DELETE USER', flex: 0.6, align: 'center', headerAlign: 'center',
-    sortComparator: (v1, v2, cellParams1, cellParams2) => {
+    sortComparator: (v1, v2) => {
       if (v1 !== null && v2 !== null) {
         return v1.localeCompare(v2);
       } else if (v1 === v2) {
@@ -29,7 +32,14 @@ const columns = [
       }
     },
     renderCell: (params) => (
-      <Button variant="contained" color="secondary" disableElevation onClick={() => handleDeleteUserButtonClick && handleDeleteUserButtonClick(params.value)}>
+      <Button variant="contained" color="secondary" disableElevation onClick={() => {
+        deleteUserID = params.value;
+        deleteUserEmail = params.row.Email;
+
+        if (openConfirmationPopupFunc != null) {
+          openConfirmationPopupFunc();
+        }
+      }}>
         DELETE USER
       </Button>
     )
@@ -61,11 +71,19 @@ export default function Users() {
     setOpen(false);
   };
 
-  handleDeleteUserButtonClick = async (id) => {
+  const [openConfirmationPopup, setOpenConfirmationPopup] = useState(false);
+
+  openConfirmationPopupFunc = () => setOpenConfirmationPopup(true);
+
+  let handleAgreeConfirmationPopupAction = async (id) => {
+    setOpenConfirmationPopup(false);
+    
     const deleteUserRequestFactory = (token) =>
       DeleteRequest(`${process.env.REACT_APP_SERVER_URL}api/Users/Delete/${id}`, token);
   
     const deleteResponse = await MakeAuthorizedRequest(deleteUserRequestFactory, user);
+
+    deleteUserID = null;
 
     if (deleteResponse.status !== 200) {
       if (deleteResponse.status === 401) {
@@ -83,7 +101,14 @@ export default function Users() {
       setOpen(true);
       setUserChanged(!userChanged);
     }
-  }
+  };
+
+  let handleDisagreeConfirmationPopupAction = () => {
+    deleteUserID = null;
+    deleteUserEmail = null;
+
+    setOpenConfirmationPopup(false);
+  };
 
   return (
     <div>
@@ -95,6 +120,13 @@ export default function Users() {
           {snackbarMessage}
         </MuiAlert>
       </Snackbar>
+
+      <ConfirmationPopup
+        open={openConfirmationPopup}
+        handleAgree={() => deleteUserID && handleAgreeConfirmationPopupAction(deleteUserID)}
+        handleDisagree={handleDisagreeConfirmationPopupAction}
+        title="Delete User?"
+        content={<span>Do you realy want to delete <b>{deleteUserEmail}</b> user?</span>} />
     </div>
   );
 }

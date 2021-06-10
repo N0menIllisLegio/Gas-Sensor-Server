@@ -25,7 +25,7 @@ namespace Gss.Core.Services
     private const string _okResponse = "Server_OK";
     private const string _attentionResponse = "Server_AT";
     private const string _sensorValueResponse = "Server_SV";
-    private const int _receivedSensorsDatMaxSize = 5;
+    private const int _receivedSensorsDataMaxSize = 5;
 
     private readonly ILogger<SocketConnectionService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -155,6 +155,28 @@ namespace Gss.Core.Services
 
             await SendMicrocontrollerResponse(socket, _okResponse);
 
+            var microcontrollerSensor = connectedMicrocontroller.MicrocontrollerSensors.FirstOrDefault(ms => ms.SensorID == sensorID);
+
+            if (microcontrollerSensor is null)
+            {
+              _logger.LogWarning("Such sensor({3}) doesn't connected to microcontroller. Endpoint: {0}\tMicrocontroller: {1}\tRequest: {2}",
+                socket.RemoteEndPoint, connectedMicrocontroller.Id, request, sensorID);
+
+              socket.Shutdown(SocketShutdown.Both);
+              socket.Close();
+
+              return;
+            }
+
+            if (microcontrollerSensor.CriticalValue <= sensorValue)
+            {
+              using var scope = _serviceScopeFactory.CreateScope();
+              var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+
+              await emailService.SendCriticalValueEmail(ownerEmail, sensorValue, microcontrollerSensor.CriticalValue.Value,
+                connectedMicrocontroller, microcontrollerSensor.Sensor, microcontrollerSensor.Sensor.Type);
+            }
+
             if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerID == connectedMicrocontroller.Id
               && sensorData.SensorID == sensorID && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
             {
@@ -173,7 +195,7 @@ namespace Gss.Core.Services
                 _receivedSensorsData.Add(sensorData);
               }
 
-              if (_receivedSensorsData.Count > _receivedSensorsDatMaxSize)
+              if (_receivedSensorsData.Count > _receivedSensorsDataMaxSize)
               {
                 _ = Task.Run(InsertReceivedSensorsData);
               }

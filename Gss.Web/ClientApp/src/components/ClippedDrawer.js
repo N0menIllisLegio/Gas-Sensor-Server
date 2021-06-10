@@ -13,7 +13,7 @@ import RouterTwoToneIcon from '@material-ui/icons/RouterTwoTone';
 import MemoryTwoToneIcon from '@material-ui/icons/MemoryTwoTone';
 import AccountTreeTwoToneIcon from '@material-ui/icons/AccountTreeTwoTone';
 import { useSelector } from 'react-redux';
-import { selectUser } from '../redux/reducers/authSlice';
+import { selectUser, selectUserBadgeName } from '../redux/reducers/authSlice';
 import { useState, useEffect } from 'react';
 import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
 import MapTwoToneIcon from '@material-ui/icons/MapTwoTone';
@@ -46,11 +46,12 @@ const useStyles = makeStyles((theme) => ({
 export default function ClippedDrawer() {
   const classes = useStyles();
   const user = useSelector(selectUser);
+  const userName = useSelector(selectUserBadgeName);
   const [displayAdminPanel, setDisplayAdminPanel] = useState(false);
 
   useEffect(() => {
-    setDisplayAdminPanel(user?.Administrator === true);
-  }, [user?.Administrator])
+    setDisplayAdminPanel(user?.Administrator === true && userName != null);
+  }, [user?.Administrator, userName])
 
   return (
     <Drawer
