@@ -516,8 +516,8 @@ function UserDetailCard(props) {
 
             <CardDetailRow icon={(<EmailTwoToneIcon />)} name="Email" content={userInfo.Email} />
             <CardDetailRow icon={(<AccountCircleTwoToneIcon />)} name="Full name" content={`${userInfo.FirstName} ${userInfo.LastName || '—'}`} />
-            <CardDetailRow icon={(<WcTwoToneIcon />)} name="Gender" content={userInfo.Gender} />
-            <CardDetailRow icon={(<EventTwoToneIcon />)} name="Age" content={getAge(new Date(userInfo.Birthday))} />
+            <CardDetailRow icon={(<WcTwoToneIcon />)} name="Gender" content={userInfo.Gender != null && userInfo.Gender != '' ? userInfo.Gender : '—'} />
+            <CardDetailRow icon={(<EventTwoToneIcon />)} name="Age" content={userInfo.Birthday != null ? getAge(new Date(userInfo.Birthday)) : '—'} />
           </Grid>
         </CardContent>
       </Card>
