@@ -52,9 +52,9 @@ export default function ConfigurationFileGenerator() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const [ date, setDate ] = useState(new Date());
-  const [ writeSDPeriodSeconds, setWriteSDPeriodSeconds ] = useState(60);
-  const [ transmitPeriodSeconds, setTransmitPeriodSeconds ] = useState(1800);
-  const [ requestPeriodSeconds, setRequestPeriodSeconds ] = useState(900);
+  const [ writeSDIntervalSeconds, setWriteSDIntervalSeconds ] = useState(60);
+  const [ transmitIntervalSeconds, setTransmitIntervalSeconds ] = useState(1800);
+  const [ requestIntervalSeconds, setRequestIntervalSeconds ] = useState(900);
 
   const [ SSID, setSSID ] = useState('');
   const [ securityKey, setSecurityKey ] = useState('');
@@ -110,9 +110,9 @@ export default function ConfigurationFileGenerator() {
       `Minutes=${date.getMinutes()};`,
       `Seconds=${date.getSeconds()};`,
       '',
-      `WriteSDPeriodSeconds=${writeSDPeriodSeconds};`,
-      `TransmitPeriodSeconds=${transmitPeriodSeconds};`,
-      `RequestPeriodSeconds=${requestPeriodSeconds};`,
+      `WriteSDIntervalSeconds=${writeSDIntervalSeconds};`,
+      `TransmitIntervalSeconds=${transmitIntervalSeconds};`,
+      `RequestIntervalSeconds=${requestIntervalSeconds};`,
       '',
       `SSID=${SSID};`,
       `SecurityKey=${securityKey};`,
@@ -130,7 +130,7 @@ export default function ConfigurationFileGenerator() {
 
     setConfigText(lines.join('\n'));
 
-  }, [date, writeSDPeriodSeconds, transmitPeriodSeconds, requestPeriodSeconds, SSID, securityKey,
+  }, [date, writeSDIntervalSeconds, transmitIntervalSeconds, requestIntervalSeconds, SSID, securityKey,
       protocol, privateMode, serverIP, serverPort, sensorID, ownerID,
       microcontrollerID, microcontrollerPassword]);
 
@@ -151,34 +151,34 @@ export default function ConfigurationFileGenerator() {
      : { error: false, errorMessage: null }
   };
 
-  const sdWritePeriodValidator = (value) => {
+  const sdWriteIntervalValidator = (value) => {
     const number = +value;
     if (isNaN(number)) {
       return { error: true, errorMessage: 'NaN' };
     } else if (number < 60 || number > 3195660) {
-      return { error: true, errorMessage: 'Period should be in [60, 3195660] interval' };
+      return { error: true, errorMessage: 'Interval should be in [60, 3195660]' };
     }
  
     return { error: false, errorMessage: secondsToString(number) };
   };
 
-  const transmitPeriodValidator = (value) => {
+  const transmitIntervalValidator = (value) => {
     const number = +value;
     if (isNaN(number)) {
       return { error: true, errorMessage: 'NaN' };
     } else if (number < 1800 || number > 3195660) {
-      return { error: true, errorMessage: 'Period should be in [1800, 3195660] interval' };
+      return { error: true, errorMessage: 'Interval should be in [1800, 3195660]' };
     }
  
     return { error: false, errorMessage: secondsToString(number) };
   };
 
-  const requestPeriodValidator = (value) => {
+  const requestIntervalValidator = (value) => {
     const number = +value;
     if (isNaN(number)) {
       return { error: true, errorMessage: 'NaN' };
     } else if (number < 900 || number > 3195660) {
-      return { error: true, errorMessage: 'Period should be in [900, 3195660] interval' };
+      return { error: true, errorMessage: 'Interval should be in [900, 3195660]' };
     }
  
     return { error: false, errorMessage: secondsToString(number) };
@@ -298,24 +298,24 @@ export default function ConfigurationFileGenerator() {
             </Grid>
             <Grid item xs={12}>
               <ConfigTextField
-                label="SD card write period (seconds)"
-                value={writeSDPeriodSeconds}
-                setValue={setWriteSDPeriodSeconds}
-                valueValidator={sdWritePeriodValidator} />
+                label="SD card write interval (seconds)"
+                value={writeSDIntervalSeconds}
+                setValue={setWriteSDIntervalSeconds}
+                valueValidator={sdWriteIntervalValidator} />
             </Grid>
             <Grid item xs={12}>
               <ConfigTextField
-                label="Transmit period (seconds)"
-                value={transmitPeriodSeconds}
-                setValue={setTransmitPeriodSeconds}
-                valueValidator={transmitPeriodValidator} />
+                label="Transmit interval (seconds)"
+                value={transmitIntervalSeconds}
+                setValue={setTransmitIntervalSeconds}
+                valueValidator={transmitIntervalValidator} />
             </Grid>
             <Grid item xs={12}>
               <ConfigTextField
-                label="Request period (seconds)"
-                value={requestPeriodSeconds}
-                setValue={setRequestPeriodSeconds}
-                valueValidator={requestPeriodValidator} />
+                label="Request interval (seconds)"
+                value={requestIntervalSeconds}
+                setValue={setRequestIntervalSeconds}
+                valueValidator={requestIntervalValidator} />
             </Grid>
             <Grid item xs={12}>
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
