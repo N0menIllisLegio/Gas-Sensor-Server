@@ -218,8 +218,6 @@ namespace Gss.Core.Helpers
     private static IEnumerable<TResult> GetValidPropertyNames<TEntity, TResult>(Dictionary<string, TResult> items)
     {
       var existingPropertiesNames = GetEntitiesPropertiesNames(String.Empty, typeof(TEntity));
-      // TODO: create list of names (name, name.name, name.name.name)
-      // than check
       var result = new List<TResult>();
 
       foreach (var item in items)

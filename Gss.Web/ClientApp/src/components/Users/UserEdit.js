@@ -76,6 +76,8 @@ export default function UserEdit(props) {
   const handleFormSubmit = async (body) => {
     let uploadedAvatarUrl = null;
 
+    setIsPending(true);
+
     if (avatar != null) {
       const saveImageRequestFactory = (token) =>
         PostImageRequest(`${process.env.REACT_APP_SERVER_URL}api/Files/AvatarUpload`, avatar, token);
@@ -97,8 +99,6 @@ export default function UserEdit(props) {
       : avatarSrc || null;
 
     let updateRequestFactory = null;
-    
-    setIsPending(true);
 
     if (user.Administrator) {
       updateRequestFactory = (token) =>
