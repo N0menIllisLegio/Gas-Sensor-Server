@@ -368,7 +368,7 @@ export default function ConfigurationFileGenerator() {
 
             <Grid item xs={12}>
               <Typography variant="caption">
-                This file needs to be saved in microSD's root directory.
+                This file needs to be saved in microSD's root directory with <b>config.txt</b> name.
               </Typography>
             </Grid>
 
