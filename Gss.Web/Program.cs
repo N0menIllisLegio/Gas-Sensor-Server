@@ -1,41 +1,81 @@
-using System;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using NLog.Web;
+using Gss.Core.Helpers;
+using Gss.Core.Interfaces;
+using Gss.Core.Interfaces.Services;
+using Gss.Core.Services;
+using Gss.Infrastructure;
+using Gss.Web;
+using Gss.Web.Configuration;
+using Gss.Web.Middlewares;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
-namespace Gss.Web
+const string NotificationHubUrl = "/api/notifications";
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.ConfigureSettings();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options
+        .UseLazyLoadingProxies()
+        .UseNpgsql(builder.Configuration.GetConnectionString("Database"),
+            builder => builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null))
+        .EnableSensitiveDataLogging());
+
+builder.Services.ConfigureIdentity();
+builder.Services.ConfigureControllers();
+builder.Services.ConfigureAuthentication(builder.Configuration, NotificationHubUrl);
+builder.Services.ConfigureSwagger();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddSignalR();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddTransient<ITokensService, TokensService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
+builder.Services.AddScoped<ISensorsTypesService, SensorsTypesService>();
+builder.Services.AddScoped<ISensorsService, SensorsService>();
+builder.Services.AddScoped<IRolesService, RolesService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<ISensorsDataService, SensorsDataService>();
+builder.Services.AddScoped<IAuthenticationManager, AuthenticationManager>();
+
+builder.Services.AddSingleton<SocketConnectionService>();
+
+builder.Services.AddSingleton<IUserIdProvider, UserEmailProvider>();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+    app.UseHsts();
+
+app.UseMiddleware<EnableRequestBufferingMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors();
+
+if (app.Environment.IsDevelopment())
 {
-  public class Program
-  {
-    public static void Main(string[] args)
-    {
-      var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-      try
-      {
-        logger.Debug("init main");
-        CreateHostBuilder(args).Build().Run();
-      }
-      catch (Exception exception)
-      {
-        //NLog: catch setup errors
-        logger.Error(exception, "Stopped program because of exception");
-        throw;
-      }
-      finally
-      {
-        // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-        NLog.LogManager.Shutdown();
-      }
-    }
-
-    public static IHostBuilder CreateHostBuilder(string[] args)
-    {
-      return Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-              webBuilder.UseStartup<Startup>();
-            })
-            .UseNLog();
-    }
-  }
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<NotificationsHub>(NotificationHubUrl);
+});
+
+app.Services.GetRequiredService<SocketConnectionService>().RunAsync();
+
+app.Run();

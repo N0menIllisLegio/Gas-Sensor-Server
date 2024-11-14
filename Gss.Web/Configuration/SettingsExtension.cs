@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using Gss.Core.Helpers;
 using Gss.Core.Resources;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Gss.Web.Configuration
@@ -33,20 +30,12 @@ namespace Gss.Web.Configuration
         && Regex.IsMatch(Settings.Email.Address, emailRegex, RegexOptions.IgnoreCase))
       {
         Settings.Email.SmtpPort = port;
-        Settings.Email.SmtpUseSsl = emailSection["SmtpUseSsl"].ToUpper() == "TRUE";
+        Settings.Email.SmtpUseSsl = bool.Parse(emailSection["SmtpUseSsl"]);
       }
       else
       {
         throw new ApplicationException(Messages.InvalidSettingsErrorString);
       }
-
-      var azureImagesSection = configuration.GetSection("AzureImages");
-
-      Settings.AzureImages.AccountName = azureImagesSection["AccountName"];
-      Settings.AzureImages.AccountKey = azureImagesSection["AccountKey"];
-      Settings.AzureImages.ImagesContainer = azureImagesSection["ImagesContainer"];
-      Settings.AzureImages.ThumbnailsContainer = azureImagesSection["ThumbnailsContainer"];
-      Settings.AzureImages.SupportedExtensions = azureImagesSection.GetSection("SupportedExtensions").Get<List<string>>();
 
       var socketConnectionOptions = configuration.GetSection("MicrocontrollersConnectionsOptions:Socket");
 

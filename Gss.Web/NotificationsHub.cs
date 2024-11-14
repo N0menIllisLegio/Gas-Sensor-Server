@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Gss.Core.Helpers
+namespace Gss.Web
 {
   [Authorize]
   public class NotificationsHub: Hub

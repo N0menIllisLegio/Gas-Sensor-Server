@@ -27,15 +27,6 @@ namespace Gss.Core.Helpers
       public static int RefreshTokenLifetimeDays { get; set; }
     }
 
-    public static class AzureImages
-    {
-      public static string AccountName { get; set; }
-      public static string AccountKey { get; set; }
-      public static string ImagesContainer { get; set; }
-      public static string ThumbnailsContainer { get; set; }
-      public static List<string> SupportedExtensions { get; set; }
-    }
-
     public static class Socket
     {
       public static string IPAddress { get; set; }

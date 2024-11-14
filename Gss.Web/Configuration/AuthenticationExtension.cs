@@ -1,10 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using Gss.Core.Helpers;
+﻿using Gss.Core.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Gss.Web.Configuration
@@ -48,13 +44,6 @@ namespace Gss.Web.Configuration
             return Task.CompletedTask;
           }
         };
-      })
-      .AddGoogle(options =>
-      {
-        var googleAuthNSection = configuration.GetSection("Authentication:Google");
-
-        options.ClientId = googleAuthNSection["ClientID"];
-        options.ClientSecret = googleAuthNSection["ClientSecret"];
       });
     }
   }

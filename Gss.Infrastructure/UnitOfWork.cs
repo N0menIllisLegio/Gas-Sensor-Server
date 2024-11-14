@@ -22,7 +22,6 @@ namespace Gss.Infrastructure
       _context = context;
     }
 
-    public IAzureFilesRepository AzureFiles => _azureImages ??= new AzureFilesRepository();
     public IMicrocontrollersRepository Microcontrollers => _microcontrollers ??= new MicrocontrollersRepository(_context);
     public IRefreshTokensRepository RefreshTokens => _refreshTokens ??= new RefreshTokensRepository(_context);
     public ISensorsRepository Sensors => _sensors ??= new SensorsRepository(_context);

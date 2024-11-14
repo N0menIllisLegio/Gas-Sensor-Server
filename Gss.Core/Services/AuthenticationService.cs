@@ -13,6 +13,7 @@ using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
 using Microsoft.AspNetCore.Identity;
+using SignInResult = Gss.Core.Interfaces.SignInResult;
 
 namespace Gss.Core.Services
 {
@@ -24,21 +25,21 @@ namespace Gss.Core.Services
     private const string _passwordResetSubject = "Password reset";
 
     private readonly ITokensService _tokenService;
-    private readonly SignInManager<User> _signInManager;
+    private readonly IAuthenticationManager _authenticationManager;
     private readonly UserManager _userManager;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly IMapper _mapper;
 
     public AuthenticationService(ITokensService tokenService,
-      SignInManager<User> signInManager,
+      IAuthenticationManager authenticationManager,
       UserManager userManager,
       IUnitOfWork unitOfWork,
       IEmailService emailService,
       IMapper mapper)
     {
       _tokenService = tokenService;
-      _signInManager = signInManager;
+      _authenticationManager = authenticationManager;
       _userManager = userManager;
       _unitOfWork = unitOfWork;
       _emailService = emailService;
@@ -204,21 +205,21 @@ namespace Gss.Core.Services
 
       try
       {
-        signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+        signInResult = await _authenticationManager.CheckPasswordSignInAsync(user, password);
       }
       catch
       {
         throw new AppException(Messages.InvalidEmailOrPasswordErrorString, HttpStatusCode.BadRequest);
       }
 
-      if (!signInResult.Succeeded)
+      if (signInResult != SignInResult.Success)
       {
-        if (signInResult.IsNotAllowed)
+        if (signInResult == SignInResult.NotAllowed)
         {
           throw new AppException(Messages.EmailNotConfirmedErrorString, HttpStatusCode.Forbidden);
         }
 
-        if (signInResult.IsLockedOut)
+        if (signInResult == SignInResult.LockedOut)
         {
           throw new AppException(Messages.UserIsLockedOutErrorString, HttpStatusCode.Forbidden);
         }

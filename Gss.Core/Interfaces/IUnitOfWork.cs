@@ -7,7 +7,6 @@ namespace Gss.Core.Interfaces
 {
   public interface IUnitOfWork: IDisposable
   {
-    IAzureFilesRepository AzureFiles { get; }
     IMicrocontrollersRepository Microcontrollers { get; }
     IRefreshTokensRepository RefreshTokens { get; }
     ISensorsRepository Sensors { get; }

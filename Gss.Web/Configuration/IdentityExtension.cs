@@ -1,9 +1,7 @@
-﻿using System;
-using Gss.Core.Entities;
+﻿using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Infrastructure;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Gss.Web.Configuration
 {
@@ -11,7 +9,7 @@ namespace Gss.Web.Configuration
   {
     public static IdentityBuilder ConfigureIdentity(this IServiceCollection services)
     {
-      return services.AddDefaultIdentity<User>(options =>
+      return services.AddIdentity<User, IdentityRole<Guid>>(options =>
       {
         // TODO config for prod, max length set on front to 20
         //options.SignIn.RequireConfirmedAccount = true;
