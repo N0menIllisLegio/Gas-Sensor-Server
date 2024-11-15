@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Gss.Core.DTOs.SensorData;
 using Gss.Core.Entities;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
-using Gss.Web;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-namespace Gss.Core.Services
+namespace Gss.Web
 {
   public class SocketConnectionService
   {

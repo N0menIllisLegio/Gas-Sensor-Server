@@ -17,7 +17,7 @@ namespace Gss.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
@@ -277,6 +277,29 @@ namespace Gss.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8"),
+                            AccessFailedCount = 0,
+                            AvatarPath = "",
+                            ConcurrencyStamp = "dfc48fbc-072e-4da5-b05f-b10694b947d0",
+                            CreationDate = new DateTimeOffset(new DateTime(2024, 11, 15, 1, 29, 49, 509, DateTimeKind.Unspecified).AddTicks(2222), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "example@example.com",
+                            EmailConfirmed = false,
+                            FirstName = "Admin",
+                            Gender = "",
+                            LastName = "",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "EXAMPLE@EXAMPLE.COM",
+                            NormalizedUserName = "EXAMPLE@EXAMPLE.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIztH6wjdB+L4cs5Dj7hQbtinLbe1++8zmazhsCk5Q1gDoNs25exsRuXMo2q+i9iHg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "7d7d8658-8a5a-4468-8db7-31c15d93a980",
+                            TwoFactorEnabled = false,
+                            UserName = "example@example.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -304,6 +327,22 @@ namespace Gss.Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6"),
+                            ConcurrencyStamp = "c55cec9f-07bd-4290-8971-dac0effa388e",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = new Guid("04bf1ca1-0600-4c4b-86c5-2f16998b02d8"),
+                            ConcurrencyStamp = "e1a036be-d5da-4fb3-94c2-8bb60c75d795",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -357,12 +396,10 @@ namespace Gss.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -390,6 +427,13 @@ namespace Gss.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8"),
+                            RoleId = new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -398,12 +442,10 @@ namespace Gss.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");

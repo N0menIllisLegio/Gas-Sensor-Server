@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Gss.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -117,8 +119,8 @@ namespace Gss.Infrastructure.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -162,8 +164,8 @@ namespace Gss.Infrastructure.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -294,6 +296,25 @@ namespace Gss.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { new Guid("04bf1ca1-0600-4c4b-86c5-2f16998b02d8"), "e1a036be-d5da-4fb3-94c2-8bb60c75d795", "User", "USER" },
+                    { new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6"), "c55cec9f-07bd-4290-8971-dac0effa388e", "Administrator", "ADMINISTRATOR" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "AvatarPath", "Birthday", "ConcurrencyStamp", "CreationDate", "Email", "EmailConfirmed", "FirstName", "Gender", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8"), 0, "", null, "dfc48fbc-072e-4da5-b05f-b10694b947d0", new DateTimeOffset(new DateTime(2024, 11, 15, 1, 29, 49, 509, DateTimeKind.Unspecified).AddTicks(2222), new TimeSpan(0, 0, 0, 0, 0)), "example@example.com", false, "Admin", "", "", false, null, "EXAMPLE@EXAMPLE.COM", "EXAMPLE@EXAMPLE.COM", "AQAAAAIAAYagAAAAEIztH6wjdB+L4cs5Dj7hQbtinLbe1++8zmazhsCk5Q1gDoNs25exsRuXMo2q+i9iHg==", null, false, "7d7d8658-8a5a-4468-8db7-31c15d93a980", false, "example@example.com" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6"), new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

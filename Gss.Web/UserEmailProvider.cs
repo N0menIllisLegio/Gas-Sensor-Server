@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace Gss.Core.Helpers
+namespace Gss.Web
 {
   public class UserEmailProvider: IUserIdProvider
   {
