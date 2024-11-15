@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Gss.Core.DTOs.Microcontroller
+﻿namespace Gss.Core.DTOs.Microcontroller
 {
   public class RequestSensorValueResponseDto
   {

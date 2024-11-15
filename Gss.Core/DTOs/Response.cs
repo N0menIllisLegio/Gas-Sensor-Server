@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Gss.Core.DTOs
+﻿namespace Gss.Core.DTOs
 {
   public class Response<T>
   {
@@ -27,9 +23,9 @@ namespace Gss.Core.DTOs
     public Response<T> AddError(string error, params string[] errorParams)
     {
       Succeeded = false;
-      string fromattedError = String.Format(error, errorParams);
+      string formattedError = String.Format(error, errorParams);
 
-      Errors.Add(fromattedError);
+      Errors.Add(formattedError);
 
       return this;
     }

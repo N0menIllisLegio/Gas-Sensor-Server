@@ -1,13 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Gss.Core.DTOs.Authentication
+﻿namespace Gss.Core.DTOs.Authentication
 {
   public class RequestTokenRefreshDto
   {
-    [Required]
-    public string AccessToken { get; set; }
-
-    [Required]
-    public string RefreshToken { get; set; }
+    public required string AccessToken { get; set; }
+    public required string RefreshToken { get; set; }
   }
 }

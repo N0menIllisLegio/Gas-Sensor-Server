@@ -1,17 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace Gss.Core.DTOs.Authentication
+﻿namespace Gss.Core.DTOs.Authentication
 {
   public class ChangeEmailDto
   {
-    [Required]
     public Guid UserID { get; set; }
-
-    [Required]
-    public string NewEmail { get; set; }
-
-    [Required]
-    public string Token { get; set; }
+    public required string NewEmail { get; set; }
+    public required string Token { get; set; }
   }
 }

@@ -1,18 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace Gss.Core.DTOs.Sensor
+﻿namespace Gss.Core.DTOs.Sensor
 {
   public class CreateSensorDto
   {
-    [Required]
-    [MaxLength(200)]
-    public string Name { get; set; }
-
-    [MaxLength(1800)]
-    public string Description { get; set; }
-
-    [Required]
+    public required string Name { get; set; }
+    public string? Description { get; set; }
     public Guid TypeID { get; set; }
   }
 }

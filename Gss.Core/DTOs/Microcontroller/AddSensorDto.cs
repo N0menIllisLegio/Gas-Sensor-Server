@@ -1,14 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace Gss.Core.DTOs.Microcontroller
+﻿namespace Gss.Core.DTOs.Microcontroller
 {
   public class AddSensorDto
   {
-    [Required]
     public Guid MicrocontollerID { get; set; }
-
-    [Required]
     public Guid SensorID { get; set; }
   }
 }

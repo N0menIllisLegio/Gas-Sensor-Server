@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using System.Web;
 using AutoMapper;
 using Gss.Core.DTOs.Authentication;
@@ -12,8 +9,6 @@ using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
-using Microsoft.AspNetCore.Identity;
-using SignInResult = Gss.Core.Interfaces.SignInResult;
 
 namespace Gss.Core.Services
 {
@@ -201,25 +196,25 @@ namespace Gss.Core.Services
     public async Task<TokenDto> LogInAsync(string login, string password)
     {
       var user = await _userManager.FindByEmailAsync(login);
-      SignInResult signInResult;
+      UserSignInResult userSignInResult;
 
       try
       {
-        signInResult = await _authenticationManager.CheckPasswordSignInAsync(user, password);
+        userSignInResult = await _authenticationManager.CheckPasswordSignInAsync(user, password);
       }
       catch
       {
         throw new AppException(Messages.InvalidEmailOrPasswordErrorString, HttpStatusCode.BadRequest);
       }
 
-      if (signInResult != SignInResult.Success)
+      if (userSignInResult != UserSignInResult.Success)
       {
-        if (signInResult == SignInResult.NotAllowed)
+        if (userSignInResult == UserSignInResult.NotAllowed)
         {
           throw new AppException(Messages.EmailNotConfirmedErrorString, HttpStatusCode.Forbidden);
         }
 
-        if (signInResult == SignInResult.LockedOut)
+        if (userSignInResult == UserSignInResult.LockedOut)
         {
           throw new AppException(Messages.UserIsLockedOutErrorString, HttpStatusCode.Forbidden);
         }

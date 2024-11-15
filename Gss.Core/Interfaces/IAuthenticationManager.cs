@@ -2,7 +2,7 @@
 
 namespace Gss.Core.Interfaces;
 
-public enum SignInResult
+public enum UserSignInResult
 {
     Failure,
     NotAllowed,
@@ -12,5 +12,5 @@ public enum SignInResult
 
 public interface IAuthenticationManager
 {
-    Task<SignInResult> CheckPasswordSignInAsync(User user, string password);
+    Task<UserSignInResult> CheckPasswordSignInAsync(User user, string password);
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Gss.Core.DTOs.User
+﻿namespace Gss.Core.DTOs.User
 {
   public class ExtendedUserDto: UserDto
   {

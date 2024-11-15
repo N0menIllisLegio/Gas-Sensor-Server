@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Gss.Core.Enums;
+﻿using Gss.Core.Enums;
 
 namespace Gss.Core.DTOs.SensorData
 {

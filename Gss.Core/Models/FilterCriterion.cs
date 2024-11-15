@@ -5,8 +5,8 @@ namespace Gss.Core.Models
 {
   public class FilterCriterion : IFilterCriterion
   {
-    public string PropertyName { get; set; }
-    public string Value { get; set; }
+    public required string PropertyName { get; set; }
+    public required string Value { get; set; }
     public FilterOperatorType OperatorType { get; set; }
   }
 }

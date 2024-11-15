@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Gss.Core.DTOs.SensorType;
+﻿using Gss.Core.DTOs.SensorType;
 
 namespace Gss.Core.DTOs.Microcontroller
 {
@@ -9,6 +7,6 @@ namespace Gss.Core.DTOs.Microcontroller
     public Guid MicrocontrollerID { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-    public List<SensorTypeDto> SensorTypes { get; set; }
+    public required List<SensorTypeDto> SensorTypes { get; set; }
   }
 }

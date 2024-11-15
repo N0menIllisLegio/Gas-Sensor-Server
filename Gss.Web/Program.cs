@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
@@ -47,6 +49,9 @@ builder.Services.AddScoped<IAuthenticationManager, AuthenticationManager>();
 builder.Services.AddSingleton<SocketConnectionService>();
 
 builder.Services.AddSingleton<IUserIdProvider, UserEmailProvider>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddFluentValidationAutoValidation();
 
 var app = builder.Build();
 
