@@ -33,10 +33,10 @@ namespace Gss.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FirstName = table.Column<string>(type: "text", nullable: false),
-                    LastName = table.Column<string>(type: "text", nullable: false),
-                    AvatarPath = table.Column<string>(type: "text", nullable: false),
-                    Gender = table.Column<string>(type: "text", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: true),
+                    LastName = table.Column<string>(type: "text", nullable: true),
+                    AvatarPath = table.Column<string>(type: "text", nullable: true),
+                    Gender = table.Column<string>(type: "text", nullable: true),
                     Birthday = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreationDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -65,8 +65,8 @@ namespace Gss.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Icon = table.Column<string>(type: "text", nullable: false),
-                    Units = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false)
+                    Icon = table.Column<string>(type: "text", nullable: true),
+                    Units = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -230,7 +230,7 @@ namespace Gss.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     TypeID = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -302,14 +302,14 @@ namespace Gss.Infrastructure.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("04bf1ca1-0600-4c4b-86c5-2f16998b02d8"), "e1a036be-d5da-4fb3-94c2-8bb60c75d795", "User", "USER" },
-                    { new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6"), "c55cec9f-07bd-4290-8971-dac0effa388e", "Administrator", "ADMINISTRATOR" }
+                    { new Guid("04bf1ca1-0600-4c4b-86c5-2f16998b02d8"), "5zehyHfF1ZSfh73KCUFTdbcAh9ESbLKebm05DzHFkSGm0Uqj5A", "User", "USER" },
+                    { new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6"), "BNPH3VNRHKWHGFD5CVH2dU9Yy4vh2fRSmeXHkVPKqQ4hj6Kj2D", "Administrator", "ADMINISTRATOR" }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "AvatarPath", "Birthday", "ConcurrencyStamp", "CreationDate", "Email", "EmailConfirmed", "FirstName", "Gender", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8"), 0, "", null, "dfc48fbc-072e-4da5-b05f-b10694b947d0", new DateTimeOffset(new DateTime(2024, 11, 15, 1, 29, 49, 509, DateTimeKind.Unspecified).AddTicks(2222), new TimeSpan(0, 0, 0, 0, 0)), "example@example.com", false, "Admin", "", "", false, null, "EXAMPLE@EXAMPLE.COM", "EXAMPLE@EXAMPLE.COM", "AQAAAAIAAYagAAAAEIztH6wjdB+L4cs5Dj7hQbtinLbe1++8zmazhsCk5Q1gDoNs25exsRuXMo2q+i9iHg==", null, false, "7d7d8658-8a5a-4468-8db7-31c15d93a980", false, "example@example.com" });
+                values: new object[] { new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8"), 0, "", null, "FtLiETwVU1knrzUc99ymQY6YddzAbm0LkJRgEwt79JhW0QqPLa", new DateTimeOffset(new DateTime(2024, 11, 15, 1, 1, 1, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "example@example.com", false, "Admin", "", "", false, null, "EXAMPLE@EXAMPLE.COM", "EXAMPLE@EXAMPLE.COM", "AQAAAAIAAYagAAAAEIztH6wjdB+L4cs5Dj7hQbtinLbe1++8zmazhsCk5Q1gDoNs25exsRuXMo2q+i9iHg==", null, false, "AEj7Nbw79QaF3xHmVxqFXHmaupXgJMZRXqJDEw9xqbbheMCnTD", false, "example@example.com" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",

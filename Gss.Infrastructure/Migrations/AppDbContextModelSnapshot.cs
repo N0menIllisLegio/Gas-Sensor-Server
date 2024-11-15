@@ -66,7 +66,7 @@ namespace Gss.Infrastructure.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Microcontrollers");
+                    b.ToTable("Microcontrollers", (string)null);
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.MicrocontrollerSensors", b =>
@@ -90,7 +90,7 @@ namespace Gss.Infrastructure.Migrations
 
                     b.HasIndex("SensorID");
 
-                    b.ToTable("MicrocontrollerSensors");
+                    b.ToTable("MicrocontrollerSensors", (string)null);
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.RefreshToken", b =>
@@ -113,7 +113,7 @@ namespace Gss.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
@@ -123,7 +123,6 @@ namespace Gss.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
@@ -139,7 +138,7 @@ namespace Gss.Infrastructure.Migrations
 
                     b.HasIndex("TypeID");
 
-                    b.ToTable("Sensors");
+                    b.ToTable("Sensors", (string)null);
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.SensorData", b =>
@@ -163,7 +162,7 @@ namespace Gss.Infrastructure.Migrations
 
                     b.HasIndex("SensorID");
 
-                    b.ToTable("SensorsData");
+                    b.ToTable("SensorsData", (string)null);
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.SensorType", b =>
@@ -173,7 +172,6 @@ namespace Gss.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Icon")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -182,13 +180,12 @@ namespace Gss.Infrastructure.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Units")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SensorsTypes");
+                    b.ToTable("SensorsTypes", (string)null);
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.User", b =>
@@ -201,7 +198,6 @@ namespace Gss.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("AvatarPath")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("Birthday")
@@ -223,15 +219,12 @@ namespace Gss.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
@@ -284,8 +277,8 @@ namespace Gss.Infrastructure.Migrations
                             Id = new Guid("a21afc0b-1135-4b23-a672-758e1f788bc8"),
                             AccessFailedCount = 0,
                             AvatarPath = "",
-                            ConcurrencyStamp = "dfc48fbc-072e-4da5-b05f-b10694b947d0",
-                            CreationDate = new DateTimeOffset(new DateTime(2024, 11, 15, 1, 29, 49, 509, DateTimeKind.Unspecified).AddTicks(2222), new TimeSpan(0, 0, 0, 0, 0)),
+                            ConcurrencyStamp = "FtLiETwVU1knrzUc99ymQY6YddzAbm0LkJRgEwt79JhW0QqPLa",
+                            CreationDate = new DateTimeOffset(new DateTime(2024, 11, 15, 1, 1, 1, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "example@example.com",
                             EmailConfirmed = false,
                             FirstName = "Admin",
@@ -296,7 +289,7 @@ namespace Gss.Infrastructure.Migrations
                             NormalizedUserName = "EXAMPLE@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEIztH6wjdB+L4cs5Dj7hQbtinLbe1++8zmazhsCk5Q1gDoNs25exsRuXMo2q+i9iHg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "7d7d8658-8a5a-4468-8db7-31c15d93a980",
+                            SecurityStamp = "AEj7Nbw79QaF3xHmVxqFXHmaupXgJMZRXqJDEw9xqbbheMCnTD",
                             TwoFactorEnabled = false,
                             UserName = "example@example.com"
                         });
@@ -332,14 +325,14 @@ namespace Gss.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("2672396d-e4e2-4f8e-880f-cca9a7a260d6"),
-                            ConcurrencyStamp = "c55cec9f-07bd-4290-8971-dac0effa388e",
+                            ConcurrencyStamp = "BNPH3VNRHKWHGFD5CVH2dU9Yy4vh2fRSmeXHkVPKqQ4hj6Kj2D",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
                             Id = new Guid("04bf1ca1-0600-4c4b-86c5-2f16998b02d8"),
-                            ConcurrencyStamp = "e1a036be-d5da-4fb3-94c2-8bb60c75d795",
+                            ConcurrencyStamp = "5zehyHfF1ZSfh73KCUFTdbcAh9ESbLKebm05DzHFkSGm0Uqj5A",
                             Name = "User",
                             NormalizedName = "USER"
                         });

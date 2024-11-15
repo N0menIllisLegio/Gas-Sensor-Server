@@ -10,14 +10,14 @@ namespace Gss.Core.Entities
   public class User : IdentityUser<Guid>, IEntity
   {
     [ExpressionsBuilder]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
 
     [ExpressionsBuilder]
-    public string LastName { get; set; }
-    public string AvatarPath { get; set; }
+    public string? LastName { get; set; }
+    public string? AvatarPath { get; set; }
 
     [ExpressionsBuilder]
-    public string Gender { get; set; }
+    public string? Gender { get; set; }
 
     // [ExpressionsBuilder]
     public DateTimeOffset? Birthday { get; set; }

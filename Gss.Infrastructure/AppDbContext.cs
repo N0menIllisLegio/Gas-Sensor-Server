@@ -39,14 +39,14 @@ namespace Gss.Infrastructure
           Id = _administratorRoleID,
           Name = "Administrator",
           NormalizedName = "ADMINISTRATOR",
-          ConcurrencyStamp = Guid.NewGuid().ToString()
+          ConcurrencyStamp = "BNPH3VNRHKWHGFD5CVH2dU9Yy4vh2fRSmeXHkVPKqQ4hj6Kj2D"
         },
         new IdentityRole<Guid>
         {
           Id = _userRoleID,
           Name = "User",
           NormalizedName = "USER",
-          ConcurrencyStamp = Guid.NewGuid().ToString()
+          ConcurrencyStamp = "5zehyHfF1ZSfh73KCUFTdbcAh9ESbLKebm05DzHFkSGm0Uqj5A"
         });
 
       builder.Entity<User>()
@@ -60,9 +60,9 @@ namespace Gss.Infrastructure
           TwoFactorEnabled = false,
           PhoneNumberConfirmed = false,
           LockoutEnabled = false,
-          ConcurrencyStamp = Guid.NewGuid().ToString(),
-          SecurityStamp = Guid.NewGuid().ToString(),
-          CreationDate = DateTimeOffset.UtcNow,
+          ConcurrencyStamp = "FtLiETwVU1knrzUc99ymQY6YddzAbm0LkJRgEwt79JhW0QqPLa",
+          SecurityStamp = "AEj7Nbw79QaF3xHmVxqFXHmaupXgJMZRXqJDEw9xqbbheMCnTD",
+          CreationDate = new DateTimeOffset(2024, 11, 15, 1, 1, 1, TimeSpan.Zero),
           FirstName = "Admin",
           PasswordHash = "AQAAAAIAAYagAAAAEIztH6wjdB+L4cs5Dj7hQbtinLbe1++8zmazhsCk5Q1gDoNs25exsRuXMo2q+i9iHg==",
           LastName = string.Empty,

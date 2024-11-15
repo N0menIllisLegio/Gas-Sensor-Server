@@ -15,11 +15,11 @@ namespace Gss.Core.Entities
     [MaxLength(200)]
     [ExpressionsBuilder]
     public string Name { get; set; }
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     [MaxLength(20)]
     [ExpressionsBuilder]
-    public string Units { get; set; } // like C, F,Hz, Db ?
+    public string? Units { get; set; } // like C, F,Hz, Db ?
 
     public virtual IList<Sensor> Sensors { get; set; }
   }

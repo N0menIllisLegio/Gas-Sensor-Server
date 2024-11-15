@@ -18,7 +18,7 @@ namespace Gss.Core.Entities
 
     [MaxLength(2000)]
     [ExpressionsBuilder]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [ExpressionsBuilder]
     public Guid TypeID { get; set; }
