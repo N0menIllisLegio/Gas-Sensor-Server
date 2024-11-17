@@ -8,6 +8,7 @@ using Gss.Infrastructure;
 using Gss.Web;
 using Gss.Web.Configuration;
 using Gss.Web.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,30 +22,52 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options
         .UseLazyLoadingProxies()
         .UseNpgsql(builder.Configuration.GetConnectionString("Database"),
-            builder => builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null))
-        .EnableSensitiveDataLogging());
+            npgsqlOptionsBuilder => npgsqlOptionsBuilder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)));
 
-builder.Services.ConfigureIdentity();
 builder.Services.ConfigureControllers();
-builder.Services.ConfigureAuthentication(builder.Configuration, NotificationHubUrl);
-builder.Services.ConfigureSwagger();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+    {
+        o.RequireHttpsMetadata = false;
+        o.Audience = builder.Configuration["Authentication:Audience"];
+        o.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]!;
+        o.TokenValidationParameters = new()
+        {
+            ValidIssuer = builder.Configuration["Authentication:Issuer"],
+            ClockSkew = TimeSpan.Zero,
+        };
+
+        // TODO:
+        // o.Events = new JwtBearerEvents
+        // {
+        //     OnMessageReceived = context =>
+        //     {
+        //         string accessToken = context.Request.Query["access_token"];
+        //
+        //         if (!String.IsNullOrEmpty(accessToken)
+        //             && context.HttpContext.Request.Path.StartsWithSegments(NotificationHubUrl))
+        //         {
+        //             context.Token = accessToken;
+        //         }
+        //
+        //         return Task.CompletedTask;
+        //     }
+        // };
+    });
+
+builder.Services.ConfigureSwagger(builder.Configuration);
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddTransient<ITokensService, TokensService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
-
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
 builder.Services.AddScoped<ISensorsTypesService, SensorsTypesService>();
 builder.Services.AddScoped<ISensorsService, SensorsService>();
-builder.Services.AddScoped<IRolesService, RolesService>();
-builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ISensorsDataService, SensorsDataService>();
-builder.Services.AddScoped<IAuthenticationManager, AuthenticationManager>();
 
 builder.Services.AddSingleton<SocketConnectionService>();
 
@@ -53,20 +76,22 @@ builder.Services.AddSingleton<IUserIdProvider, UserEmailProvider>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddFluentValidationAutoValidation();
 
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ICurrentUserDataSetter, CurrentUser>(
+    c => (CurrentUser)c.GetRequiredService<ICurrentUser>());
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
     app.UseHsts();
 
-app.UseMiddleware<EnableRequestBufferingMiddleware>();
+// TODO: replace with problem details
 app.UseMiddleware<ExceptionMiddleware>();
-
-app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -75,6 +100,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<CurrentUserDataSetterMiddleware>();
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

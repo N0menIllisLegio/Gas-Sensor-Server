@@ -1,19 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using Gss.Core.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Gss.Core.Interfaces.Repositories;
 
-namespace Gss.Core.Interfaces
+namespace Gss.Core.Interfaces;
+
+public interface IUnitOfWork: IDisposable
 {
-  public interface IUnitOfWork: IDisposable
-  {
-    IMicrocontrollersRepository Microcontrollers { get; }
-    IRefreshTokensRepository RefreshTokens { get; }
-    ISensorsRepository Sensors { get; }
-    ISensorsTypesRepository SensorsTypes { get; }
-    ISensorsDataRepository SensorsData { get; }
+  IMicrocontrollersRepository Microcontrollers { get; }
+  ISensorsRepository Sensors { get; }
+  ISensorsTypesRepository SensorsTypes { get; }
+  ISensorsDataRepository SensorsData { get; }
 
-    Task<bool> SaveAsync();
-    IDbContextTransaction BeginTransaction();
-  }
+  Task<bool> SaveAsync();
 }

@@ -1,46 +1,54 @@
-﻿using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 
-namespace Gss.Web.Configuration
+namespace Gss.Web.Configuration;
+
+internal static class SwaggerExtension
 {
-  internal static class SwaggerExtension
+  public static IServiceCollection ConfigureSwagger(this IServiceCollection services, IConfiguration configuration)
   {
-    public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
-    {
-      return services.AddSwaggerGen(c =>
+      return services.AddSwaggerGen(o =>
       {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "GasSensor", Description = "ASP.NET Core project", Version = "v1" });
+        o.CustomSchemaIds(id => id.FullName!.Replace('+', '-'));
+        o.SwaggerDoc("v1",
+          new OpenApiInfo { Title = "GasSensor", Description = "ASP.NET Core project", Version = "v1" });
+        o.EnableAnnotations();
 
-        c.AddSecurityDefinition("Bearer",
-          new OpenApiSecurityScheme
-          {
-            In = ParameterLocation.Header,
-            Description = "Please enter into field the word 'Bearer' following by space and JWT",
-            Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey
-          });
-
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+        o.AddSecurityDefinition("KeyCloak", new OpenApiSecurityScheme()
         {
+          Type = SecuritySchemeType.OAuth2,
+          Flows = new OpenApiOAuthFlows()
           {
-            new OpenApiSecurityScheme
+            Implicit = new OpenApiOAuthFlow()
             {
-              Reference = new OpenApiReference
+              AuthorizationUrl = new Uri(configuration["Authentication:KeyCloak:AuthorizationUrl"]!),
+              Scopes = new Dictionary<string, string>()
               {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-              },
-              Scheme = "oauth2",
-              Name = "Bearer",
-              In = ParameterLocation.Header,
-            },
-            new List<string>()
+                { "openid", "openid" },
+                { "profile", "profile" }
+              }
+            }
           }
         });
 
-        c.EnableAnnotations();
+        var securityRequirement = new OpenApiSecurityRequirement()
+        {
+          {
+            new OpenApiSecurityScheme()
+            {
+              Reference = new OpenApiReference()
+              {
+                Id = "KeyCloak",
+                Type = ReferenceType.SecurityScheme
+              },
+              In = ParameterLocation.Header,
+              Name = "Bearer",
+              Scheme = "Bearer"
+            },
+            []
+          }
+        };
+
+        o.AddSecurityRequirement(securityRequirement);
       });
     }
-  }
 }
