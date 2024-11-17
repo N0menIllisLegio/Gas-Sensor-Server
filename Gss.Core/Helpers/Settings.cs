@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.IdentityModel.Tokens;
-
-namespace Gss.Core.Helpers;
+﻿namespace Gss.Core.Helpers;
 
 public static class Settings
 {
