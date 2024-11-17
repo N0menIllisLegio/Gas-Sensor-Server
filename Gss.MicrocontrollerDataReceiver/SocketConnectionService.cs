@@ -4,13 +4,13 @@ using System.Net.Sockets;
 using System.Text;
 using Gss.Core.DTOs.SensorData;
 using Gss.Core.Entities;
-using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gss.MicrocontrollerDataReceiver;
 
@@ -25,15 +25,18 @@ public class SocketConnectionService
 
   private readonly ILogger<SocketConnectionService> _logger;
   private readonly IServiceScopeFactory _serviceScopeFactory;
+  private readonly MicrocontrollersConnectionsOptions _microcontrollersConnectionsOptions;
   private readonly object _locker = new ();
   private readonly List<SensorData> _receivedSensorsData = new ();
 
   private int _runInsertReceivedSensorsData = 0;
 
   public SocketConnectionService(IServiceScopeFactory serviceScopeFactory,
+    IOptions<MicrocontrollersConnectionsOptions> microcontrollersConnectionsOptions,
     ILogger<SocketConnectionService> logger)
   {
     _serviceScopeFactory = serviceScopeFactory;
+    _microcontrollersConnectionsOptions = microcontrollersConnectionsOptions.Value;
     _logger = logger;
   }
 
@@ -46,8 +49,10 @@ public class SocketConnectionService
   {
     var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-    socket.Bind(new IPEndPoint(IPAddress.Parse(Settings.Socket.IPAddress), Settings.Socket.Port));
-    socket.Listen(Settings.Socket.ListenQueue);
+    socket.Bind(new IPEndPoint(
+      IPAddress.Parse(_microcontrollersConnectionsOptions.IpAddress), _microcontrollersConnectionsOptions.Port));
+
+    socket.Listen(_microcontrollersConnectionsOptions.ListenQueue);
 
     try
     {
@@ -55,8 +60,8 @@ public class SocketConnectionService
       {
         var acceptedSocket = socket.Accept();
 
-        acceptedSocket.ReceiveTimeout = Settings.Socket.ReceiveTimeout;
-        acceptedSocket.SendTimeout = Settings.Socket.SendTimeout;
+        acceptedSocket.ReceiveTimeout = _microcontrollersConnectionsOptions.ReceiveTimeout;
+        acceptedSocket.SendTimeout = _microcontrollersConnectionsOptions.SendTimeout;
 
         HandleConnection(acceptedSocket);
       }
@@ -295,7 +300,7 @@ public class SocketConnectionService
     catch (OperationCanceledException)
     {
       _logger.LogWarning("Endpoint: {0}\tMicrocontroller {1} was disconnected after {2}ms timeout", socket.RemoteEndPoint,
-        connectedMicrocontroller?.Id, Settings.Socket.ReceiveTimeout);
+        connectedMicrocontroller?.Id, _microcontrollersConnectionsOptions.ReceiveTimeout);
     }
     catch (Exception exception)
     {
@@ -313,7 +318,7 @@ public class SocketConnectionService
     byte[] receivedData = new byte[256];
 
     var cancellationTokenSource = new CancellationTokenSource();
-    cancellationTokenSource.CancelAfter(Settings.Socket.ReceiveTimeout);
+    cancellationTokenSource.CancelAfter(_microcontrollersConnectionsOptions.ReceiveTimeout);
 
     do
     {

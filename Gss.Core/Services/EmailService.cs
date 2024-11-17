@@ -1,16 +1,23 @@
-﻿using System.Threading.Tasks;
-using Gss.Core.Entities;
-using Gss.Core.Helpers;
+﻿using Gss.Core.Entities;
 using Gss.Core.Interfaces.Services;
+using Gss.Core.Models;
 using Gss.Core.Resources;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace Gss.Core.Services;
 
 public class EmailService : IEmailService
 {
-  private const string _senderName = "Gas sensors Administration";
+  private const string SenderName = "Gas sensors Administration";
+
+  private readonly EmailOptions _emailOptions;
+
+  public EmailService(IOptions<EmailOptions> emailOptions)
+  {
+    _emailOptions = emailOptions.Value;
+  }
 
   public async Task<bool> SendEmailAsync(MimeMessage emailMessage)
   {
@@ -19,8 +26,8 @@ public class EmailService : IEmailService
 
       try
       {
-        await client.ConnectAsync(Settings.Email.SmtpServer, Settings.Email.SmtpPort, Settings.Email.SmtpUseSsl);
-        await client.AuthenticateAsync(Settings.Email.Address, Settings.Email.Password);
+        await client.ConnectAsync(_emailOptions.SmtpServer, _emailOptions.SmtpPort, _emailOptions.SmtpUseSsl);
+        await client.AuthenticateAsync(_emailOptions.Address, _emailOptions.Password);
         await client.SendAsync(emailMessage);
         await client.DisconnectAsync(true);
       }
@@ -42,7 +49,7 @@ public class EmailService : IEmailService
         TextBody = textMessage
       };
 
-      emailMessage.From.Add(new MailboxAddress(_senderName, Settings.Email.Address));
+      emailMessage.From.Add(new MailboxAddress(SenderName, _emailOptions.Address));
       emailMessage.To.Add(MailboxAddress.Parse(sendToAddress));
       emailMessage.Subject = subject;
       emailMessage.Body = builder.ToMessageBody();
@@ -58,7 +65,7 @@ public class EmailService : IEmailService
         TextBody = message
       };
 
-      emailMessage.From.Add(new MailboxAddress(_senderName, Settings.Email.Address));
+      emailMessage.From.Add(new MailboxAddress(SenderName, _emailOptions.Address));
       emailMessage.To.Add(MailboxAddress.Parse(sendToAddress));
       emailMessage.Subject = subject;
       emailMessage.Body = builder.ToMessageBody();

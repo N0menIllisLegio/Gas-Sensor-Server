@@ -5,6 +5,7 @@ using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
+using Gss.Core.Models;
 using Gss.Core.Services;
 using Gss.Infrastructure;
 using Gss.MicrocontrollerDataReceiver;
@@ -21,7 +22,11 @@ const string NotificationHubUrl = "/api/notifications";
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.ConfigureSettings();
+builder.Services.Configure<EmailOptions>(
+    builder.Configuration.GetSection(EmailOptions.SectionName));
+
+builder.Services.Configure<MicrocontrollersConnectionsOptions>(
+    builder.Configuration.GetSection(MicrocontrollersConnectionsOptions.SectionName));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options

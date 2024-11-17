@@ -22,13 +22,13 @@ public class PagedInfoDto: IValidatableObject
         PageNumber = 1;
       }
 
-      if (PageSize < Settings.MinimumItemsPerPage)
+      if (PageSize < 10)
       {
-        PageSize = Settings.MinimumItemsPerPage;
+        PageSize = 10;
       }
-      else if (PageSize > Settings.MaximumItemsPerPage)
+      else if (PageSize > 50)
       {
-        PageSize = Settings.MaximumItemsPerPage;
+        PageSize = 50;
       }
 
       return new List<ValidationResult>();
