@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gss.Web", "Gss.Web\Gss.Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gss.Core", "Gss.Core\Gss.Core.csproj", "{73A1237E-9660-4DC5-A03C-360DF8820434}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gss.MicrocontrollerDataReceiver", "Gss.MicrocontrollerDataReceiver\Gss.MicrocontrollerDataReceiver.csproj", "{383B786D-CF09-4629-ACDE-574EBCC0B840}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{73A1237E-9660-4DC5-A03C-360DF8820434}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73A1237E-9660-4DC5-A03C-360DF8820434}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73A1237E-9660-4DC5-A03C-360DF8820434}.Release|Any CPU.Build.0 = Release|Any CPU
+		{383B786D-CF09-4629-ACDE-574EBCC0B840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{383B786D-CF09-4629-ACDE-574EBCC0B840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{383B786D-CF09-4629-ACDE-574EBCC0B840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{383B786D-CF09-4629-ACDE-574EBCC0B840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

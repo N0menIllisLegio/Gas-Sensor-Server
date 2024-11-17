@@ -5,6 +5,7 @@ using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Services;
 using Gss.Infrastructure;
+using Gss.MicrocontrollerDataReceiver;
 using Gss.Web;
 using Gss.Web.Configuration;
 using Gss.Web.Middlewares;

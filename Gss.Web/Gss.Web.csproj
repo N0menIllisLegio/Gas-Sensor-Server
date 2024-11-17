@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Gss.Core\Gss.Core.csproj" />
     <ProjectReference Include="..\Gss.Infrastructure\Gss.Infrastructure.csproj" />
+    <ProjectReference Include="..\Gss.MicrocontrollerDataReceiver\Gss.MicrocontrollerDataReceiver.csproj" />
   </ItemGroup>
 
 </Project>
