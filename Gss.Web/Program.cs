@@ -1,5 +1,7 @@
+using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Gss.Core.Exceptions;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
@@ -9,6 +11,8 @@ using Gss.MicrocontrollerDataReceiver;
 using Gss.Web;
 using Gss.Web.Configuration;
 using Gss.Web.Middlewares;
+using Hellang.Middleware.ProblemDetails;
+using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +29,35 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseNpgsql(builder.Configuration.GetConnectionString("Database"),
             npgsqlOptionsBuilder => npgsqlOptionsBuilder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)));
 
-builder.Services.ConfigureControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+
+builder.Services
+    .AddProblemDetails(options =>
+    {
+        options.Map<UserInputException>(ex =>
+        {
+            var problemDetails = StatusCodeProblemDetails.Create(StatusCodes.Status400BadRequest);
+            problemDetails.Detail = ex.Message;
+
+            return problemDetails;
+        });
+
+        options.Map<NotFoundException>(ex =>
+        {
+            var problemDetails = StatusCodeProblemDetails.Create(StatusCodes.Status404NotFound);
+            problemDetails.Detail = ex.Message;
+
+            return problemDetails;
+        });
+    })
+    .AddProblemDetailsConventions();
+
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
@@ -86,8 +118,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
     app.UseHsts();
 
-// TODO: replace with problem details
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseProblemDetails();
 
 if (app.Environment.IsDevelopment())
 {
