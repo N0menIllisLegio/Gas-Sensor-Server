@@ -1,25 +1,6 @@
 ﻿using System.Security.Claims;
-using Gss.Core.Interfaces;
 
-namespace Gss.Web.Middlewares;
-
-internal interface ICurrentUserDataSetter
-{
-    bool IsAuthorized { set; }
-    Guid? Id { set; }
-    string? Email { set; }
-    string? GivenName { set; }
-    string? Surname { set; }
-}
-
-internal sealed class CurrentUser : ICurrentUser, ICurrentUserDataSetter
-{
-    public bool IsAuthorized { get; set; }
-    public Guid? Id { get; set; }
-    public string? Email { get; set; }
-    public string? GivenName { get; set; }
-    public string? Surname { get; set; }
-}
+namespace Gss.Web.CurrentUser;
 
 internal sealed class CurrentUserDataSetterMiddleware
 {

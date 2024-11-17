@@ -11,7 +11,7 @@ using Gss.Infrastructure;
 using Gss.MicrocontrollerDataReceiver;
 using Gss.Web;
 using Gss.Web.Configuration;
-using Gss.Web.Middlewares;
+using Gss.Web.CurrentUser;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
