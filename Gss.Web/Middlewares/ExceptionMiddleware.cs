@@ -5,97 +5,96 @@ using Gss.Core.DTOs;
 using Gss.Core.Exceptions;
 using Gss.Core.Resources;
 
-namespace Gss.Web.Middlewares
+namespace Gss.Web.Middlewares;
+
+public class ExceptionMiddleware
 {
-  public class ExceptionMiddleware
+  public ExceptionMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILogger<ExceptionMiddleware> logger)
   {
-    public ExceptionMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnvironment, ILogger<ExceptionMiddleware> logger)
+    Next = next ?? throw new ArgumentNullException(nameof(next));
+    Environment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
+    Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+  }
+
+  public IWebHostEnvironment Environment { get; }
+  public ILogger<ExceptionMiddleware> Logger { get; }
+  public RequestDelegate Next { get; }
+
+  public async Task InvokeAsync(HttpContext context)
+  {
+    var body = context.Response.Body;
+
+    try
     {
-      Next = next ?? throw new ArgumentNullException(nameof(next));
-      Environment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
-      Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+      await Next(context);
 
-    public IWebHostEnvironment Environment { get; }
-    public ILogger<ExceptionMiddleware> Logger { get; }
-    public RequestDelegate Next { get; }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-      var body = context.Response.Body;
-
-      try
+      if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
       {
-        await Next(context);
+        var response = new Response<object>().AddError(Messages.UnauthorizedMessageErrorString);
 
-        if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
-        {
-          var response = new Response<object>().AddError(Messages.UnauthorizedMessageErrorString);
-
-          await WriteResponseAsync(context, response, HttpStatusCode.Unauthorized);
-        }
-      }
-      catch (Exception ex)
-      {
-        context.Response.Body = body;
-        await HandleExceptionAsync(context, ex);
+        await WriteResponseAsync(context, response, HttpStatusCode.Unauthorized);
       }
     }
-
-    public async Task HandleExceptionAsync(HttpContext context, Exception ex)
+    catch (Exception ex)
     {
-      var errorMessages = new List<string>();
-      HttpStatusCode statusCode;
+      context.Response.Body = body;
+      await HandleExceptionAsync(context, ex);
+    }
+  }
 
-      if (ex is AppException appException)
-      {
-        statusCode = appException.ErrorCode;
-        errorMessages.AddRange(ex.Message.Split('\n'));
+  public async Task HandleExceptionAsync(HttpContext context, Exception ex)
+  {
+    var errorMessages = new List<string>();
+    HttpStatusCode statusCode;
 
-        errorMessages = errorMessages.Where(errorMessage => !errorMessage.ToLower().Contains("username")).ToList();
-      }
-      else if (ex is FormatException)
-      {
-        statusCode = HttpStatusCode.BadRequest;
-        errorMessages.AddRange(ex.Message.Split('\n'));
-      }
-      else
-      {
-        statusCode = HttpStatusCode.InternalServerError;
-        errorMessages.Add(Messages.InternalServerErrorString);
+    if (ex is AppException appException)
+    {
+      statusCode = appException.ErrorCode;
+      errorMessages.AddRange(ex.Message.Split('\n'));
 
-        await LogException(ex, context.Request, context.User.Identity?.Name);
-      }
+      errorMessages = errorMessages.Where(errorMessage => !errorMessage.ToLower().Contains("username")).ToList();
+    }
+    else if (ex is FormatException)
+    {
+      statusCode = HttpStatusCode.BadRequest;
+      errorMessages.AddRange(ex.Message.Split('\n'));
+    }
+    else
+    {
+      statusCode = HttpStatusCode.InternalServerError;
+      errorMessages.Add(Messages.InternalServerErrorString);
 
-      await WriteResponseAsync(context, new Response<object>().AddErrors(errorMessages), statusCode);
+      await LogException(ex, context.Request, context.User.Identity?.Name);
     }
 
-    private async Task LogException(Exception exception, HttpRequest request, string? userEmail)
+    await WriteResponseAsync(context, new Response<object>().AddErrors(errorMessages), statusCode);
+  }
+
+  private async Task LogException(Exception exception, HttpRequest request, string? userEmail)
+  {
+    request.Body.Seek(0, SeekOrigin.Begin);
+    using var streamReader = new StreamReader(request.Body);
+    string requestBody = await streamReader.ReadToEndAsync();
+
+    string errorMessage = exception.Message
+                          + $"|Email: {userEmail ?? "Unauthorized"}|Endpoint: {request.Path}|Request body:\n{requestBody}\n";
+
+    Logger.LogError(exception, errorMessage);
+  }
+
+  private async Task WriteResponseAsync(HttpContext context, object obj, HttpStatusCode statusCode)
+  {
+    var camelCaseFormatter = new JsonSerializerOptions
     {
-      request.Body.Seek(0, SeekOrigin.Begin);
-      using var streamReader = new StreamReader(request.Body);
-      string requestBody = await streamReader.ReadToEndAsync();
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
 
-      string errorMessage = exception.Message
-        + $"|Email: {userEmail ?? "Unauthorized"}|Endpoint: {request.Path}|Request body:\n{requestBody}\n";
+    camelCaseFormatter.Converters.Add(new JsonStringEnumConverter());
 
-      Logger.LogError(exception, errorMessage);
-    }
-
-    private async Task WriteResponseAsync(HttpContext context, object obj, HttpStatusCode statusCode)
-    {
-      var camelCaseFormatter = new JsonSerializerOptions
-      {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-      };
-
-      camelCaseFormatter.Converters.Add(new JsonStringEnumConverter());
-
-      context.Response.Clear();
-      context.Response.StatusCode = (int)statusCode;
-      context.Response.ContentType = @"application/json";
-      context.Response.Headers["Access-Control-Allow-Origin"] = context.Request.Headers["Origin"];
-      await context.Response.WriteAsync(JsonSerializer.Serialize(obj, camelCaseFormatter));
-    }
+    context.Response.Clear();
+    context.Response.StatusCode = (int)statusCode;
+    context.Response.ContentType = @"application/json";
+    context.Response.Headers["Access-Control-Allow-Origin"] = context.Request.Headers["Origin"];
+    await context.Response.WriteAsync(JsonSerializer.Serialize(obj, camelCaseFormatter));
   }
 }

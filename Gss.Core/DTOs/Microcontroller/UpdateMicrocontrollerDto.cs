@@ -1,13 +1,12 @@
-﻿namespace Gss.Core.DTOs.Microcontroller
-{
-  public class UpdateMicrocontrollerDto
-  {
-    public required string Name { get; set; }
-    public bool Public { get; set; }
-    public double? Latitude { get; set; }
-    public double? Longitude { get; set; }
-    public required string Password { get; set; }
+﻿namespace Gss.Core.DTOs.Microcontroller;
 
-    public required List<Guid> SensorIDs { get; set; }
-  }
+public class UpdateMicrocontrollerDto
+{
+  public required string Name { get; set; }
+  public bool Public { get; set; }
+  public double? Latitude { get; set; }
+  public double? Longitude { get; set; }
+  public required string Password { get; set; }
+
+  public required List<Guid> SensorIDs { get; set; }
 }

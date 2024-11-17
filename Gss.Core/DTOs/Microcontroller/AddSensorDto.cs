@@ -1,8 +1,7 @@
-﻿namespace Gss.Core.DTOs.Microcontroller
+﻿namespace Gss.Core.DTOs.Microcontroller;
+
+public class AddSensorDto
 {
-  public class AddSensorDto
-  {
-    public Guid MicrocontollerID { get; set; }
-    public Guid SensorID { get; set; }
-  }
+  public Guid MicrocontollerID { get; set; }
+  public Guid SensorID { get; set; }
 }

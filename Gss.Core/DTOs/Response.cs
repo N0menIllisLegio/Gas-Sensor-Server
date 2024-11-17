@@ -1,27 +1,27 @@
-﻿namespace Gss.Core.DTOs
+﻿namespace Gss.Core.DTOs;
+
+public class Response<T>
 {
-  public class Response<T>
+  public Response()
   {
-    public Response()
-    {
       Succeeded = true;
       Errors = new List<string>();
       Data = default;
     }
 
-    public Response(T data)
-    {
+  public Response(T data)
+  {
       Succeeded = true;
       Errors = new List<string>();
       Data = data;
     }
 
-    public T Data { get; set; }
-    public bool Succeeded { get; set; }
-    public List<string> Errors { get; set; }
+  public T Data { get; set; }
+  public bool Succeeded { get; set; }
+  public List<string> Errors { get; set; }
 
-    public Response<T> AddError(string error, params string[] errorParams)
-    {
+  public Response<T> AddError(string error, params string[] errorParams)
+  {
       Succeeded = false;
       string formattedError = String.Format(error, errorParams);
 
@@ -30,17 +30,16 @@
       return this;
     }
 
-    public Response<T> AddErrors(params string[] errors)
-    {
+  public Response<T> AddErrors(params string[] errors)
+  {
       Succeeded = false;
       Errors.AddRange(errors);
 
       return this;
     }
 
-    public Response<T> AddErrors(IEnumerable<string> errors)
-    {
+  public Response<T> AddErrors(IEnumerable<string> errors)
+  {
       return AddErrors(errors.ToArray());
     }
-  }
 }

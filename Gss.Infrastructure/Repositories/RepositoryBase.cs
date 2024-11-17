@@ -10,32 +10,32 @@ using Gss.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace Gss.Infrastructure.Repositories
+namespace Gss.Infrastructure.Repositories;
+
+public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
+  where TEntity : class, IEntity
 {
-  public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
-    where TEntity : class, IEntity
+  public RepositoryBase(AppDbContext context)
   {
-    public RepositoryBase(AppDbContext context)
-    {
       Context = context;
       DbSet = context.Set<TEntity>();
     }
 
-    protected AppDbContext Context { get; }
+  protected AppDbContext Context { get; }
 
-    protected DbSet<TEntity> DbSet { get; }
+  protected DbSet<TEntity> DbSet { get; }
 
-    public async Task<List<TEntity>> GetAllByWhereAsync(Expression<Func<TEntity, bool>> match,
-      bool disableTracking = false)
-    {
+  public async Task<List<TEntity>> GetAllByWhereAsync(Expression<Func<TEntity, bool>> match,
+    bool disableTracking = false)
+  {
       return disableTracking
         ? await DbSet.AsNoTracking().Where(match).ToListAsync()
         : await DbSet.Where(match).ToListAsync();
     }
 
-    public async Task<List<TEntity>> GetAllAsync(Func<IQueryable<TEntity>,
-      IIncludableQueryable<TEntity, object>> include = null, bool disableTracking = true)
-    {
+  public async Task<List<TEntity>> GetAllAsync(Func<IQueryable<TEntity>,
+    IIncludableQueryable<TEntity, object>> include = null, bool disableTracking = true)
+  {
       IQueryable<TEntity> query = DbSet;
 
       if (disableTracking)
@@ -51,20 +51,20 @@ namespace Gss.Infrastructure.Repositories
       return await query.ToListAsync();
     }
 
-    public async Task<TEntity> GetFirstWhereAsync(Expression<Func<TEntity, bool>> match,
-      Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null)
-    {
+  public async Task<TEntity> GetFirstWhereAsync(Expression<Func<TEntity, bool>> match,
+    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null)
+  {
       return include is not null
         ? await include(DbSet).FirstOrDefaultAsync(match)
         : await DbSet.FirstOrDefaultAsync(match);
     }
 
-    public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
-      Expression<Func<TEntity, object>> searchedPropertiesSelector,
-      Expression<Func<TEntity, bool>> additionalFilterCriteria = null,
-      Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
-      bool disableTracking = true)
-    {
+  public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
+    Expression<Func<TEntity, object>> searchedPropertiesSelector,
+    Expression<Func<TEntity, bool>> additionalFilterCriteria = null,
+    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
+    bool disableTracking = true)
+  {
       var query = DbSet.SearchBy(pagedInfoDto.SearchString, searchedPropertiesSelector, pagedInfoDto.Filters, additionalFilterCriteria);
 
       if (disableTracking)
@@ -94,18 +94,18 @@ namespace Gss.Infrastructure.Repositories
       };
     }
 
-    public virtual async Task<TEntity> FindAsync(Guid id)
-    {
+  public virtual async Task<TEntity> FindAsync(Guid id)
+  {
       return await DbSet.FirstOrDefaultAsync(entity => entity.Id == id);
     }
 
-    public virtual TEntity Update(TEntity entity)
-    {
+  public virtual TEntity Update(TEntity entity)
+  {
       return DbSet.Update(entity).Entity;
     }
 
-    public virtual TEntity Add(TEntity entity)
-    {
+  public virtual TEntity Add(TEntity entity)
+  {
       if (entity.Id == Guid.Empty)
       {
         entity.Id = Guid.NewGuid();
@@ -114,20 +114,19 @@ namespace Gss.Infrastructure.Repositories
       return DbSet.Add(entity).Entity;
     }
 
-    public virtual TEntity Remove(TEntity entity)
-    {
+  public virtual TEntity Remove(TEntity entity)
+  {
       return DbSet.Remove(entity).Entity;
     }
 
-    public async Task<TEntity> ReloadAsync(TEntity entity)
-    {
+  public async Task<TEntity> ReloadAsync(TEntity entity)
+  {
       await Context.Entry(entity).ReloadAsync();
       return entity;
     }
 
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>> match)
-    {
+  public async Task<int> CountAsync(Expression<Func<TEntity, bool>> match)
+  {
       return await DbSet.CountAsync(match);
     }
-  }
 }

@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 
-namespace Gss.Core.DTOs
+namespace Gss.Core.DTOs;
+
+public class PagedResultDto<T>
 {
-  public class PagedResultDto<T>
+  public PagedInfoDto PagedInfo { get; set; }
+
+  public IEnumerable<T> Items { get; set; }
+
+  public int TotalItemsCount { get; set; }
+
+  public PagedResultDto<TDestination> Convert<TDestination>(IMapper mapper)
   {
-    public PagedInfoDto PagedInfo { get; set; }
-
-    public IEnumerable<T> Items { get; set; }
-
-    public int TotalItemsCount { get; set; }
-
-    public PagedResultDto<TDestination> Convert<TDestination>(IMapper mapper)
-    {
       return new PagedResultDto<TDestination>
       {
         PagedInfo = PagedInfo,
@@ -21,5 +19,4 @@ namespace Gss.Core.DTOs
         Items = Items.Select(item => mapper.Map<TDestination>(item))
       };
     }
-  }
 }

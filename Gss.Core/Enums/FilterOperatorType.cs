@@ -1,12 +1,11 @@
-﻿namespace Gss.Core.Enums
+﻿namespace Gss.Core.Enums;
+
+public enum FilterOperatorType
 {
-  public enum FilterOperatorType
-  {
-    Contains,
-    DoesNotContain,
-    Equals,
-    DoesNotEqual,
-    GreaterThan,
-    LessThan
-  }
+  Contains,
+  DoesNotContain,
+  Equals,
+  DoesNotEqual,
+  GreaterThan,
+  LessThan
 }

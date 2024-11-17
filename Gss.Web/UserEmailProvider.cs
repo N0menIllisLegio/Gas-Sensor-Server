@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace Gss.Web
+namespace Gss.Web;
+
+public class UserEmailProvider: IUserIdProvider
 {
-  public class UserEmailProvider: IUserIdProvider
+  public string GetUserId(HubConnectionContext connection)
   {
-    public string GetUserId(HubConnectionContext connection)
-    {
-      return connection.User?.Identity.Name;
+      return connection.User?.Identity?.Name;
     }
-  }
 }

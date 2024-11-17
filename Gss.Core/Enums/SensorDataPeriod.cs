@@ -1,9 +1,8 @@
-﻿namespace Gss.Core.Enums
+﻿namespace Gss.Core.Enums;
+
+public enum SensorDataPeriod
 {
-  public enum SensorDataPeriod
-  {
-    Day,
-    Month,
-    Year
-  }
+  Day,
+  Month,
+  Year
 }

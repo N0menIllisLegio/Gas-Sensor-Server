@@ -6,14 +6,14 @@ using Gss.Core.Resources;
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace Gss.Core.Services
-{
-  public class EmailService : IEmailService
-  {
-    private const string _senderName = "Gas sensors Administration";
+namespace Gss.Core.Services;
 
-    public async Task<bool> SendEmailAsync(MimeMessage emailMessage)
-    {
+public class EmailService : IEmailService
+{
+  private const string _senderName = "Gas sensors Administration";
+
+  public async Task<bool> SendEmailAsync(MimeMessage emailMessage)
+  {
       bool sendSuccessfully = true;
       using var client = new SmtpClient();
 
@@ -32,9 +32,9 @@ namespace Gss.Core.Services
       return sendSuccessfully;
     }
 
-    public async Task<bool> SendHtmlEmailAsync(string sendToAddress, string subject, string html,
-      string textMessage = null)
-    {
+  public async Task<bool> SendHtmlEmailAsync(string sendToAddress, string subject, string html,
+    string textMessage = null)
+  {
       var emailMessage = new MimeMessage();
       var builder = new BodyBuilder
       {
@@ -50,8 +50,8 @@ namespace Gss.Core.Services
       return await SendEmailAsync(emailMessage);
     }
 
-    public async Task<bool> SendTextEmailAsync(string sendToAddress, string subject, string message)
-    {
+  public async Task<bool> SendTextEmailAsync(string sendToAddress, string subject, string message)
+  {
       var emailMessage = new MimeMessage();
       var builder = new BodyBuilder
       {
@@ -66,9 +66,9 @@ namespace Gss.Core.Services
       return await SendEmailAsync(emailMessage);
     }
 
-    public async Task SendCriticalValueEmail(string email, int receivedCriticalValue, int setCriticalValue,
-      Microcontroller microcontroller, Sensor sensor, SensorType sensorType)
-    {
+  public async Task SendCriticalValueEmail(string email, int receivedCriticalValue, int setCriticalValue,
+    Microcontroller microcontroller, Sensor sensor, SensorType sensorType)
+  {
       string html = Messages.CriticalValueNotificationEmailTemplate
         .Replace("{sensorName}", sensor.Name)
         .Replace("{receivedSensorValue}", receivedCriticalValue.ToString())
@@ -83,5 +83,4 @@ namespace Gss.Core.Services
 
       await SendHtmlEmailAsync(email, $"Sensor {sensor.Name} reached critical threshold - {receivedCriticalValue}!", html);
     }
-  }
 }

@@ -1,8 +1,7 @@
-﻿namespace Gss.Core.DTOs.Microcontroller
+﻿namespace Gss.Core.DTOs.Microcontroller;
+
+public class ChangeMicrocontrollerOwnerDto
 {
-  public class ChangeMicrocontrollerOwnerDto
-  {
-    public Guid MicrocontrollerID { get; set; }
-    public Guid UserID { get; set; }
-  }
+  public Guid MicrocontrollerID { get; set; }
+  public Guid UserID { get; set; }
 }

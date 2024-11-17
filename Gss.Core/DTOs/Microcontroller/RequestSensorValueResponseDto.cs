@@ -1,8 +1,7 @@
-﻿namespace Gss.Core.DTOs.Microcontroller
+﻿namespace Gss.Core.DTOs.Microcontroller;
+
+public class RequestSensorValueResponseDto
 {
-  public class RequestSensorValueResponseDto
-  {
-    public Guid? PreviousRequestedSensorID { get; set; }
-    public Guid CurrentRequestedSensorID { get; set; }
-  }
+  public Guid? PreviousRequestedSensorID { get; set; }
+  public Guid CurrentRequestedSensorID { get; set; }
 }

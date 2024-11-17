@@ -1,9 +1,8 @@
-﻿namespace Gss.Core.Enums
+﻿namespace Gss.Core.Enums;
+
+public enum SortOrder
 {
-  public enum SortOrder
-  {
-    None,
-    Ascending,
-    Descending
-  }
+  None,
+  Ascending,
+  Descending
 }

@@ -1,10 +1,9 @@
-﻿namespace Gss.Core.Enums
+﻿namespace Gss.Core.Enums;
+
+public enum ConversationStatus
 {
-  public enum ConversationStatus
-  {
-    RequestPending,
-    RequestSend,
-    ResponseError,
-    ResponseSuccess
-  }
+  RequestPending,
+  RequestSend,
+  ResponseError,
+  ResponseSuccess
 }

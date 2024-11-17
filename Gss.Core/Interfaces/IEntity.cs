@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace Gss.Core.Interfaces;
 
-namespace Gss.Core.Interfaces
+public interface IEntity
 {
-  public interface IEntity
-  {
-    Guid Id { get; set; }
-  }
+  Guid Id { get; set; }
 }

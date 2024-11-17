@@ -1,9 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace Gss.Core.DTOs;
 
-namespace Gss.Core.DTOs
+public class EmailDto
 {
-  public class EmailDto
-  {
-    public required string Email { get; set; }
-  }
+  public required string Email { get; set; }
 }

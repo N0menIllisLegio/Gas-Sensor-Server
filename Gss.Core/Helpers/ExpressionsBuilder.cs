@@ -1,90 +1,88 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Gss.Core.Enums;
 using Gss.Core.Interfaces;
 
-namespace Gss.Core.Helpers
+namespace Gss.Core.Helpers;
+
+public static class ExpressionsBuilder
 {
-  public static class ExpressionsBuilder
+  private const string _dateFormat = "dd.MM.yyyy";
+  private const string _dateTimeFormat = "dd.MM.yyyy HH:mm";
+
+  private static readonly MethodInfo? _stringContainsMethod = typeof(string)
+    .GetMethod("Contains", [typeof(string)]);
+
+  private static readonly HashSet<Type> _searchableTypes = new()
   {
-    private const string _dateFormat = "dd.MM.yyyy";
-    private const string _dateTimeFormat = "dd.MM.yyyy HH:mm";
+    typeof(byte),
+    typeof(sbyte),
+    typeof(int),
+    typeof(uint),
+    typeof(long),
+    typeof(ulong),
+    typeof(double),
+    typeof(decimal),
+    typeof(DateTime),
+    typeof(string)
+  };
 
-    private static readonly MethodInfo _stringContainsMethod = typeof(string)
-      .GetMethod("Contains", new[] { typeof(string) });
-
-    private static readonly HashSet<Type> _searchableTypes = new HashSet<Type>
+  // Calling Parse method via reflection doesn't work on Mono on Android in Release setup :(
+  private static readonly Dictionary<string, Func<string, object>> _parseMethods =
+    new Dictionary<string, Func<string, object>>
     {
-      typeof(byte),
-      typeof(sbyte),
-      typeof(int),
-      typeof(uint),
-      typeof(long),
-      typeof(ulong),
-      typeof(double),
-      typeof(decimal),
-      typeof(DateTime),
-      typeof(string)
+      { typeof(bool).Name, str => Boolean.Parse(str) },
+      { typeof(byte).Name, str => Byte.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(sbyte).Name, str => SByte.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(short).Name, str => Int16.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(ushort).Name, str => UInt16.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(int).Name, str => Int32.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(uint).Name, str => UInt32.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(long).Name, str => Int64.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(ulong).Name, str => UInt64.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(float).Name, str => Single.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(double).Name, str => Double.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(decimal).Name, str => Decimal.Parse(str, CultureInfo.InvariantCulture) },
+      { typeof(Guid).Name, str => Guid.Parse(str) },
+      { typeof(string).Name, str => str },
     };
 
-    // Calling Parse method via reflection doesn't work on Mono on Android in Release setup :(
-    private static readonly Dictionary<string, Func<string, object>> _parseMethods =
-      new Dictionary<string, Func<string, object>>
-      {
-        { typeof(bool).Name, str => Boolean.Parse(str) },
-        { typeof(byte).Name, str => Byte.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(sbyte).Name, str => SByte.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(short).Name, str => Int16.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(ushort).Name, str => UInt16.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(int).Name, str => Int32.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(uint).Name, str => UInt32.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(long).Name, str => Int64.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(ulong).Name, str => UInt64.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(float).Name, str => Single.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(double).Name, str => Double.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(decimal).Name, str => Decimal.Parse(str, CultureInfo.InvariantCulture) },
-        { typeof(Guid).Name, str => Guid.Parse(str) },
-        { typeof(string).Name, str => str },
-      };
+  /// <summary>
+  /// Specifies how a given binary operation must handle NULL value as its right operand.
+  /// </summary>
+  private enum NullEvaluationStrategy
+  {
+    /// <summary>
+    /// A binary operatrion is always TRUE for NULL.
+    /// </summary>
+    AlwaysTrue,
 
     /// <summary>
-    /// Specifies how a given binary operation must handle NULL value as its right operand.
+    /// A binary operation is always FALSE for NULL.
     /// </summary>
-    private enum NullEvaluationStrategy
-    {
-      /// <summary>
-      /// A binary operatrion is always TRUE for NULL.
-      /// </summary>
-      AlwaysTrue,
+    AlwaysFalse,
 
-      /// <summary>
-      /// A binary operation is always FALSE for NULL.
-      /// </summary>
-      AlwaysFalse,
+    /// <summary>
+    /// A binary operation can be either TRUE or FALSE for NULL and must be evaluated as usual.
+    /// </summary>
+    Evaluate
+  }
 
-      /// <summary>
-      /// A binary operation can be either TRUE or FALSE for NULL and must be evaluated as usual.
-      /// </summary>
-      Evaluate
-    }
-
-    public static IQueryable<TEntity> SearchBy<TEntity>(this IQueryable<TEntity> entities,
-      string searchString,
-      Expression<Func<TEntity, object>> searchedPropertiesSelector = null,
-      IEnumerable<IFilterCriterion> filterCriteria = null,
-      Expression<Func<TEntity, bool>> additionalFilterCriteria = null)
-    {
-      return entities.Where(ExpressionsBuilder.BuildFilterExpression<TEntity>(searchString,
+  public static IQueryable<TEntity> SearchBy<TEntity>(this IQueryable<TEntity> entities,
+    string searchString,
+    Expression<Func<TEntity, object>> searchedPropertiesSelector = null,
+    IEnumerable<IFilterCriterion> filterCriteria = null,
+    Expression<Func<TEntity, bool>> additionalFilterCriteria = null)
+  {
+      return entities.Where(BuildFilterExpression(searchString,
         searchedPropertiesSelector, filterCriteria, additionalFilterCriteria));
     }
 
-    public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> entities,
-      IEnumerable<ISortOption> sortOptions)
-    {
+  public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> entities,
+    IEnumerable<ISortOption> sortOptions)
+  {
       if (sortOptions is null || sortOptions.Count() == 0)
       {
         return entities;
@@ -147,12 +145,12 @@ namespace Gss.Core.Helpers
       return result;
     }
 
-    public static Expression<Func<TEntity, bool>> BuildFilterExpression<TEntity>(
-      string searchString,
-      Expression<Func<TEntity, object>> searchedPropertiesSelector = null,
-      IEnumerable<IFilterCriterion> filterCriteria = null,
-      Expression<Func<TEntity, bool>> additionalFilterCriteria = null)
-    {
+  public static Expression<Func<TEntity, bool>> BuildFilterExpression<TEntity>(
+    string searchString,
+    Expression<Func<TEntity, object>> searchedPropertiesSelector = null,
+    IEnumerable<IFilterCriterion> filterCriteria = null,
+    Expression<Func<TEntity, bool>> additionalFilterCriteria = null)
+  {
       var filterCriteriaList = filterCriteria?.ToList();
 
       if (filterCriteria is not null)
@@ -192,8 +190,8 @@ namespace Gss.Core.Helpers
       return (Expression<Func<TEntity, bool>>)Expression.Lambda(body, parameter);
     }
 
-    private static IEnumerable<string> GetEntitiesPropertiesNames(string parentEntity, Type type)
-    {
+  private static IEnumerable<string> GetEntitiesPropertiesNames(string parentEntity, Type type)
+  {
       var propertiesNames = new List<string>();
 
       foreach (var property in type.GetProperties()
@@ -205,7 +203,7 @@ namespace Gss.Core.Helpers
         }
         else
         {
-          if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(property.PropertyType))
+          if (!typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
           {
             propertiesNames.Add(parentEntity + property.Name);
           }
@@ -215,8 +213,8 @@ namespace Gss.Core.Helpers
       return propertiesNames;
     }
 
-    private static IEnumerable<TResult> GetValidPropertyNames<TEntity, TResult>(Dictionary<string, TResult> items)
-    {
+  private static IEnumerable<TResult> GetValidPropertyNames<TEntity, TResult>(Dictionary<string, TResult> items)
+  {
       var existingPropertiesNames = GetEntitiesPropertiesNames(String.Empty, typeof(TEntity));
       var result = new List<TResult>();
 
@@ -231,9 +229,9 @@ namespace Gss.Core.Helpers
       return result;
     }
 
-    private static Expression BuildSearchExpression(string searchString, Type entityType, ParameterExpression parameter,
-      IEnumerable<PropertyInfo> searchedProperties)
-    {
+  private static Expression BuildSearchExpression(string searchString, Type entityType, ParameterExpression parameter,
+    IEnumerable<PropertyInfo> searchedProperties)
+  {
       Expression body = Expression.Constant(false);
 
       if (searchedProperties == null)
@@ -317,9 +315,9 @@ namespace Gss.Core.Helpers
       return body;
     }
 
-    private static Expression BuildCriterionExpression(IFilterCriterion filterCriterion, Type entityType,
-      ParameterExpression parameter)
-    {
+  private static Expression BuildCriterionExpression(IFilterCriterion filterCriterion, Type entityType,
+    ParameterExpression parameter)
+  {
       string fullPropertyName = filterCriterion.PropertyName;
       int periodPosition = fullPropertyName.IndexOf('.');
       bool singleProperty = periodPosition == -1;
@@ -417,12 +415,12 @@ namespace Gss.Core.Helpers
       return result;
     }
 
-    private static Expression HandleNulls(this Expression mainExpression,
-      MemberExpression memberExpression,
-      ConstantExpression constantExpression,
-      bool propertyNotNullable,
-      NullEvaluationStrategy nullEvaluationStrategy)
-    {
+  private static Expression HandleNulls(this Expression mainExpression,
+    MemberExpression memberExpression,
+    ConstantExpression constantExpression,
+    bool propertyNotNullable,
+    NullEvaluationStrategy nullEvaluationStrategy)
+  {
       if (propertyNotNullable)
       {
         return constantExpression.Value == null ? Expression.Constant(false) : mainExpression;
@@ -453,5 +451,4 @@ namespace Gss.Core.Helpers
         }
       }
     }
-  }
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Gss.Core.Models
+namespace Gss.Core.Models;
+
+public class SensorDataModel
 {
-  public class SensorDataModel
-  {
-    public Guid MicrocontrollerID { get; set; }
-    public Guid SensorID { get; set; }
-    public DateTimeOffset ValueReadTime { get; set; }
-    public decimal AverageSensorValue { get; set; }
-  }
+  public Guid MicrocontrollerID { get; set; }
+  public Guid SensorID { get; set; }
+  public DateTimeOffset ValueReadTime { get; set; }
+  public decimal AverageSensorValue { get; set; }
 }

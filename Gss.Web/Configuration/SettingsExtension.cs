@@ -1,23 +1,14 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Gss.Core.Helpers;
 using Gss.Core.Resources;
-using Microsoft.IdentityModel.Tokens;
 
-namespace Gss.Web.Configuration
+namespace Gss.Web.Configuration;
+
+internal static class SettingsExtension
 {
-  internal static class SettingsExtension
+  public static void ConfigureSettings(this IConfiguration configuration)
   {
-    public static void ConfigureSettings(this IConfiguration configuration)
-    {
-      var jwtSection = configuration.GetSection("Authentication:JWT");
-
-      Settings.JWT.Issuer = jwtSection["Issuer"];
-      Settings.JWT.Audience = jwtSection["Audience"];
-      Settings.JWT.Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]));
-      Settings.JWT.AccessTokenLifetimeMinutes = Int32.Parse(jwtSection["AccessTokenLifetimeMinutes"]);
-      Settings.JWT.RefreshTokenLifetimeDays = Int32.Parse(jwtSection["RefreshTokenLifetimeDays"]);
-
+      // TODO: IOptions
       var emailSection = configuration.GetSection("Email");
       string emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
         + @"@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z";
@@ -45,5 +36,4 @@ namespace Gss.Web.Configuration
       Settings.Socket.IPAddress = socketConnectionOptions["IPAddress"];
       Settings.Socket.Port = Int32.Parse(socketConnectionOptions["Port"]);
     }
-  }
 }
