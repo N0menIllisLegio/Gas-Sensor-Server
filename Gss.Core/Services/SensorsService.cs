@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Gss.Core.DTOs;
+﻿using Gss.Core.DTOs;
 using Gss.Core.DTOs.Sensor;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
@@ -35,7 +34,7 @@ public class SensorsService : ISensorsService
 
   public async Task<SensorDto> GetSensorAsync(Guid sensorId)
   {
-    var sensor = await _unitOfWork.Sensors.FindAsync(sensorId);
+    var sensor = await _unitOfWork.Sensors.FindSensorAsync(sensorId);
 
     if (sensor is null)
       throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Sensor));
@@ -45,7 +44,7 @@ public class SensorsService : ISensorsService
 
   public async Task<SensorDto> CreateSensorAsync(CreateSensorDto createSensorDto)
   {
-    var sensor = _unitOfWork.Sensors.Add(new Sensor
+    var sensorId = _unitOfWork.Sensors.Add(new Sensor
     {
       Name = createSensorDto.Name,
       Description = createSensorDto.Description,
@@ -57,7 +56,7 @@ public class SensorsService : ISensorsService
     if (!success)
       throw new AppException(string.Format(Messages.CreationFailedErrorString, Sensor));
 
-    return sensor.MapToDto();
+    return await GetSensorAsync(sensorId);
   }
 
   public async Task UpdateSensorAsync(Guid sensorId, UpdateSensorDto updateSensorDto)

@@ -11,6 +11,8 @@ namespace Gss.Core.Services;
 
 public class SensorsTypesService : ISensorsTypesService
 {
+  private const string SensorType = "Sensor type";
+
   private readonly IUnitOfWork _unitOfWork;
 
   public SensorsTypesService(IUnitOfWork unitOfWork)
@@ -33,14 +35,14 @@ public class SensorsTypesService : ISensorsTypesService
     var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeId);
 
     if (sensorType is null)
-      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Sensor type"));
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, SensorType));
 
     return sensorType.MapToDto();
   }
 
   public async Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
   {
-    var sensorType = _unitOfWork.SensorsTypes.Add(new SensorType
+    var sensorTypeId = _unitOfWork.SensorsTypes.Add(new SensorType
     {
       Name = createSensorTypeDto.Name,
       Units = createSensorTypeDto.Units,
@@ -50,9 +52,9 @@ public class SensorsTypesService : ISensorsTypesService
     bool success = await _unitOfWork.SaveAsync();
 
     if (!success)
-      throw new AppException(string.Format(Messages.CreationFailedErrorString, "Sensor type"));
+      throw new AppException(string.Format(Messages.CreationFailedErrorString, SensorType));
 
-    return sensorType.MapToDto();
+    return await GetSensorTypeAsync(sensorTypeId);
   }
 
   public async Task UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto)
@@ -61,7 +63,7 @@ public class SensorsTypesService : ISensorsTypesService
       .UpdateSensorTypeAsync(sensorTypeId, updateSensorTypeDto);
 
     if (sensorTypesUpdatedCount == 0)
-      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Sensor type"));
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, SensorType));
   }
 
   public async Task DeleteSensorTypeAsync(Guid sensorTypeId)

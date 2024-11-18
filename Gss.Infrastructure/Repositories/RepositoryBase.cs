@@ -3,7 +3,6 @@ using Gss.Core.DTOs;
 using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Repositories;
-using Gss.Core.Models;
 using Gss.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -99,24 +98,19 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
     return await DbSet.FindAsync(id);
   }
 
-  public virtual TEntity Update(TEntity entity)
+  public virtual void Update(TEntity entity)
   {
-    return DbSet.Update(entity).Entity;
+    DbSet.Update(entity);
   }
 
-  public virtual TEntity Add(TEntity entity)
+  public virtual Guid Add(TEntity entity)
   {
     if (entity.Id == Guid.Empty)
     {
       entity.Id = Guid.NewGuid();
     }
 
-    return DbSet.Add(entity).Entity;
-  }
-
-  public virtual TEntity Remove(TEntity entity)
-  {
-    return DbSet.Remove(entity).Entity;
+    return DbSet.Add(entity).Entity.Id;
   }
 
   public virtual async Task<int> RemoveAsync(Guid entityId)

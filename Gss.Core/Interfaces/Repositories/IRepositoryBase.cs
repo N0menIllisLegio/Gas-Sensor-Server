@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Gss.Core.DTOs;
-using Gss.Core.Models;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Gss.Core.Interfaces.Repositories;
@@ -20,9 +19,8 @@ public interface IRepositoryBase<TEntity>
     Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null);
 
   Task<TEntity?> FindAsync(Guid id);
-  TEntity Update(TEntity entity);
-  TEntity Add(TEntity entity);
-  TEntity Remove(TEntity entity);
+  void Update(TEntity entity);
+  Guid Add(TEntity entity);
   Task<TEntity> ReloadAsync(TEntity entityToReload);
   Task<int> RemoveAsync(Guid entityId);
 }
