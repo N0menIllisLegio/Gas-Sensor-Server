@@ -7,7 +7,6 @@ using Gss.Core.Entities;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -178,29 +177,30 @@ public class SocketConnectionService
               connectedMicrocontroller, microcontrollerSensor.Sensor, microcontrollerSensor.Sensor.Type);
           }
 
-          if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerId == connectedMicrocontroller.Id
-                                                       && sensorData.SensorId == sensorID && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
-          {
-            var sensorData = new SensorData
-            {
-              Id = Guid.NewGuid(),
-              MicrocontrollerId = connectedMicrocontroller.Id,
-              SensorId = sensorID,
-              SensorValue = sensorValue,
-              ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
-              ValueReceivedTime = DateTime.UtcNow
-            };
-
-            lock (_locker)
-            {
-              _receivedSensorsData.Add(sensorData);
-            }
-
-            if (_receivedSensorsData.Count > _receivedSensorsDataMaxSize)
-            {
-              _ = Task.Run(InsertReceivedSensorsData);
-            }
-          }
+          // TODO:
+          // if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerId == connectedMicrocontroller.Id
+          //                                              && sensorData.SensorId == sensorID && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
+          // {
+          //   var sensorData = new SensorData
+          //   {
+          //     Id = Guid.NewGuid(),
+          //     MicrocontrollerId = connectedMicrocontroller.Id,
+          //     SensorId = sensorID,
+          //     SensorValue = sensorValue,
+          //     ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
+          //     ValueReceivedTime = DateTime.UtcNow
+          //   };
+          //
+          //   lock (_locker)
+          //   {
+          //     _receivedSensorsData.Add(sensorData);
+          //   }
+          //
+          //   if (_receivedSensorsData.Count > _receivedSensorsDataMaxSize)
+          //   {
+          //     _ = Task.Run(InsertReceivedSensorsData);
+          //   }
+          // }
 
           break;
 
@@ -213,9 +213,9 @@ public class SocketConnectionService
             connectedMicrocontroller = await unitOfWork.Microcontrollers.ReloadAsync(connectedMicrocontroller);
           }
 
-          if (connectedMicrocontroller.RequestedSensorId is not null)
+          if (connectedMicrocontroller.RequestedMicrocontrollerSensorId is not null)
           {
-            await SendMicrocontrollerResponse(socket, $"{_sensorValueResponse}|{connectedMicrocontroller.RequestedSensorId};");
+            await SendMicrocontrollerResponse(socket, $"{_sensorValueResponse}|{connectedMicrocontroller.RequestedMicrocontrollerSensorId};");
 
             request = await ReceiveMicrocontrollerRequest(socket);
             (receivedCommand, receivedArguments) = SplitRequest(request);
@@ -240,23 +240,23 @@ public class SocketConnectionService
             using var scope = _serviceScopeFactory.CreateScope();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-            connectedMicrocontroller.RequestedSensorId = null;
+            connectedMicrocontroller.RequestedMicrocontrollerSensorId = null;
             unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
 
-            await unitOfWork.SensorsData.SingleInsertIfNotExists(new SensorData
-            {
-              Id = Guid.NewGuid(),
-              MicrocontrollerId = connectedMicrocontroller.Id,
-              SensorId = sensorID,
-              SensorValue = sensorValue,
-              ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
-              ValueReceivedTime = DateTime.UtcNow
-            });
+            // TODO:
+            // await unitOfWork.SensorsData.SingleInsertIfNotExists(new SensorData
+            // {
+            //   Id = Guid.NewGuid(),
+            //   MicrocontrollerId = connectedMicrocontroller.Id,
+            //   SensorId = sensorID,
+            //   SensorValue = sensorValue,
+            //   ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
+            //   ValueReceivedTime = DateTime.UtcNow
+            // });
 
             await unitOfWork.SaveAsync();
 
-            var sensor = await unitOfWork.Sensors.GetFirstWhereAsync(sensor => sensor.Id == sensorID,
-              query => query.Include(sensor => sensor.Type));
+            var sensor = await unitOfWork.Sensors.FindSensorAsync(sensorID);
 
             var hub = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationsHub>>();
 

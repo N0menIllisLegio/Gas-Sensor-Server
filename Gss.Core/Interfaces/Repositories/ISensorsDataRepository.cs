@@ -4,7 +4,7 @@ using Gss.Core.Models;
 
 namespace Gss.Core.Interfaces.Repositories;
 
-public interface ISensorsDataRepository: IRepositoryBase<SensorData>
+public interface ISensorsDataRepository
 {
   Task SingleInsertIfNotExists(SensorData sensorData);
   Task BulkInsertIfNotExists(List<SensorData> sensorData);

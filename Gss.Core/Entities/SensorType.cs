@@ -8,6 +8,4 @@ public sealed class SensorType : IEntity
   public required string Name { get; set; }
   public string? Icon { get; set; }
   public string? Units { get; set; } // like C, F,Hz, Db ?
-
-  public IList<Sensor> Sensors { get; set; } = null!;
 }

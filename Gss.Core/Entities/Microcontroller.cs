@@ -6,16 +6,15 @@ public sealed class Microcontroller : IEntity
 {
   public Guid Id { get; set; }
   public required string Name { get; set; }
-  public required string IpAddress { get; set; }
   public DateTimeOffset? LastResponseTime { get; set; }
   public bool Public { get; set; }
   public double? Latitude { get; set; }
   public double? Longitude { get; set; }
-  public required string PasswordHash { get; set; }
-  public Guid? RequestedSensorId { get; set; }
+  public required string Key { get; set; }
 
-  // ---- RELATIONSHIPS
+  public Guid? RequestedMicrocontrollerSensorId { get; set; }
 
   public Guid? OwnerId { get; set; }
   public IList<MicrocontrollerSensors> MicrocontrollerSensors { get; set; } = null!;
+  public IList<Sensor> Sensors { get; set; } = null!;
 }

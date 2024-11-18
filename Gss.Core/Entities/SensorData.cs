@@ -1,19 +1,10 @@
-﻿using Gss.Core.Interfaces;
+﻿namespace Gss.Core.Entities;
 
-namespace Gss.Core.Entities;
-
-public sealed class SensorData : IEntity
+public sealed class SensorData
 {
-  public Guid Id { get; set; }
+  public Guid MicrocontrollerSensorId { get; set; }
+  public DateTimeOffset ReadTime { get; set; }
 
-  public Guid MicrocontrollerId { get; set; }
-  public Microcontroller Microcontroller { get; set; } = null!;
-
-  public Guid SensorId { get; set; }
-  public Sensor Sensor { get; set; } = null!;
-
-  public DateTimeOffset ValueReadTime { get; set; }
-
-  public int SensorValue { get; set; }
-  public DateTimeOffset ValueReceivedTime { get; set; }
+  public int Value { get; set; }
+  public DateTimeOffset ReceivedTime { get; set; }
 }

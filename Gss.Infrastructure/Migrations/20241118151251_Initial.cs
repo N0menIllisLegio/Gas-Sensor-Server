@@ -17,13 +17,12 @@ namespace Gss.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    IPAddress = table.Column<string>(type: "text", nullable: false),
                     LastResponseTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     Public = table.Column<bool>(type: "boolean", nullable: false),
                     Latitude = table.Column<double>(type: "double precision", nullable: true),
                     Longitude = table.Column<double>(type: "double precision", nullable: true),
-                    PasswordHash = table.Column<string>(type: "text", nullable: false),
-                    RequestedSensorID = table.Column<Guid>(type: "uuid", nullable: true),
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RequestedMicrocontrollerSensorId = table.Column<Guid>(type: "uuid", nullable: true),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -52,14 +51,14 @@ namespace Gss.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
-                    TypeID = table.Column<Guid>(type: "uuid", nullable: false)
+                    TypeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sensors", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Sensors_SensorsTypes_TypeID",
-                        column: x => x.TypeID,
+                        name: "FK_Sensors_SensorsTypes_TypeId",
+                        column: x => x.TypeId,
                         principalTable: "SensorsTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -70,22 +69,22 @@ namespace Gss.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    MicrocontrollerID = table.Column<Guid>(type: "uuid", nullable: false),
-                    SensorID = table.Column<Guid>(type: "uuid", nullable: false),
+                    MicrocontrollerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SensorId = table.Column<Guid>(type: "uuid", nullable: false),
                     CriticalValue = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MicrocontrollerSensors", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MicrocontrollerSensors_Microcontrollers_MicrocontrollerID",
-                        column: x => x.MicrocontrollerID,
+                        name: "FK_MicrocontrollerSensors_Microcontrollers_MicrocontrollerId",
+                        column: x => x.MicrocontrollerId,
                         principalTable: "Microcontrollers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MicrocontrollerSensors_Sensors_SensorID",
-                        column: x => x.SensorID,
+                        name: "FK_MicrocontrollerSensors_Sensors_SensorId",
+                        column: x => x.SensorId,
                         principalTable: "Sensors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -95,25 +94,18 @@ namespace Gss.Infrastructure.Migrations
                 name: "SensorsData",
                 columns: table => new
                 {
-                    MicrocontrollerID = table.Column<Guid>(type: "uuid", nullable: false),
-                    SensorID = table.Column<Guid>(type: "uuid", nullable: false),
-                    ValueReadTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    SensorValue = table.Column<int>(type: "integer", nullable: false),
-                    ValueReceivedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    MicrocontrollerSensorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReadTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Value = table.Column<int>(type: "integer", nullable: false),
+                    ReceivedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SensorsData", x => new { x.MicrocontrollerID, x.SensorID, x.ValueReadTime });
+                    table.PrimaryKey("PK_SensorsData", x => new { x.MicrocontrollerSensorId, x.ReadTime });
                     table.ForeignKey(
-                        name: "FK_SensorsData_Microcontrollers_MicrocontrollerID",
-                        column: x => x.MicrocontrollerID,
-                        principalTable: "Microcontrollers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SensorsData_Sensors_SensorID",
-                        column: x => x.SensorID,
-                        principalTable: "Sensors",
+                        name: "FK_SensorsData_MicrocontrollerSensors_MicrocontrollerSensorId",
+                        column: x => x.MicrocontrollerSensorId,
+                        principalTable: "MicrocontrollerSensors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -124,34 +116,29 @@ namespace Gss.Infrastructure.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MicrocontrollerSensors_MicrocontrollerID",
+                name: "IX_MicrocontrollerSensors_MicrocontrollerId",
                 table: "MicrocontrollerSensors",
-                column: "MicrocontrollerID");
+                column: "MicrocontrollerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MicrocontrollerSensors_SensorID",
+                name: "IX_MicrocontrollerSensors_SensorId",
                 table: "MicrocontrollerSensors",
-                column: "SensorID");
+                column: "SensorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Sensors_TypeID",
+                name: "IX_Sensors_TypeId",
                 table: "Sensors",
-                column: "TypeID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SensorsData_SensorID",
-                table: "SensorsData",
-                column: "SensorID");
+                column: "TypeId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MicrocontrollerSensors");
+                name: "SensorsData");
 
             migrationBuilder.DropTable(
-                name: "SensorsData");
+                name: "MicrocontrollerSensors");
 
             migrationBuilder.DropTable(
                 name: "Microcontrollers");

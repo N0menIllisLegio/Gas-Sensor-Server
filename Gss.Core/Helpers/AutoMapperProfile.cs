@@ -31,9 +31,9 @@ public class AutoMapperProfile : Profile
         .ForMember(dest => dest.Sensors, opt => opt.MapFrom(src => src.MicrocontrollerSensors));
         // .ForMember(dest => dest.UserInfo, opt => opt.MapFrom(src => src.Owner));
       CreateMap<CreateMicrocontrollerDto, Microcontroller>()
-        .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
+        .ForMember(dest => dest.Key, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
       CreateMap<UpdateMicrocontrollerDto, Microcontroller>()
-        .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
+        .ForMember(dest => dest.Key, opt => opt.MapFrom(src => CryptoHelper.GetHashString(src.Password)));
 
       CreateMap<MapMicrocontrollerModel, MapMicrocontrollerDto>();
     }

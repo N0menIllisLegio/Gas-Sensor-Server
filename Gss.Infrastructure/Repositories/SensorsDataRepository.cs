@@ -6,11 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories;
 
-public class SensorsDataRepository: RepositoryBase<SensorData>, ISensorsDataRepository
+public class SensorsDataRepository: ISensorsDataRepository
 {
+  private readonly AppDbContext _appDbContext;
+
   public SensorsDataRepository(AppDbContext appDbContext)
-    : base(appDbContext)
-  { }
+  {
+    _appDbContext = appDbContext;
+    DbSet = appDbContext.SensorsData;
+  }
+
+  public DbSet<SensorData> DbSet { get; }
 
   public async Task SingleInsertIfNotExists(SensorData sensorData)
   {
@@ -25,8 +31,7 @@ public class SensorsDataRepository: RepositoryBase<SensorData>, ISensorsDataRepo
   {
     var dataForInsertion = new List<SensorData>();
 
-    foreach (var group in sensorData
-               .GroupBy(data => new { data.MicrocontrollerId, data.SensorId, data.ValueReadTime }))
+    foreach (var group in sensorData.GroupBy(data => new { data.MicrocontrollerSensorId, ValueReadTime = data.ReadTime }))
     {
       dataForInsertion.Add(group.First());
     }
@@ -41,17 +46,19 @@ public class SensorsDataRepository: RepositoryBase<SensorData>, ISensorsDataRepo
   public async Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerId, Guid sensorId,
     DateTimeOffset watchingDate, SensorDataPeriod period)
   {
-    var query = period switch
-    {
-      SensorDataPeriod.Day => GetSensorDataQueryByDayPeriod(microcontrollerId, sensorId, watchingDate),
-      SensorDataPeriod.Month => GetSensorDataQueryByMonthPeriod(microcontrollerId, sensorId, watchingDate),
-      SensorDataPeriod.Year => GetSensorDataQueryByYearPeriod(microcontrollerId, sensorId, watchingDate),
-      _ => throw new ArgumentException(nameof(period)),
-    };
-
-    return await query.ToListAsync();
+    throw new NotImplementedException();
+    // var query = period switch
+    // {
+    //   SensorDataPeriod.Day => GetSensorDataQueryByDayPeriod(microcontrollerId, sensorId, watchingDate),
+    //   SensorDataPeriod.Month => GetSensorDataQueryByMonthPeriod(microcontrollerId, sensorId, watchingDate),
+    //   SensorDataPeriod.Year => GetSensorDataQueryByYearPeriod(microcontrollerId, sensorId, watchingDate),
+    //   _ => throw new ArgumentException(nameof(period)),
+    // };
+    //
+    // return await query.ToListAsync();
   }
 
+  /*
   private IQueryable<SensorDataModel> GetSensorDataQueryByYearPeriod(Guid microcontrollerId, Guid sensorId,
     DateTimeOffset watchingDate)
   {
@@ -151,5 +158,5 @@ public class SensorsDataRepository: RepositoryBase<SensorData>, ISensorsDataRepo
         ValueReadTime = new DateTime(groupedData.Key.Date.Year, groupedData.Key.Date.Month,
           groupedData.Key.Date.Day, groupedData.Key.Hours, 0, 0, DateTimeKind.Utc),
       };
-  }
+  } */
 }

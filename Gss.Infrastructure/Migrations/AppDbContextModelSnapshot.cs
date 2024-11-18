@@ -18,9 +18,6 @@ namespace Gss.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.10")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -31,7 +28,7 @@ namespace Gss.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("IPAddress")
+                    b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -52,14 +49,10 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("Public")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("RequestedSensorID")
+                    b.Property<Guid?>("RequestedMicrocontrollerSensorId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -78,17 +71,17 @@ namespace Gss.Infrastructure.Migrations
                     b.Property<int?>("CriticalValue")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("MicrocontrollerID")
+                    b.Property<Guid>("MicrocontrollerId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("SensorID")
+                    b.Property<Guid>("SensorId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MicrocontrollerID");
+                    b.HasIndex("MicrocontrollerId");
 
-                    b.HasIndex("SensorID");
+                    b.HasIndex("SensorId");
 
                     b.ToTable("MicrocontrollerSensors");
                 });
@@ -108,36 +101,31 @@ namespace Gss.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Guid>("TypeID")
+                    b.Property<Guid>("TypeId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TypeID");
+                    b.HasIndex("TypeId");
 
                     b.ToTable("Sensors");
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.SensorData", b =>
                 {
-                    b.Property<Guid>("MicrocontrollerID")
+                    b.Property<Guid>("MicrocontrollerSensorId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("SensorID")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("ValueReadTime")
+                    b.Property<DateTimeOffset>("ReadTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SensorValue")
+                    b.Property<DateTimeOffset>("ReceivedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Value")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("ValueReceivedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("MicrocontrollerID", "SensorID", "ValueReadTime");
-
-                    b.HasIndex("SensorID");
+                    b.HasKey("MicrocontrollerSensorId", "ReadTime");
 
                     b.ToTable("SensorsData");
                 });
@@ -169,13 +157,13 @@ namespace Gss.Infrastructure.Migrations
                 {
                     b.HasOne("Gss.Core.Entities.Microcontroller", "Microcontroller")
                         .WithMany("MicrocontrollerSensors")
-                        .HasForeignKey("MicrocontrollerID")
+                        .HasForeignKey("MicrocontrollerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Gss.Core.Entities.Sensor", "Sensor")
                         .WithMany("SensorMicrocontrollers")
-                        .HasForeignKey("SensorID")
+                        .HasForeignKey("SensorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -187,8 +175,8 @@ namespace Gss.Infrastructure.Migrations
             modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
                 {
                     b.HasOne("Gss.Core.Entities.SensorType", "Type")
-                        .WithMany("Sensors")
-                        .HasForeignKey("TypeID")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -197,21 +185,11 @@ namespace Gss.Infrastructure.Migrations
 
             modelBuilder.Entity("Gss.Core.Entities.SensorData", b =>
                 {
-                    b.HasOne("Gss.Core.Entities.Microcontroller", "Microcontroller")
+                    b.HasOne("Gss.Core.Entities.MicrocontrollerSensors", null)
                         .WithMany()
-                        .HasForeignKey("MicrocontrollerID")
+                        .HasForeignKey("MicrocontrollerSensorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Gss.Core.Entities.Sensor", "Sensor")
-                        .WithMany()
-                        .HasForeignKey("SensorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Microcontroller");
-
-                    b.Navigation("Sensor");
                 });
 
             modelBuilder.Entity("Gss.Core.Entities.Microcontroller", b =>
@@ -222,11 +200,6 @@ namespace Gss.Infrastructure.Migrations
             modelBuilder.Entity("Gss.Core.Entities.Sensor", b =>
                 {
                     b.Navigation("SensorMicrocontrollers");
-                });
-
-            modelBuilder.Entity("Gss.Core.Entities.SensorType", b =>
-                {
-                    b.Navigation("Sensors");
                 });
 #pragma warning restore 612, 618
         }

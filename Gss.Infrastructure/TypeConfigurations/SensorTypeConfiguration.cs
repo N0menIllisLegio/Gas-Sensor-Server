@@ -10,5 +10,9 @@ internal sealed class SensorTypeConfiguration: IEntityTypeConfiguration<SensorTy
     {
         builder.Property(x => x.Name).HasMaxLength(200);
         builder.Property(x => x.Units).HasMaxLength(20);
+
+        builder.HasMany<Sensor>()
+            .WithOne(x => x.Type)
+            .HasForeignKey(x => x.TypeId);
     }
 }
