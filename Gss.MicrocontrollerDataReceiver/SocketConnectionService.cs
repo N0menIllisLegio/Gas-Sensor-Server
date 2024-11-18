@@ -156,7 +156,7 @@ public class SocketConnectionService
 
           await SendMicrocontrollerResponse(socket, _okResponse);
 
-          var microcontrollerSensor = connectedMicrocontroller.MicrocontrollerSensors.FirstOrDefault(ms => ms.SensorID == sensorID);
+          var microcontrollerSensor = connectedMicrocontroller.MicrocontrollerSensors.FirstOrDefault(ms => ms.SensorId == sensorID);
 
           if (microcontrollerSensor is null)
           {
@@ -178,14 +178,14 @@ public class SocketConnectionService
               connectedMicrocontroller, microcontrollerSensor.Sensor, microcontrollerSensor.Sensor.Type);
           }
 
-          if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerID == connectedMicrocontroller.Id
-                                                       && sensorData.SensorID == sensorID && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
+          if (_receivedSensorsData.Count(sensorData => sensorData.MicrocontrollerId == connectedMicrocontroller.Id
+                                                       && sensorData.SensorId == sensorID && sensorData.ValueReadTime == sensorValueReadedDateTime) == 0)
           {
             var sensorData = new SensorData
             {
               Id = Guid.NewGuid(),
-              MicrocontrollerID = connectedMicrocontroller.Id,
-              SensorID = sensorID,
+              MicrocontrollerId = connectedMicrocontroller.Id,
+              SensorId = sensorID,
               SensorValue = sensorValue,
               ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
               ValueReceivedTime = DateTime.UtcNow
@@ -213,9 +213,9 @@ public class SocketConnectionService
             connectedMicrocontroller = await unitOfWork.Microcontrollers.ReloadAsync(connectedMicrocontroller);
           }
 
-          if (connectedMicrocontroller.RequestedSensorID is not null)
+          if (connectedMicrocontroller.RequestedSensorId is not null)
           {
-            await SendMicrocontrollerResponse(socket, $"{_sensorValueResponse}|{connectedMicrocontroller.RequestedSensorID};");
+            await SendMicrocontrollerResponse(socket, $"{_sensorValueResponse}|{connectedMicrocontroller.RequestedSensorId};");
 
             request = await ReceiveMicrocontrollerRequest(socket);
             (receivedCommand, receivedArguments) = SplitRequest(request);
@@ -240,14 +240,14 @@ public class SocketConnectionService
             using var scope = _serviceScopeFactory.CreateScope();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-            connectedMicrocontroller.RequestedSensorID = null;
+            connectedMicrocontroller.RequestedSensorId = null;
             unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
 
             await unitOfWork.SensorsData.SingleInsertIfNotExists(new SensorData
             {
               Id = Guid.NewGuid(),
-              MicrocontrollerID = connectedMicrocontroller.Id,
-              SensorID = sensorID,
+              MicrocontrollerId = connectedMicrocontroller.Id,
+              SensorId = sensorID,
               SensorValue = sensorValue,
               ValueReadTime = DateTime.SpecifyKind(sensorValueReadedDateTime, DateTimeKind.Utc),
               ValueReceivedTime = DateTime.UtcNow

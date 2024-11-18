@@ -8,5 +8,5 @@ public interface ISensorsDataRepository: IRepositoryBase<SensorData>
 {
   Task SingleInsertIfNotExists(SensorData sensorData);
   Task BulkInsertIfNotExists(List<SensorData> sensorData);
-  Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerID, Guid sensorID, DateTimeOffset watchingDate, SensorDataPeriod period);
+  Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerId, Guid sensorId, DateTimeOffset watchingDate, SensorDataPeriod period);
 }

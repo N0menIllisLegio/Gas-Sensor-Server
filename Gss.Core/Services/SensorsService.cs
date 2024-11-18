@@ -37,7 +37,7 @@ public class SensorsService : ISensorsService
   {
       var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
         sensor => new { sensor.Id, sensor.Name, sensor.Description },
-        sensor => sensor.SensorMicrocontrollers.Any(microcontollerSensor => microcontollerSensor.MicrocontrollerID == microcontrollerID),
+        sensor => sensor.SensorMicrocontrollers.Any(microcontollerSensor => microcontollerSensor.MicrocontrollerId == microcontrollerID),
         query => query.Include(sensor => sensor.Type));
 
       return pagedResult.Convert<SensorDto>(_mapper);
