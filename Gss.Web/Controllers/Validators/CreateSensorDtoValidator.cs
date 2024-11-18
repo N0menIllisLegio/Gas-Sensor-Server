@@ -15,7 +15,7 @@ public sealed class CreateSensorDtoValidator: AbstractValidator<CreateSensorDto>
             .MaximumLength(1800).WithMessage("Description must not exceed 1800 characters.")
             .When(x => !string.IsNullOrEmpty(x.Description));
 
-        RuleFor(x => x.TypeID)
+        RuleFor(x => x.TypeId)
             .NotEmpty().WithMessage("TypeID is required.")
             .Must(id => id != Guid.Empty).WithMessage("TypeID must be a valid non-empty GUID.");
     }

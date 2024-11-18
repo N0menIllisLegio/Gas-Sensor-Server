@@ -9,7 +9,7 @@ public class PagedInfoDto
 
   public string SearchString { get; set; }
 
-  public List<SortOption> SortOptions { get; set; }
+  public List<SortOption>? SortOptions { get; set; }
 
   public List<FilterCriterion> Filters { get; set; }
 }

@@ -15,7 +15,7 @@ public sealed class UpdateSensorDtoValidator: AbstractValidator<UpdateSensorDto>
             .MaximumLength(1800).WithMessage("Description must not exceed 1800 characters.")
             .When(x => x.Description != null);
 
-        RuleFor(x => x.TypeID)
+        RuleFor(x => x.TypeId)
             .NotEmpty().WithMessage("TypeID is required.");
     }
 }

@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using Gss.Core.DTOs;
+﻿using Gss.Core.DTOs;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
+using Gss.Core.Mappers;
 using Gss.Core.Resources;
 
 namespace Gss.Core.Services;
@@ -18,28 +18,27 @@ public class SensorsTypesService : ISensorsTypesService
     _unitOfWork = unitOfWork;
   }
 
-  public async Task<PagedResultDto<SensorType>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo)
+  public async Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo)
   {
     var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(
-      pagedInfo.PageNumber, pagedInfo.PageSize,
+      pagedInfo,
       type => type.Name.Contains(pagedInfo.SearchString) ||
-              type.Units != null && type.Units.Contains(pagedInfo.SearchString),
-      pagedInfo.SortOptions);
+              type.Units != null && type.Units.Contains(pagedInfo.SearchString));
 
-    return pagedResultDto;
+    return pagedResultDto.Convert(x => x.MapToDto());
   }
 
-  public async Task<SensorType> GetSensorTypeAsync(Guid sensorTypeId)
+  public async Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeId)
   {
     var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeId);
 
     if (sensorType is null)
       throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Sensor type"));
 
-    return sensorType;
+    return sensorType.MapToDto();
   }
 
-  public async Task<SensorType> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
+  public async Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
   {
     var sensorType = _unitOfWork.SensorsTypes.Add(new SensorType
     {
@@ -53,7 +52,7 @@ public class SensorsTypesService : ISensorsTypesService
     if (!success)
       throw new AppException(string.Format(Messages.CreationFailedErrorString, "Sensor type"));
 
-    return sensorType;
+    return sensorType.MapToDto();
   }
 
   public async Task UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto)

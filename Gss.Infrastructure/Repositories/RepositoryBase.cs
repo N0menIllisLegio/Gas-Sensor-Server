@@ -60,40 +60,37 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
   }
 
   public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(
-    int pageNumber, int pageSize,
+    PagedInfoDto pagedInfoDto,
     Expression<Func<TEntity, bool>>? search = null,
-    List<SortOption>? order = null,
-    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-    bool disableTracking = true)
+    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null)
   {
     var query = search == null
       ? DbSet
       : DbSet.Where(search);
 
-    query = order is null
+    query = query.AsNoTracking();
+
+    query = pagedInfoDto.SortOptions is null || pagedInfoDto.SortOptions.Count == 0
       ? query.OrderBy(entity => entity.Id)
-      : query.OrderByV2(order);
+      : query.OrderByV2(pagedInfoDto.SortOptions);
 
     if (include is not null)
     {
       query = include(query);
     }
 
-    if (disableTracking)
-    {
-      query = query.AsNoTracking();
-    }
+    var totalItemsCount = await query.CountAsync();
 
-    var pagedQuery = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-
-    int totalItemsCount = await query.CountAsync();
-    var items = await pagedQuery.ToListAsync();
+    var items = await query
+      .Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize)
+      .Take(pagedInfoDto.PageSize)
+      .ToListAsync();
 
     return new PagedResultDto<TEntity>
     {
       Items = items,
       TotalItemsCount = totalItemsCount,
-      // TODO: PagedInfo = pagedInfoDto
+      PagedInfo = pagedInfoDto
     };
   }
 

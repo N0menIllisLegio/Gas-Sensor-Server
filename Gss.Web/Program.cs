@@ -95,7 +95,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.ConfigureSwagger(builder.Configuration);
 
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -17,8 +17,8 @@ public class UnitOfWork: IUnitOfWork
 
   public UnitOfWork(AppDbContext context)
   {
-      _context = context;
-    }
+    _context = context;
+  }
 
   public IMicrocontrollersRepository Microcontrollers =>
     _microcontrollers ??= new MicrocontrollersRepository(_context);
@@ -29,38 +29,38 @@ public class UnitOfWork: IUnitOfWork
 
   public async Task<bool> SaveAsync()
   {
-      try
-      {
-        await _context.SaveChangesAsync();
-        return true;
-      }
-      catch
-      {
-        return false;
-      }
+    try
+    {
+      await _context.SaveChangesAsync();
+      return true;
     }
+    catch
+    {
+      return false;
+    }
+  }
 
   protected virtual void Dispose(bool disposing)
   {
-      if (!_disposedValue)
+    if (!_disposedValue)
+    {
+      if (disposing)
       {
-        if (disposing)
-        {
-          _context.Dispose();
-        }
-
-        _disposedValue = true;
+        _context.Dispose();
       }
+
+      _disposedValue = true;
     }
+  }
 
   ~UnitOfWork()
   {
-      Dispose(false);
-    }
+    Dispose(false);
+  }
 
   public void Dispose()
   {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
+    Dispose(true);
+    GC.SuppressFinalize(this);
+  }
 }

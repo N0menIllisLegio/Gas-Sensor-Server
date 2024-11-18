@@ -1,11 +1,11 @@
-﻿using System.Net;
-using AutoMapper;
+﻿using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.Sensor;
 using Gss.Core.Entities;
 using Gss.Core.Exceptions;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
+using Gss.Core.Mappers;
 using Gss.Core.Resources;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,139 +13,63 @@ namespace Gss.Core.Services;
 
 public class SensorsService : ISensorsService
 {
-  private const string _sensor = "Sensor";
+  private const string Sensor = "Sensor";
 
   private readonly IUnitOfWork _unitOfWork;
-  private readonly IMapper _mapper;
 
-  public SensorsService(IUnitOfWork unitOfWork, IMapper mapper)
+  public SensorsService(IUnitOfWork unitOfWork)
   {
-      _unitOfWork = unitOfWork;
-      _mapper = mapper;
-    }
+    _unitOfWork = unitOfWork;
+  }
 
-  public async Task<PagedResultDto<SensorDto>> GetAllSensors(PagedInfoDto pagedInfoDto)
+  public async Task<PagedResultDto<SensorDto>> GetAllSensorsAsync(PagedInfoDto pagedInfoDto)
   {
-      var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
-                sensor => new { sensor.Id, sensor.Name, sensor.Description },
-                include: query => query.Include((sensor) => sensor.Type));
+    var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(
+        pagedInfoDto,
+        search => search.Name.Contains(pagedInfoDto.SearchString) ||
+                  search.Description != null && search.Description.Contains(pagedInfoDto.SearchString),
+        include => include.Include(sensor => sensor.Type));
 
-      return pagedResult.Convert<SensorDto>(_mapper);
-    }
+    return pagedResult.Convert(x => x.MapToDto());
+  }
 
-  public async Task<PagedResultDto<SensorDto>> GetMicrocontrollerSensors(Guid microcontrollerID, PagedInfoDto pagedInfoDto)
+  public async Task<SensorDto> GetSensorAsync(Guid sensorId)
   {
-      var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto,
-        sensor => new { sensor.Id, sensor.Name, sensor.Description },
-        sensor => sensor.SensorMicrocontrollers.Any(microcontollerSensor => microcontollerSensor.MicrocontrollerId == microcontrollerID),
-        query => query.Include(sensor => sensor.Type));
+    var sensor = await _unitOfWork.Sensors.FindAsync(sensorId);
 
-      return pagedResult.Convert<SensorDto>(_mapper);
-    }
+    if (sensor is null)
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Sensor));
 
-  public async Task<SensorDto> GetSensorAsync(Guid sensorID)
-  {
-      var sensor = await _unitOfWork.Sensors.FindAsync(sensorID);
-
-      if (sensor is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
-          HttpStatusCode.NotFound);
-      }
-
-      return _mapper.Map<SensorDto>(sensor);
-    }
+    return sensor.MapToDto();
+  }
 
   public async Task<SensorDto> CreateSensorAsync(CreateSensorDto createSensorDto)
   {
-      var sensor = _mapper.Map<Sensor>(createSensorDto);
-      sensor = _unitOfWork.Sensors.Add(sensor);
+    var sensor = _unitOfWork.Sensors.Add(new Sensor
+    {
+      Name = createSensorDto.Name,
+      Description = createSensorDto.Description,
+      TypeId = createSensorDto.TypeId
+    });
 
-      bool success = await _unitOfWork.SaveAsync();
+    bool success = await _unitOfWork.SaveAsync();
 
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.CreationFailedErrorString, _sensor),
-          HttpStatusCode.BadRequest);
-      }
+    if (!success)
+      throw new AppException(string.Format(Messages.CreationFailedErrorString, Sensor));
 
-      return _mapper.Map<SensorDto>(sensor);
-    }
+    return sensor.MapToDto();
+  }
 
-  public async Task<SensorDto> UpdateSensorAsync(Guid sensorID, UpdateSensorDto updateSensorDto)
+  public async Task UpdateSensorAsync(Guid sensorId, UpdateSensorDto updateSensorDto)
   {
-      var sensor = await _unitOfWork.Sensors.FindAsync(sensorID);
+    var updatedCount = await _unitOfWork.Sensors.UpdateSensorAsync(sensorId, updateSensorDto);
 
-      if (sensor is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
-          HttpStatusCode.NotFound);
-      }
+    if (updatedCount == 0)
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Sensor));
+  }
 
-      sensor = _mapper.Map(updateSensorDto, sensor);
-
-      bool success = await _unitOfWork.SaveAsync();
-
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.UpdateFailedErrorString, _sensor),
-          HttpStatusCode.BadRequest);
-      }
-
-      return _mapper.Map<SensorDto>(sensor);
-    }
-
-  public async Task<SensorDto> DeleteSensorAsync(Guid sensorID)
+  public async Task DeleteSensorAsync(Guid sensorId)
   {
-      var sensor = await _unitOfWork.Sensors.FindAsync(sensorID);
-
-      if (sensor is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
-          HttpStatusCode.NotFound);
-      }
-
-      sensor = _unitOfWork.Sensors.Remove(sensor);
-
-      bool success = await _unitOfWork.SaveAsync();
-
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.DeletionFailedErrorString, _sensor),
-          HttpStatusCode.BadRequest);
-      }
-
-      return _mapper.Map<SensorDto>(sensor);
-    }
-
-  public async Task<SensorDto> SetSensorTypeAsync(SetSensorTypeDto dto)
-  {
-      var sensor = await _unitOfWork.Sensors.FindAsync(dto.SensorID);
-
-      if (sensor is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, _sensor),
-          HttpStatusCode.NotFound);
-      }
-
-      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(dto.SensorTypeID);
-
-      if (sensorType is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, "Sensor's type"),
-          HttpStatusCode.NotFound);
-      }
-
-      sensor.Type = sensorType;
-
-      bool success = await _unitOfWork.SaveAsync();
-
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.DeletionFailedErrorString, _sensor),
-          HttpStatusCode.BadRequest);
-      }
-
-      return _mapper.Map<SensorDto>(sensor);
-    }
+    await _unitOfWork.Sensors.RemoveAsync(sensorId);
+  }
 }

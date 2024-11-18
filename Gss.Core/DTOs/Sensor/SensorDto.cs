@@ -4,8 +4,8 @@ namespace Gss.Core.DTOs.Sensor;
 
 public class SensorDto
 {
-  public Guid ID { get; set; }
-  public required string Name { get; set; }
+  public Guid Id { get; set; }
+  public string Name { get; set; } = null!;
   public string? Description { get; set; }
-  // TODO: public required SensorTypeDto SensorType { get; set; }
+  public SensorTypeDto Type { get; set; } = null!;
 }

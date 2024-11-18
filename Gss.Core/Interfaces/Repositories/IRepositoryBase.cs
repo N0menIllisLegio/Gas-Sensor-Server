@@ -15,11 +15,9 @@ public interface IRepositoryBase<TEntity>
     bool disableTracking = true);
 
   Task<PagedResultDto<TEntity>> GetPagedResultAsync(
-    int pageNumber, int pageSize,
+    PagedInfoDto pagedInfoDto,
     Expression<Func<TEntity, bool>>? search = null,
-    List<SortOption>? order = null,
-    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-    bool disableTracking = true);
+    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null);
 
   Task<TEntity?> FindAsync(Guid id);
   TEntity Update(TEntity entity);
