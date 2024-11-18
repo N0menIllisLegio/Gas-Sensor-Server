@@ -30,7 +30,6 @@ builder.Services.Configure<MicrocontrollersConnectionsOptions>(
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options
-        .UseLazyLoadingProxies()
         .UseNpgsql(builder.Configuration.GetConnectionString("Database"),
             npgsqlOptionsBuilder => npgsqlOptionsBuilder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)));
 

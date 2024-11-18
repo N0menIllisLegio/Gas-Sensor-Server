@@ -8,7 +8,9 @@ internal sealed class SensorDataConfiguration: IEntityTypeConfiguration<SensorDa
 {
     public void Configure(EntityTypeBuilder<SensorData> builder)
     {
+        builder.Ignore(x => x.Id);
+
         builder.HasKey(e =>
-            new { e.MicrocontrollerID, e.SensorID, e.ValueReadTime });
+            new { MicrocontrollerID = e.MicrocontrollerId, SensorID = e.SensorId, e.ValueReadTime });
     }
 }

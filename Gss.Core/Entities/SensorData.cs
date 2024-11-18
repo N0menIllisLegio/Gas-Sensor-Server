@@ -1,18 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Gss.Core.Interfaces;
+﻿using Gss.Core.Interfaces;
 
 namespace Gss.Core.Entities;
 
-public class SensorData : IEntity
+public sealed class SensorData : IEntity
 {
-  [NotMapped]
   public Guid Id { get; set; }
 
-  public Guid MicrocontrollerID { get; set; }
-  public virtual Microcontroller Microcontroller { get; set; }
+  public Guid MicrocontrollerId { get; set; }
+  public Microcontroller Microcontroller { get; set; } = null!;
 
-  public Guid SensorID { get; set; }
-  public virtual Sensor Sensor { get; set; }
+  public Guid SensorId { get; set; }
+  public Sensor Sensor { get; set; } = null!;
 
   public DateTimeOffset ValueReadTime { get; set; }
 

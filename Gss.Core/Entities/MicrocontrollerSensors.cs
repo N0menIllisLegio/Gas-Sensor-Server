@@ -1,18 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Gss.Core.Interfaces;
+﻿using Gss.Core.Interfaces;
 
 namespace Gss.Core.Entities;
 
-public class MicrocontrollerSensors : IEntity
+public sealed class MicrocontrollerSensors : IEntity
 {
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public Guid Id { get; set; }
 
-  public Guid MicrocontrollerID { get; set; }
-  public virtual Microcontroller Microcontroller { get; set; }
+  public Guid MicrocontrollerId { get; set; }
+  public Microcontroller Microcontroller { get; set; } = null!;
 
-  public Guid SensorID { get; set; }
-  public virtual Sensor Sensor { get; set; }
+  public Guid SensorId { get; set; }
+  public Sensor Sensor { get; set; } = null!;
 
   public int? CriticalValue { get; set; }
 }
