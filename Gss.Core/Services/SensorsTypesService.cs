@@ -1,5 +1,4 @@
-﻿using System.Net;
-using AutoMapper;
+﻿using AutoMapper;
 using Gss.Core.DTOs;
 using Gss.Core.DTOs.SensorType;
 using Gss.Core.Entities;
@@ -13,93 +12,61 @@ namespace Gss.Core.Services;
 public class SensorsTypesService : ISensorsTypesService
 {
   private readonly IUnitOfWork _unitOfWork;
-  private readonly IMapper _mapper;
 
-  public SensorsTypesService(IUnitOfWork unitOfWork, IMapper mapper)
+  public SensorsTypesService(IUnitOfWork unitOfWork)
   {
-      _unitOfWork = unitOfWork;
-      _mapper = mapper;
-    }
+    _unitOfWork = unitOfWork;
+  }
 
-  public async Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo)
+  public async Task<PagedResultDto<SensorType>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo)
   {
-      var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(pagedInfo, sensorType => new { sensorType.Name, sensorType.Units });
+    var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(
+      pagedInfo.PageNumber, pagedInfo.PageSize,
+      type => type.Name.Contains(pagedInfo.SearchString) ||
+              type.Units != null && type.Units.Contains(pagedInfo.SearchString),
+      pagedInfo.SortOptions);
 
-      return pagedResultDto.Convert<SensorTypeDto>(_mapper);
-    }
+    return pagedResultDto;
+  }
 
-  public async Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeID)
+  public async Task<SensorType> GetSensorTypeAsync(Guid sensorTypeId)
   {
-      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeID);
+    var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeId);
 
-      if (sensorType is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, "Sensor type"),
-          HttpStatusCode.NotFound);
-      }
+    if (sensorType is null)
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Sensor type"));
 
-      return _mapper.Map<SensorTypeDto>(sensorType);
-    }
+    return sensorType;
+  }
 
-  public async Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
+  public async Task<SensorType> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto)
   {
-      var sensorType = _mapper.Map<SensorType>(createSensorTypeDto);
-      sensorType = _unitOfWork.SensorsTypes.Add(sensorType);
+    var sensorType = _unitOfWork.SensorsTypes.Add(new SensorType
+    {
+      Name = createSensorTypeDto.Name,
+      Units = createSensorTypeDto.Units,
+      Icon = createSensorTypeDto.Icon
+    });
 
-      bool success = await _unitOfWork.SaveAsync();
+    bool success = await _unitOfWork.SaveAsync();
 
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.CreationFailedErrorString, "Sensor type"),
-          HttpStatusCode.BadRequest);
-      }
+    if (!success)
+      throw new AppException(string.Format(Messages.CreationFailedErrorString, "Sensor type"));
 
-      return _mapper.Map<SensorTypeDto>(sensorType);
-    }
+    return sensorType;
+  }
 
-  public async Task<SensorTypeDto> UpdateSensorTypeAsync(Guid sensorTypeID, UpdateSensorTypeDto updateSensorTypeDto)
+  public async Task UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto)
   {
-      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeID);
+    var sensorTypesUpdatedCount = await _unitOfWork.SensorsTypes
+      .UpdateSensorTypeAsync(sensorTypeId, updateSensorTypeDto);
 
-      if (sensorType is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, "Sensor type"),
-          HttpStatusCode.NotFound);
-      }
+    if (sensorTypesUpdatedCount == 0)
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Sensor type"));
+  }
 
-      _mapper.Map(updateSensorTypeDto, sensorType);
-
-      bool success = await _unitOfWork.SaveAsync();
-
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.UpdateFailedErrorString, "Sensor type"),
-          HttpStatusCode.BadRequest);
-      }
-
-      return _mapper.Map<SensorTypeDto>(sensorType);
-    }
-
-  public async Task<SensorTypeDto> DeleteSensorTypeAsync(Guid sensorTypeID)
+  public async Task DeleteSensorTypeAsync(Guid sensorTypeId)
   {
-      var sensorType = await _unitOfWork.SensorsTypes.FindAsync(sensorTypeID);
-
-      if (sensorType is null)
-      {
-        throw new AppException(String.Format(Messages.NotFoundErrorString, "Sensor type"),
-          HttpStatusCode.NotFound);
-      }
-
-      sensorType = _unitOfWork.SensorsTypes.Remove(sensorType);
-
-      bool success = await _unitOfWork.SaveAsync();
-
-      if (!success)
-      {
-        throw new AppException(String.Format(Messages.DeletionFailedErrorString, "Sensor type"),
-          HttpStatusCode.BadRequest);
-      }
-
-      return _mapper.Map<SensorTypeDto>(sensorType);
-    }
+    await _unitOfWork.SensorsTypes.RemoveAsync(sensorTypeId);
+  }
 }

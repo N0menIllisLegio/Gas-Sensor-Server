@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.DTOs.Sensor;
-using Gss.Core.DTOs.SensorType;
 using Gss.Core.Entities;
 using Gss.Core.Models;
 
@@ -12,20 +11,16 @@ public class AutoMapperProfile : Profile
   // TODO: get rid of
   public AutoMapperProfile()
   {
-      CreateMap<SensorType, SensorTypeDto>();
-      CreateMap<CreateSensorTypeDto, SensorType>();
-      CreateMap<UpdateSensorTypeDto, SensorType>();
-
-      CreateMap<Sensor, SensorDto>()
-        .ForMember(dest => dest.SensorType, opt => opt.MapFrom(src => src.Type));
+      CreateMap<Sensor, SensorDto>();
+      // TODO:.ForMember(dest => dest.SensorType, opt => opt.MapFrom(src => src.Type));
       CreateMap<CreateSensorDto, Sensor>();
       CreateMap<UpdateSensorDto, Sensor>();
 
       CreateMap<MicrocontrollerSensors, MicrocontrollerSensorDto>()
         .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Sensor.Id))
         .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Sensor.Name))
-        .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Sensor.Description))
-        .ForMember(dest => dest.SensorType, opt => opt.MapFrom(src => src.Sensor.Type));
+        .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Sensor.Description));
+      // TODO:.ForMember(dest => dest.SensorType, opt => opt.MapFrom(src => src.Sensor.Type));
 
       CreateMap<Microcontroller, MicrocontrollerDto>()
         .ForMember(dest => dest.Sensors, opt => opt.MapFrom(src => src.MicrocontrollerSensors));

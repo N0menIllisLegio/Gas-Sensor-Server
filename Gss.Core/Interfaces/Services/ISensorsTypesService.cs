@@ -1,13 +1,14 @@
 ﻿using Gss.Core.DTOs;
 using Gss.Core.DTOs.SensorType;
+using Gss.Core.Entities;
 
 namespace Gss.Core.Interfaces.Services;
 
 public interface ISensorsTypesService
 {
-  Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo);
-  Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeID);
-  Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto);
-  Task<SensorTypeDto> UpdateSensorTypeAsync(Guid sensorTypeID, UpdateSensorTypeDto updateSensorTypeDto);
-  Task<SensorTypeDto> DeleteSensorTypeAsync(Guid sensorTypeID);
+  Task<PagedResultDto<SensorType>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo);
+  Task<SensorType> GetSensorTypeAsync(Guid sensorTypeId);
+  Task<SensorType> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto);
+  Task UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto);
+  Task DeleteSensorTypeAsync(Guid sensorTypeId);
 }

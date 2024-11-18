@@ -7,5 +7,5 @@ public class SensorDto
   public Guid ID { get; set; }
   public required string Name { get; set; }
   public string? Description { get; set; }
-  public required SensorTypeDto SensorType { get; set; }
+  // TODO: public required SensorTypeDto SensorType { get; set; }
 }
