@@ -23,6 +23,7 @@ internal sealed class CurrentUserDataSetterMiddleware
             currentUserDataSetter.Email = claims.First(x => x.Type == ClaimTypes.Email).Value;
             currentUserDataSetter.GivenName = claims.First(x => x.Type == ClaimTypes.GivenName).Value;
             currentUserDataSetter.Surname = claims.First(x => x.Type == ClaimTypes.Surname).Value;
+            currentUserDataSetter.IsAdministrator = context.User.IsInRole("Administrator");
         }
 
         await _next(context);

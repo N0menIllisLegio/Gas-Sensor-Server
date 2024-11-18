@@ -9,4 +9,5 @@ internal sealed class CurrentUser : ICurrentUser, ICurrentUserDataSetter
     public string? Email { get; set; }
     public string? GivenName { get; set; }
     public string? Surname { get; set; }
+    public bool IsAdministrator { get; set; }
 }

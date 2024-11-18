@@ -7,4 +7,5 @@ internal interface ICurrentUserDataSetter
     string? Email { set; }
     string? GivenName { set; }
     string? Surname { set; }
+    bool IsAdministrator { set; }
 }

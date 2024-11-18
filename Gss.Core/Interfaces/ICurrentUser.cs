@@ -7,4 +7,5 @@ public interface ICurrentUser
     public string? Email { get; }
     public string? GivenName { get; }
     public string? Surname { get; }
+    bool IsAdministrator { get; }
 }
