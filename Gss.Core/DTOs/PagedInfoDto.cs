@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Gss.Core.Helpers;
 using Gss.Core.Models;
 
 namespace Gss.Core.DTOs;
@@ -17,20 +16,20 @@ public class PagedInfoDto: IValidatableObject
 
   public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
   {
-      if (PageNumber <= 0)
-      {
-        PageNumber = 1;
-      }
-
-      if (PageSize < 10)
-      {
-        PageSize = 10;
-      }
-      else if (PageSize > 50)
-      {
-        PageSize = 50;
-      }
-
-      return new List<ValidationResult>();
+    if (PageNumber <= 0)
+    {
+      PageNumber = 1;
     }
+
+    if (PageSize < 10)
+    {
+      PageSize = 10;
+    }
+    else if (PageSize > 50)
+    {
+      PageSize = 50;
+    }
+
+    return new List<ValidationResult>();
+  }
 }
