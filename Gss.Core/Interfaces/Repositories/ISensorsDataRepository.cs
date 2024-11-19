@@ -1,6 +1,6 @@
-﻿using Gss.Core.Entities;
+﻿using Gss.Core.DTOs.SensorData;
+using Gss.Core.Entities;
 using Gss.Core.Enums;
-using Gss.Core.Models;
 
 namespace Gss.Core.Interfaces.Repositories;
 
@@ -8,5 +8,6 @@ public interface ISensorsDataRepository
 {
   Task SingleInsertIfNotExists(SensorData sensorData);
   Task BulkInsertIfNotExists(List<SensorData> sensorData);
-  Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerId, Guid sensorId, DateTimeOffset watchingDate, SensorDataPeriod period);
+  Task<List<SensorDataDto>> GetSensorDataByPeriodAsync(Guid microcontrollerSensorId, DateTimeOffset watchingDate,
+      SensorDataPeriod period);
 }

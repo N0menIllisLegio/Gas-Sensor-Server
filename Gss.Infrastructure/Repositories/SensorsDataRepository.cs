@@ -1,26 +1,23 @@
-﻿using Gss.Core.Entities;
+﻿using Gss.Core.DTOs.SensorData;
+using Gss.Core.Entities;
 using Gss.Core.Enums;
 using Gss.Core.Interfaces.Repositories;
-using Gss.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Infrastructure.Repositories;
 
 public class SensorsDataRepository: ISensorsDataRepository
 {
-  private readonly AppDbContext _appDbContext;
+  private readonly DbSet<SensorData> _dbSet;
 
   public SensorsDataRepository(AppDbContext appDbContext)
   {
-    _appDbContext = appDbContext;
-    DbSet = appDbContext.SensorsData;
+    _dbSet = appDbContext.SensorsData;
   }
-
-  public DbSet<SensorData> DbSet { get; }
 
   public async Task SingleInsertIfNotExists(SensorData sensorData)
   {
-    await DbSet.SingleInsertAsync(sensorData, options =>
+    await _dbSet.SingleInsertAsync(sensorData, options =>
     {
       options.AutoMapOutputDirection = false;
       options.InsertIfNotExists = true;
@@ -36,127 +33,90 @@ public class SensorsDataRepository: ISensorsDataRepository
       dataForInsertion.Add(group.First());
     }
 
-    await DbSet.BulkInsertAsync(dataForInsertion, options =>
+    await _dbSet.BulkInsertAsync(dataForInsertion, options =>
     {
       options.AutoMapOutputDirection = false;
       options.InsertIfNotExists = true;
     });
   }
 
-  public async Task<List<SensorDataModel>> GetSensorDataByPeriod(Guid microcontrollerId, Guid sensorId,
+  public async Task<List<SensorDataDto>> GetSensorDataByPeriodAsync(Guid microcontrollerSensorId,
     DateTimeOffset watchingDate, SensorDataPeriod period)
   {
-    throw new NotImplementedException();
-    // var query = period switch
-    // {
-    //   SensorDataPeriod.Day => GetSensorDataQueryByDayPeriod(microcontrollerId, sensorId, watchingDate),
-    //   SensorDataPeriod.Month => GetSensorDataQueryByMonthPeriod(microcontrollerId, sensorId, watchingDate),
-    //   SensorDataPeriod.Year => GetSensorDataQueryByYearPeriod(microcontrollerId, sensorId, watchingDate),
-    //   _ => throw new ArgumentException(nameof(period)),
-    // };
-    //
-    // return await query.ToListAsync();
+    var query = period switch
+    {
+      SensorDataPeriod.Day => GetSensorDataQueryByDayPeriod(microcontrollerSensorId, watchingDate),
+      SensorDataPeriod.Month => GetSensorDataQueryByMonthPeriod(microcontrollerSensorId, watchingDate),
+      SensorDataPeriod.Year => GetSensorDataQueryByYearPeriod(microcontrollerSensorId, watchingDate),
+
+      _ => throw new ArgumentException(nameof(period)),
+    };
+
+    return await query.ToListAsync();
   }
 
-  /*
-  private IQueryable<SensorDataModel> GetSensorDataQueryByYearPeriod(Guid microcontrollerId, Guid sensorId,
-    DateTimeOffset watchingDate)
+  private IQueryable<SensorDataDto> GetSensorDataQueryByYearPeriod(
+    Guid microcontrollerSensorId, DateTimeOffset watchingDate)
   {
-    return from sensorData in DbSet
-      where sensorData.MicrocontrollerId == microcontrollerId
-            && sensorData.SensorId == sensorId
-            && sensorData.ValueReadTime.Year == watchingDate.Year
-      select new
+    return _dbSet
+      .Where(sensorData => sensorData.MicrocontrollerSensorId == microcontrollerSensorId &&
+                           sensorData.ReadTime.Year == watchingDate.Year)
+      .GroupBy(sensorData => new
       {
-        sensorData.MicrocontrollerId,
-        sensorData.SensorId,
-        sensorData.SensorValue,
-        sensorData.ValueReadTime.Date
-      }
-      into splittedDateData
-      group splittedDateData by new
+        sensorData.ReadTime.Year,
+        sensorData.ReadTime.Month,
+        sensorData.MicrocontrollerSensorId
+      })
+      .OrderBy(group => group.Key.Year)
+      .ThenBy(group => group.Key.Month)
+      .Select(group => new SensorDataDto
       {
-        splittedDateData.Date.Year,
-        splittedDateData.Date.Month,
-        splittedDateData.MicrocontrollerId,
-        splittedDateData.SensorId
-      }
-      into groupedData
-      orderby groupedData.Key.Year, groupedData.Key.Month
-      select new SensorDataModel
-      {
-        MicrocontrollerID = groupedData.Key.MicrocontrollerId,
-        SensorID = groupedData.Key.SensorId,
-        ValueReadTime = DateTime.SpecifyKind(new DateTime(groupedData.Key.Year, groupedData.Key.Month, 1), DateTimeKind.Utc),
-        AverageSensorValue = Math.Floor((decimal)groupedData.Average(s => s.SensorValue)),
-      };
+        WatchingDate = watchingDate,
+        AverageValue = group.Average(s => s.Value),
+        ReadTime = new DateTime(group.Key.Year, group.Key.Month, 1),
+      });
   }
 
-  private IQueryable<SensorDataModel> GetSensorDataQueryByMonthPeriod(Guid microcontrollerId, Guid sensorId,
-    DateTimeOffset watchingDate)
+  private IQueryable<SensorDataDto> GetSensorDataQueryByMonthPeriod(
+    Guid microcontrollerSensorId, DateTimeOffset watchingDate)
   {
-    return from sensorData in DbSet
-      where sensorData.MicrocontrollerId == microcontrollerId
-            && sensorData.SensorId == sensorId
-            && sensorData.ValueReadTime.Year == watchingDate.Year
-            && sensorData.ValueReadTime.Month == watchingDate.Month
-      select new
+    return _dbSet
+      .Where(sensorData => sensorData.MicrocontrollerSensorId == microcontrollerSensorId &&
+                           sensorData.ReadTime.Year == watchingDate.Year &&
+                           sensorData.ReadTime.Month == watchingDate.Month)
+      .GroupBy(sensorData => new
       {
-        sensorData.MicrocontrollerId,
-        sensorData.SensorId,
-        sensorData.SensorValue,
-        sensorData.ValueReadTime.Date
-      }
-      into splittedDateData
-      group splittedDateData by new
+        sensorData.ReadTime.Date,
+        sensorData.MicrocontrollerSensorId
+      })
+      .OrderBy(group => group.Key.Date)
+      .Select(group => new SensorDataDto
       {
-        splittedDateData.Date,
-        splittedDateData.MicrocontrollerId,
-        splittedDateData.SensorId
-      }
-      into groupedData
-      orderby groupedData.Key.Date
-      select new SensorDataModel
-      {
-        MicrocontrollerID = groupedData.Key.MicrocontrollerId,
-        SensorID = groupedData.Key.SensorId,
-        ValueReadTime = DateTime.SpecifyKind(groupedData.Key.Date, DateTimeKind.Utc),
-        AverageSensorValue = Math.Floor((decimal)groupedData.Average(s => s.SensorValue)),
-      };
+        WatchingDate = watchingDate,
+        AverageValue = group.Average(s => s.Value),
+        ReadTime = group.Key.Date,
+      });
   }
 
-  private IQueryable<SensorDataModel> GetSensorDataQueryByDayPeriod(Guid microcontrollerId, Guid sensorId,
-    DateTimeOffset watchingDate)
+  private IQueryable<SensorDataDto> GetSensorDataQueryByDayPeriod(
+    Guid microcontrollerSensorId, DateTimeOffset watchingDate)
   {
-    return from sensorData in DbSet
-      where sensorData.MicrocontrollerId == microcontrollerId
-            && sensorData.SensorId == sensorId
-            && sensorData.ValueReadTime.Date == watchingDate.Date
-      select new
+    return _dbSet
+      .Where(sensorData => sensorData.MicrocontrollerSensorId == microcontrollerSensorId &&
+                           sensorData.ReadTime.Date == watchingDate.Date)
+      .GroupBy(sensorData => new
       {
-        sensorData.MicrocontrollerId,
-        sensorData.SensorId,
-        sensorData.SensorValue,
-        sensorData.ValueReadTime.Date,
-        sensorData.ValueReadTime.TimeOfDay,
-      }
-      into splittedDateData
-      group splittedDateData by new
+        sensorData.ReadTime.Date,
+        sensorData.ReadTime.TimeOfDay.Hours,
+        sensorData.MicrocontrollerSensorId
+      })
+      .OrderBy(group => group.Key.Date)
+      .ThenBy(group => group.Key.Hours)
+      .Select(group => new SensorDataDto
       {
-        splittedDateData.Date,
-        splittedDateData.TimeOfDay.Hours,
-        splittedDateData.MicrocontrollerId,
-        splittedDateData.SensorId
-      }
-      into groupedData
-      orderby groupedData.Key.Date, groupedData.Key.Hours
-      select new SensorDataModel
-      {
-        MicrocontrollerID = groupedData.Key.MicrocontrollerId,
-        SensorID = groupedData.Key.SensorId,
-        AverageSensorValue = Math.Floor((decimal)groupedData.Average(s => s.SensorValue)),
-        ValueReadTime = new DateTime(groupedData.Key.Date.Year, groupedData.Key.Date.Month,
-          groupedData.Key.Date.Day, groupedData.Key.Hours, 0, 0, DateTimeKind.Utc),
-      };
-  } */
+        WatchingDate = watchingDate,
+        AverageValue = group.Average(s => s.Value),
+        ReadTime = new DateTime(group.Key.Date.Year, group.Key.Date.Month, group.Key.Date.Day, group.Key.Hours, 0, 0),
+      });
+  }
 }
