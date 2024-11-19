@@ -19,9 +19,9 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
     _appDbContext = appDbContext;
   }
 
-  public async Task<List<MapMicrocontrollerDto>> GetVisibleMicrocontrollers(
+  public async Task<List<MapMicrocontrollerDto>> GetVisibleMicrocontrollersAsync(
     double southWestLatitude, double southWestLongitude,
-    double northEastLatitude, double northEastLongitude)
+    double northEastLatitude, double northEastLongitude, CancellationToken cancellationToken = default)
   {
     return await DbSet
       .Include(mc => mc.MicrocontrollerSensors)
@@ -42,24 +42,25 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
           .Select(micS => micS.Sensor.Type.MapToDto())
           .ToList()
       })
-      .ToListAsync();
+      .ToListAsync(cancellationToken: cancellationToken);
   }
 
   public async Task<Microcontroller?> FirstOrDefaultAsync(Expression<Func<Microcontroller, bool>> match,
-    Func<IQueryable<Microcontroller>, IIncludableQueryable<Microcontroller, object>>? include = null)
+    Func<IQueryable<Microcontroller>, IIncludableQueryable<Microcontroller, object>>? include = null,
+    CancellationToken cancellationToken = default)
   {
     return include is not null
-      ? await include(DbSet).FirstOrDefaultAsync(match)
-      : await DbSet.FirstOrDefaultAsync(match);
+      ? await include(DbSet).FirstOrDefaultAsync(match, cancellationToken: cancellationToken)
+      : await DbSet.FirstOrDefaultAsync(match, cancellationToken: cancellationToken);
   }
 
   public async Task<int> SetSensorValueThresholdAsync(
-    ICurrentUser currentUser, Guid microcontrollerSensorId, int? criticalValue)
+    ICurrentUser currentUser, Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default)
   {
     return await _appDbContext.Set<MicrocontrollerSensors>()
       .Where(x => x.Id == microcontrollerSensorId && (x.Microcontroller.Public ||
                                                       x.Microcontroller.OwnerId == currentUser.Id ||
                                                       currentUser.IsAdministrator))
-      .ExecuteUpdateAsync(x => x.SetProperty(p => p.CriticalValue, criticalValue));
+      .ExecuteUpdateAsync(x => x.SetProperty(p => p.CriticalValue, criticalValue), cancellationToken: cancellationToken);
   }
 }

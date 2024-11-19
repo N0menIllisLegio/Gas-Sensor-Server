@@ -26,7 +26,7 @@ public class MicrocontrollersService : IMicrocontrollersService
     _currentUser = currentUser;
   }
 
-  public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo)
+  public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
   {
     var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
       pagedInfo,
@@ -34,12 +34,13 @@ public class MicrocontrollersService : IMicrocontrollersService
       query => query
         .Include(mc => mc.MicrocontrollerSensors)
           .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type));
+            .ThenInclude(s => s.Type),
+      cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }
 
-  public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo)
+  public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
   {
     var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
       pagedInfo,
@@ -47,16 +48,18 @@ public class MicrocontrollersService : IMicrocontrollersService
       query => query
         .Include(mc => mc.MicrocontrollerSensors)
           .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type));
+            .ThenInclude(s => s.Type),
+      cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }
 
-  public async Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId)
+  public async Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
   {
     var result = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(
       x => x.Id == microcontrollerId,
-      x => x.Include(e => e.Sensors).ThenInclude(e => e.Type));
+      x => x.Include(e => e.Sensors).ThenInclude(e => e.Type),
+      cancellationToken);
 
     if (result is null)
       throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
@@ -64,24 +67,24 @@ public class MicrocontrollersService : IMicrocontrollersService
     return result.Sensors.Select(x => x.MapToDto()).ToList();
   }
 
-  public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId)
+  public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
   {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId);
+    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
 
     return microcontroller.MapToDto();
   }
 
-  public async Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto)
+  public async Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto, CancellationToken cancellationToken = default)
   {
-    var visibleMicrocontrollers = await _unitOfWork.Microcontrollers.GetVisibleMicrocontrollers(
+    var visibleMicrocontrollers = await _unitOfWork.Microcontrollers.GetVisibleMicrocontrollersAsync(
       mapRequestDto.SouthWestLatitude, mapRequestDto.SouthWestLongitude, mapRequestDto.NorthEastLatitude,
-      mapRequestDto.NorthEastLongitude);
+      mapRequestDto.NorthEastLongitude, cancellationToken);
 
     return visibleMicrocontrollers;
   }
 
   public async Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(Guid userId,
-    PagedInfoDto pagedInfo)
+    PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
   {
     Expression<Func<Microcontroller, bool>> searchCriteria =
       userId == _currentUser.Id || _currentUser.IsAdministrator
@@ -94,12 +97,12 @@ public class MicrocontrollersService : IMicrocontrollersService
       query => query
         .Include(mc => mc.MicrocontrollerSensors)
           .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type));
+            .ThenInclude(s => s.Type), cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }
 
-  public async Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto)
+  public async Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto, CancellationToken cancellationToken = default)
   {
     var microcontrollerId = Guid.NewGuid();
 
@@ -122,7 +125,7 @@ public class MicrocontrollersService : IMicrocontrollersService
         .ToList()
     });
 
-    bool success = await _unitOfWork.SaveAsync();
+    bool success = await _unitOfWork.SaveAsync(cancellationToken);
 
     if (!success)
       throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
@@ -132,7 +135,7 @@ public class MicrocontrollersService : IMicrocontrollersService
       query => query
         .Include(mc => mc.MicrocontrollerSensors)
           .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type));
+            .ThenInclude(s => s.Type), cancellationToken);
 
     if (microcontroller is null)
       throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
@@ -141,9 +144,9 @@ public class MicrocontrollersService : IMicrocontrollersService
   }
 
   public async Task UpdateMicrocontrollerAsync(
-    Guid microcontrollerId, UpdateMicrocontrollerDto updateMicrocontrollerDto)
+    Guid microcontrollerId, UpdateMicrocontrollerDto updateMicrocontrollerDto, CancellationToken cancellationToken = default)
   {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId);
+    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
 
     if (microcontroller.MicrocontrollerSensors.Count -
         updateMicrocontrollerDto.RemoveMicrocontrollerSensorIds.Count +
@@ -178,21 +181,21 @@ public class MicrocontrollersService : IMicrocontrollersService
     if (microcontroller.MicrocontrollerSensors.Count > 5)
       throw new UserInputException("Sensors can't be more than 5 per microcontroller");
 
-    bool success = await _unitOfWork.SaveAsync();
+    bool success = await _unitOfWork.SaveAsync(cancellationToken);
 
     if (!success)
       throw new AppException(string.Format(Messages.UpdateFailedErrorString, Microcontroller));
   }
 
-  public async Task DeleteMicrocontrollerAsync(Guid microcontrollerId)
+  public async Task DeleteMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
   {
-    await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId);
+    await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId, cancellationToken);
   }
 
   public async Task<Microcontroller?> AuthenticateMicrocontrollersAsync(
-    Guid microcontrollerId, string microcontrollerKey)
+    Guid microcontrollerId, string microcontrollerKey, CancellationToken cancellationToken = default)
   {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId);
+    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
 
     // TODO: HMAC. API-Key
     if (microcontroller.Key != "")
@@ -200,14 +203,15 @@ public class MicrocontrollersService : IMicrocontrollersService
 
     microcontroller.LastResponseTime = DateTime.UtcNow;
 
-    await _unitOfWork.SaveAsync();
+    await _unitOfWork.SaveAsync(cancellationToken);
 
     return microcontroller;
   }
 
-  public async Task<RequestSensorValueResponseDto> RequestSensorValueAsync(Guid microcontrollerId, Guid microcontrollerSensorId)
+  public async Task<RequestSensorValueResponseDto> RequestSensorValueAsync(
+    Guid microcontrollerId, Guid microcontrollerSensorId, CancellationToken cancellationToken = default)
   {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId);
+    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
 
     if (microcontroller.RequestedMicrocontrollerSensorId == microcontrollerSensorId)
     {
@@ -229,27 +233,28 @@ public class MicrocontrollersService : IMicrocontrollersService
 
     microcontroller.RequestedMicrocontrollerSensorId = microcontrollerSensorId;
 
-    bool success = await _unitOfWork.SaveAsync();
+    bool success = await _unitOfWork.SaveAsync(cancellationToken);
 
     if (!success)
-      throw new AppException(String.Format(Messages.ChangeReuqestedSensorIDFailedErrorString));
+      throw new AppException(string.Format(Messages.ChangeReuqestedSensorIDFailedErrorString));
 
     return result;
   }
 
-  public async Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue)
+  public async Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default)
   {
     var updatedEntries = await _unitOfWork.Microcontrollers.SetSensorValueThresholdAsync(
-      _currentUser, microcontrollerSensorId, criticalValue);
+      _currentUser, microcontrollerSensorId, criticalValue, cancellationToken);
 
     if (updatedEntries == 0)
       throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Microcontroller));
   }
 
-  private async Task<Microcontroller> TryGetMicrocontrollerAsync(Guid microcontrollerId)
+  private async Task<Microcontroller> TryGetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken)
   {
     var microcontroller = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(mc => mc.Id == microcontrollerId,
-      x => x.Include(p => p.MicrocontrollerSensors).ThenInclude(p => p.Sensor).ThenInclude(p => p.Type));
+      x => x.Include(p => p.MicrocontrollerSensors).ThenInclude(p => p.Sensor).ThenInclude(p => p.Type),
+      cancellationToken);
 
     if (microcontroller is not null)
     {

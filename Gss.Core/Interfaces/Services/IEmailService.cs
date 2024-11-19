@@ -5,5 +5,5 @@ namespace Gss.Core.Interfaces.Services;
 public interface IEmailService
 {
   Task<bool> SendCriticalValueEmailAsync(string email, int receivedCriticalValue, int setCriticalValue,
-      Microcontroller microcontroller, Sensor sensor, SensorType sensorType);
+      Microcontroller microcontroller, Sensor sensor, SensorType sensorType, CancellationToken cancellationToken = default);
 }

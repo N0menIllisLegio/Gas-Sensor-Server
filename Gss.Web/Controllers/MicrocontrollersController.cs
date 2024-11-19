@@ -27,9 +27,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetAllMicrocontrollers([FromBody] PagedInfoDto dto)
+  public async Task<IActionResult> GetAllMicrocontrollers([FromBody] PagedInfoDto dto, CancellationToken cancellationToken)
   {
-    var pagedResultDto = await _microcontrollerService.GetAllMicrocontrollersAsync(dto);
+    var pagedResultDto = await _microcontrollerService.GetAllMicrocontrollersAsync(dto, cancellationToken);
 
     return Ok(pagedResultDto);
   }
@@ -38,9 +38,9 @@ public class MicrocontrollersController : ControllerBase
   [HttpGet("{microcontrollerId}")]
   [SwaggerOperation("Administrator Only", "Gets all sensors of microcontroller.")]
   [SwaggerResponse(200, type: typeof(List<SensorDto>))]
-  public async Task<IActionResult> GetMicrocontrollerSensors([FromRoute] Guid microcontrollerId)
+  public async Task<IActionResult> GetMicrocontrollerSensors([FromRoute] Guid microcontrollerId, CancellationToken cancellationToken)
   {
-    var result = await _microcontrollerService.GetMicrocontrollerSensorsAsync(microcontrollerId);
+    var result = await _microcontrollerService.GetMicrocontrollerSensorsAsync(microcontrollerId, cancellationToken);
 
     return Ok(result);
   }
@@ -50,9 +50,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(200, type: typeof(PagedResultDto<MicrocontrollerDto>))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetPublicMicrocontrollers([FromBody] PagedInfoDto dto)
+  public async Task<IActionResult> GetPublicMicrocontrollers([FromBody] PagedInfoDto dto, CancellationToken cancellationToken)
   {
-    var pagedResultDto = await _microcontrollerService.GetPublicMicrocontrollersAsync(dto);
+    var pagedResultDto = await _microcontrollerService.GetPublicMicrocontrollersAsync(dto, cancellationToken);
 
     return Ok(pagedResultDto);
   }
@@ -62,9 +62,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(200, type: typeof(List<MapMicrocontrollerDto>))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetPublicMicrocontrollersMap([FromBody] MapRequestDto dto)
+  public async Task<IActionResult> GetPublicMicrocontrollersMap([FromBody] MapRequestDto dto, CancellationToken cancellationToken)
   {
-    var mapResponse = await _microcontrollerService.GetPublicMicrocontrollersMapAsync(dto);
+    var mapResponse = await _microcontrollerService.GetPublicMicrocontrollersMapAsync(dto, cancellationToken);
 
     return Ok(mapResponse);
   }
@@ -74,9 +74,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(200, type: typeof(MicrocontrollerDto))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetUserMicrocontrollers([FromRoute] Guid userId, [FromBody] PagedInfoDto pagedInfoDto)
+  public async Task<IActionResult> GetUserMicrocontrollers([FromRoute] Guid userId, [FromBody] PagedInfoDto pagedInfoDto, CancellationToken cancellationToken)
   {
-    var pagedResultDto = await _microcontrollerService.GetUserMicrocontrollersAsync(userId, pagedInfoDto);
+    var pagedResultDto = await _microcontrollerService.GetUserMicrocontrollersAsync(userId, pagedInfoDto, cancellationToken);
 
     return Ok(pagedResultDto);
   }
@@ -85,9 +85,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerOperation(description: "Gets microcontroller by id.")]
   [SwaggerResponse(200, type: typeof(MicrocontrollerDto))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetMicrocontroller([FromRoute] Guid id)
+  public async Task<IActionResult> GetMicrocontroller([FromRoute] Guid id, CancellationToken cancellationToken)
   {
-    var microcontrollerDto = await _microcontrollerService.GetMicrocontrollerAsync(id);
+    var microcontrollerDto = await _microcontrollerService.GetMicrocontrollerAsync(id, cancellationToken);
 
     return Ok(microcontrollerDto);
   }
@@ -100,9 +100,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> Create([FromBody] CreateMicrocontrollerDto dto)
+  public async Task<IActionResult> Create([FromBody] CreateMicrocontrollerDto dto, CancellationToken cancellationToken)
   {
-    var microcontrollerDto = await _microcontrollerService.AddMicrocontrollerAsync(dto);
+    var microcontrollerDto = await _microcontrollerService.AddMicrocontrollerAsync(dto, cancellationToken);
 
     return CreatedAtAction(nameof(GetMicrocontroller), new { id = microcontrollerDto.Id }, microcontrollerDto);
   }
@@ -114,9 +114,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> Update([FromRoute] Guid microcontrollerId, [FromBody] UpdateMicrocontrollerDto dto)
+  public async Task<IActionResult> Update([FromRoute] Guid microcontrollerId, [FromBody] UpdateMicrocontrollerDto dto, CancellationToken cancellationToken)
   {
-    await _microcontrollerService.UpdateMicrocontrollerAsync(microcontrollerId, dto);
+    await _microcontrollerService.UpdateMicrocontrollerAsync(microcontrollerId, dto, cancellationToken);
 
     return Ok();
   }
@@ -126,9 +126,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerOperation("Authorized", "Deletes microcontroller.")]
   [SwaggerResponse(200)]
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> Delete([FromRoute] Guid id)
+  public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
   {
-    await _microcontrollerService.DeleteMicrocontrollerAsync(id);
+    await _microcontrollerService.DeleteMicrocontrollerAsync(id, cancellationToken);
 
     return Ok();
   }
@@ -141,10 +141,10 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> RequestSensorValue([FromBody] RequestSensorValueDto requestSensorValueDto)
+  public async Task<IActionResult> RequestSensorValue([FromBody] RequestSensorValueDto requestSensorValueDto, CancellationToken cancellationToken)
   {
     var response = await _microcontrollerService.RequestSensorValueAsync(
-      requestSensorValueDto.MicrocontrollerId, requestSensorValueDto.SensorId);
+      requestSensorValueDto.MicrocontrollerId, requestSensorValueDto.SensorId, cancellationToken);
 
     return Ok(response);
   }
@@ -157,9 +157,9 @@ public class MicrocontrollersController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> SetSensorsCriticalValue([FromBody] SetSensorsCriticalValueDto dto)
+  public async Task<IActionResult> SetSensorsCriticalValue([FromBody] SetSensorsCriticalValueDto dto, CancellationToken cancellationToken)
   {
-    await _microcontrollerService.SetSensorValueThresholdAsync(dto.MicrocontrollerSensorId, dto.CriticalValue);
+    await _microcontrollerService.SetSensorValueThresholdAsync(dto.MicrocontrollerSensorId, dto.CriticalValue, cancellationToken);
 
     return Ok();
   }

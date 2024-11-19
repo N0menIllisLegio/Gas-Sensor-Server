@@ -58,6 +58,8 @@ builder.Services
 
             return problemDetails;
         });
+
+        options.MapToStatusCode<OperationCanceledException>(StatusCodes.Status499ClientClosedRequest);
     })
     .AddProblemDetailsConventions();
 

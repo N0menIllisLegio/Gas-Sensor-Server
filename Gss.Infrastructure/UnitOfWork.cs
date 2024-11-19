@@ -27,11 +27,11 @@ public class UnitOfWork: IUnitOfWork
   public ISensorsTypesRepository SensorsTypes => _sensorsTypes ??= new SensorsTypesRepository(_context);
   public ISensorsDataRepository SensorsData => _sensorsData ??= new SensorsDataRepository(_context);
 
-  public async Task<bool> SaveAsync()
+  public async Task<bool> SaveAsync(CancellationToken cancellationToken = default)
   {
     try
     {
-      await _context.SaveChangesAsync();
+      await _context.SaveChangesAsync(cancellationToken);
       return true;
     }
     catch

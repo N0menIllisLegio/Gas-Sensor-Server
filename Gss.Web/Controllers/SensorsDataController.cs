@@ -21,9 +21,9 @@ public class SensorsDataController: ControllerBase
   [SwaggerResponse(200, type: typeof(List<SensorDataDto>))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetSensorData([FromBody] RequestSensorDataDto requestSensorDataDto)
+  public async Task<IActionResult> GetSensorData([FromBody] RequestSensorDataDto requestSensorDataDto, CancellationToken cancellationToken)
   {
-    var sensorData = await _sensorsDataService.GetSensorDataAsync(requestSensorDataDto);
+    var sensorData = await _sensorsDataService.GetSensorDataAsync(requestSensorDataDto, cancellationToken);
 
     return Ok(sensorData);
   }

@@ -5,5 +5,5 @@ namespace Gss.Core.Interfaces.Repositories;
 
 public interface ISensorsTypesRepository : IRepositoryBase<SensorType>
 {
-    Task<int> UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto);
+    Task<int> UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto, CancellationToken cancellationToken = default);
 }

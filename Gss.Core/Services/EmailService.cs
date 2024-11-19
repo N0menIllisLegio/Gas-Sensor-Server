@@ -18,7 +18,7 @@ public class EmailService : IEmailService
   }
 
   public async Task<bool> SendCriticalValueEmailAsync(string email, int receivedCriticalValue, int setCriticalValue,
-    Microcontroller microcontroller, Sensor sensor, SensorType sensorType)
+    Microcontroller microcontroller, Sensor sensor, SensorType sensorType, CancellationToken cancellationToken = default)
   {
     string html = Messages.CriticalValueNotificationEmailTemplate
       .Replace("{sensorName}", sensor.Name)
@@ -48,10 +48,10 @@ public class EmailService : IEmailService
 
     try
     {
-      await client.ConnectAsync(_emailOptions.SmtpServer, _emailOptions.SmtpPort, _emailOptions.SmtpUseSsl);
-      await client.AuthenticateAsync(_emailOptions.Address, _emailOptions.Password);
-      await client.SendAsync(emailMessage);
-      await client.DisconnectAsync(true);
+      await client.ConnectAsync(_emailOptions.SmtpServer, _emailOptions.SmtpPort, _emailOptions.SmtpUseSsl, cancellationToken);
+      await client.AuthenticateAsync(_emailOptions.Address, _emailOptions.Password, cancellationToken);
+      await client.SendAsync(emailMessage, cancellationToken);
+      await client.DisconnectAsync(true, cancellationToken);
     }
     catch
     {

@@ -5,9 +5,9 @@ namespace Gss.Core.Interfaces.Services;
 
 public interface ISensorsTypesService
 {
-  Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo);
-  Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeId);
-  Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto);
-  Task UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto);
-  Task DeleteSensorTypeAsync(Guid sensorTypeId);
+  Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default);
+  Task<SensorTypeDto> GetSensorTypeAsync(Guid sensorTypeId, CancellationToken cancellationToken = default);
+  Task<SensorTypeDto> CreateSensorTypeAsync(CreateSensorTypeDto createSensorTypeDto, CancellationToken cancellationToken = default);
+  Task UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto, CancellationToken cancellationToken = default);
+  Task DeleteSensorTypeAsync(Guid sensorTypeId, CancellationToken cancellationToken = default);
 }

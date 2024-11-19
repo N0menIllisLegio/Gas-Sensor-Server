@@ -25,7 +25,8 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
   public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(
     PagedInfoDto pagedInfoDto,
     Expression<Func<TEntity, bool>>? search = null,
-    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null)
+    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+    CancellationToken cancellationToken = default)
   {
     var query = search == null
       ? DbSet
@@ -42,12 +43,12 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
       query = include(query);
     }
 
-    var totalItemsCount = await query.CountAsync();
+    var totalItemsCount = await query.CountAsync(cancellationToken: cancellationToken);
 
     var items = await query
       .Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize)
       .Take(pagedInfoDto.PageSize)
-      .ToListAsync();
+      .ToListAsync(cancellationToken: cancellationToken);
 
     return new PagedResultDto<TEntity>
     {
@@ -57,9 +58,9 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
     };
   }
 
-  public virtual async Task<TEntity?> FindAsync(Guid id)
+  public virtual async Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default)
   {
-    return await DbSet.FindAsync(id);
+    return await DbSet.FindAsync(id, cancellationToken);
   }
 
   public virtual void Update(TEntity entity)
@@ -77,14 +78,14 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
     return DbSet.Add(entity).Entity.Id;
   }
 
-  public virtual async Task<int> RemoveAsync(Guid entityId)
+  public virtual async Task<int> RemoveAsync(Guid entityId, CancellationToken cancellationToken = default)
   {
-    return await DbSet.Where(x => x.Id == entityId).ExecuteDeleteAsync();
+    return await DbSet.Where(x => x.Id == entityId).ExecuteDeleteAsync(cancellationToken: cancellationToken);
   }
 
-  public async Task<TEntity> ReloadAsync(TEntity entity)
+  public async Task<TEntity> ReloadAsync(TEntity entity, CancellationToken cancellationToken = default)
   {
-    await _context.Entry(entity).ReloadAsync();
+    await _context.Entry(entity).ReloadAsync(cancellationToken);
     return entity;
   }
 }

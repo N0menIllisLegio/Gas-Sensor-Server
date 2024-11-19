@@ -9,5 +9,5 @@ public interface IUnitOfWork: IDisposable
   ISensorsTypesRepository SensorsTypes { get; }
   ISensorsDataRepository SensorsData { get; }
 
-  Task<bool> SaveAsync();
+  Task<bool> SaveAsync(CancellationToken cancellationToken = default);
 }

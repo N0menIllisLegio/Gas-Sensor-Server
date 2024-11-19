@@ -25,9 +25,9 @@ public class SensorsController : ControllerBase
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetAllSensors([FromBody] PagedInfoDto pagedRequest)
+  public async Task<IActionResult> GetAllSensors([FromBody] PagedInfoDto pagedRequest, CancellationToken cancellationToken)
   {
-    var pagedResultDto = await _sensorsService.GetAllSensorsAsync(pagedRequest);
+    var pagedResultDto = await _sensorsService.GetAllSensorsAsync(pagedRequest, cancellationToken);
 
     return Ok(pagedResultDto);
   }
@@ -39,9 +39,9 @@ public class SensorsController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetSensor([FromRoute] Guid id)
+  public async Task<IActionResult> GetSensor([FromRoute] Guid id, CancellationToken cancellationToken)
   {
-    var sensorDto = await _sensorsService.GetSensorAsync(id);
+    var sensorDto = await _sensorsService.GetSensorAsync(id, cancellationToken);
 
     return Ok(sensorDto);
   }
@@ -54,9 +54,9 @@ public class SensorsController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> Create([FromBody] CreateSensorDto dto)
+  public async Task<IActionResult> Create([FromBody] CreateSensorDto dto, CancellationToken cancellationToken)
   {
-    var sensorDto = await _sensorsService.CreateSensorAsync(dto);
+    var sensorDto = await _sensorsService.CreateSensorAsync(dto, cancellationToken);
 
     return CreatedAtAction(nameof(GetSensor), new { id = sensorDto.Id }, sensorDto);
   }
@@ -69,9 +69,9 @@ public class SensorsController : ControllerBase
   [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSensorDto updateSensorDto)
+  public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSensorDto updateSensorDto, CancellationToken cancellationToken)
   {
-    await _sensorsService.UpdateSensorAsync(id, updateSensorDto);
+    await _sensorsService.UpdateSensorAsync(id, updateSensorDto, cancellationToken);
 
     return Ok();
   }
@@ -80,9 +80,9 @@ public class SensorsController : ControllerBase
   [HttpDelete("{id}")]
   [SwaggerOperation("Administrator Only", "Deletes sensor.")]
   [SwaggerResponse(200)]
-  public async Task<IActionResult> Delete([FromRoute] Guid id)
+  public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
   {
-    await _sensorsService.DeleteSensorAsync(id);
+    await _sensorsService.DeleteSensorAsync(id, cancellationToken);
 
     return Ok();
   }

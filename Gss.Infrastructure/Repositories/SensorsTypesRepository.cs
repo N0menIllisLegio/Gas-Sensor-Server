@@ -12,12 +12,13 @@ public class SensorsTypesRepository : RepositoryBase<SensorType>, ISensorsTypesR
   {
   }
 
-  public async Task<int> UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto)
+  public async Task<int> UpdateSensorTypeAsync(
+    Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto, CancellationToken cancellationToken = default)
   {
     return await DbSet.Where(x => x.Id == sensorTypeId)
       .ExecuteUpdateAsync(x => x
         .SetProperty(p => p.Name, updateSensorTypeDto.Name)
         .SetProperty(p => p.Units, updateSensorTypeDto.Units)
-        .SetProperty(p => p.Icon, updateSensorTypeDto.Icon));
+        .SetProperty(p => p.Icon, updateSensorTypeDto.Icon), cancellationToken: cancellationToken);
   }
 }
