@@ -8,5 +8,6 @@ public class UpdateMicrocontrollerDto
   public double? Longitude { get; set; }
   public required string Password { get; set; }
 
-  public required List<Guid> SensorIDs { get; set; }
+  public required List<Guid> AddSensorIds { get; set; }
+  public required List<Guid> RemoveMicrocontrollerSensorIds { get; set; }
 }

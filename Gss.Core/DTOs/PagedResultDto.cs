@@ -1,22 +1,10 @@
-﻿using AutoMapper;
+﻿namespace Gss.Core.DTOs;
 
-namespace Gss.Core.DTOs;
-
-public class PagedResultDto<T>
+public sealed class PagedResultDto<T>
 {
-  public PagedInfoDto PagedInfo { get; set; }
-  public IEnumerable<T> Items { get; set; }
-  public int TotalItemsCount { get; set; }
-
-  public PagedResultDto<TDestination> Convert<TDestination>(IMapper mapper)
-  {
-    return new PagedResultDto<TDestination>
-    {
-      PagedInfo = PagedInfo,
-      TotalItemsCount = TotalItemsCount,
-      Items = Items.Select(item => mapper.Map<TDestination>(item))
-    };
-  }
+  public required PagedInfoDto PagedInfo { get; set; }
+  public required IEnumerable<T> Items { get; set; }
+  public required int TotalItemsCount { get; set; }
 
   public PagedResultDto<TDestination> Convert<TDestination>(Func<T, TDestination> mapper)
   {

@@ -1,5 +1,5 @@
-﻿using Gss.Core.Helpers;
-using Gss.Core.Interfaces;
+﻿using Gss.Core.Interfaces;
+using Gss.Core.Utils;
 
 namespace Gss.Core.Entities;
 

@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Gss.Core.DTOs;
-using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Repositories;
 using Gss.Infrastructure.Extensions;
@@ -23,41 +22,6 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
 
   protected DbSet<TEntity> DbSet { get; }
 
-  public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
-    Expression<Func<TEntity, object>> searchedPropertiesSelector,
-    Expression<Func<TEntity, bool>>? additionalFilterCriteria = null,
-    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-    bool disableTracking = true)
-  {
-    var query = DbSet.SearchBy(pagedInfoDto.SearchString, searchedPropertiesSelector, pagedInfoDto.Filters, additionalFilterCriteria);
-
-    if (disableTracking)
-    {
-      query = query.AsNoTracking();
-    }
-
-    query = pagedInfoDto.SortOptions is null
-      ? query.OrderBy(entity => entity.Id)
-      : query.OrderBy(pagedInfoDto.SortOptions);
-
-    if (include is not null)
-    {
-      query = include(query);
-    }
-
-    var pagedQuery = query.Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize).Take(pagedInfoDto.PageSize);
-
-    int totalItemsCount = await query.CountAsync();
-    var items = await pagedQuery.ToListAsync();
-
-    return new PagedResultDto<TEntity>
-    {
-      Items = items,
-      TotalItemsCount = totalItemsCount,
-      PagedInfo = pagedInfoDto
-    };
-  }
-
   public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(
     PagedInfoDto pagedInfoDto,
     Expression<Func<TEntity, bool>>? search = null,
@@ -71,7 +35,7 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
 
     query = pagedInfoDto.SortOptions is null || pagedInfoDto.SortOptions.Count == 0
       ? query.OrderBy(entity => entity.Id)
-      : query.OrderByV2(pagedInfoDto.SortOptions);
+      : query.OrderBy(pagedInfoDto.SortOptions);
 
     if (include is not null)
     {

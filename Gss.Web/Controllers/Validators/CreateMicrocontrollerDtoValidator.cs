@@ -20,7 +20,7 @@ public sealed class CreateMicrocontrollerDtoValidator: AbstractValidator<CreateM
         RuleFor(x => x.SensorIDs)
             .NotEmpty().WithMessage("SensorIDs must not be empty.")
             .Must(list => list.All(id => id != Guid.Empty)).WithMessage("SensorIDs must contain valid non-empty GUIDs.")
-            .When(x => x.SensorIDs != null);
+            .Must(list => list.Count <= 5).WithMessage("Sensors can't be more than 5 per microcontroller");
 
         RuleFor(x => x.Latitude)
             .InclusiveBetween(-90.0, 90.0).When(x => x.Latitude.HasValue)

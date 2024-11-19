@@ -1,13 +1,13 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using Gss.Core.Helpers;
-using Gss.Core.Models;
+using Gss.Core.DTOs;
+using Gss.Core.Utils;
 
 namespace Gss.Infrastructure.Extensions;
 
 internal static class QueryableExtensions
 {
-  public static IQueryable<TEntity> OrderByV2<TEntity>(
+  public static IQueryable<TEntity> OrderBy<TEntity>(
     this IQueryable<TEntity> entities, List<SortOption>? inputtedSortOptions)
   {
     if (inputtedSortOptions is null || inputtedSortOptions.Count == 0)

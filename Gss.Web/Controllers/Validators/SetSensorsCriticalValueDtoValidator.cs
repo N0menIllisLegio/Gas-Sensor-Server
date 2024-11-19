@@ -7,7 +7,6 @@ public sealed class SetSensorsCriticalValueDtoValidator: AbstractValidator<SetSe
 {
     public SetSensorsCriticalValueDtoValidator()
     {
-        RuleFor(x => x.MicrocontrollerID).NotEmpty();
-        RuleFor(x => x.SensorID).NotEmpty();
+        RuleFor(x => x.MicrocontrollerSensorId).NotEmpty().Must(x => x != Guid.Empty);
     }
 }

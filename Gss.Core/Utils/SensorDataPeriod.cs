@@ -1,4 +1,4 @@
-﻿namespace Gss.Core.Enums;
+﻿namespace Gss.Core.Utils;
 
 public enum SensorDataPeriod
 {

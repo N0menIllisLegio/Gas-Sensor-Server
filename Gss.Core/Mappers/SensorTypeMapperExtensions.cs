@@ -3,7 +3,7 @@ using Gss.Core.Entities;
 
 namespace Gss.Core.Mappers;
 
-internal static class SensorTypeMapperExtensions
+public static class SensorTypeMapperExtensions
 {
     public static SensorTypeDto MapToDto(this SensorType sensorType)
     {

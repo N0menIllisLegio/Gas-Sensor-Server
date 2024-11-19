@@ -2,11 +2,10 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Gss.Core.Exceptions;
-using Gss.Core.Helpers;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
-using Gss.Core.Models;
 using Gss.Core.Services;
+using Gss.Core.Utils;
 using Gss.Infrastructure;
 using Gss.MicrocontrollerDataReceiver;
 using Gss.Web;
@@ -95,9 +94,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.ConfigureSwagger(builder.Configuration);
 
-builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddSignalR();
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddTransient<IEmailService, EmailService>();
@@ -106,8 +102,8 @@ builder.Services.AddScoped<ISensorsTypesService, SensorsTypesService>();
 builder.Services.AddScoped<ISensorsService, SensorsService>();
 builder.Services.AddScoped<ISensorsDataService, SensorsDataService>();
 
+builder.Services.AddSignalR();
 builder.Services.AddSingleton<SocketConnectionService>();
-
 builder.Services.AddSingleton<IUserIdProvider, UserEmailProvider>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

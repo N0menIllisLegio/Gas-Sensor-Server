@@ -1,4 +1,4 @@
-﻿namespace Gss.Core.Helpers;
+﻿namespace Gss.Core.Utils;
 
 public class AllowOrderingAttribute : Attribute
 { }

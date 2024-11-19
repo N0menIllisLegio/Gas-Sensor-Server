@@ -1,6 +1,6 @@
 ﻿using Gss.Core.DTOs.SensorData;
 using Gss.Core.Entities;
-using Gss.Core.Enums;
+using Gss.Core.Utils;
 
 namespace Gss.Core.Interfaces.Repositories;
 

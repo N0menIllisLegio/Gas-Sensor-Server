@@ -17,11 +17,14 @@ public sealed class UpdateMicrocontrollerDtoValidator: AbstractValidator<UpdateM
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.");
 
-        RuleFor(x => x.SensorIDs)
-            .NotEmpty().WithMessage("SensorIDs must not be empty.")
-            .Must(list => list.All(id => id != Guid.Empty)).WithMessage("SensorIDs must contain valid non-empty GUIDs.");
+        RuleFor(x => x.AddSensorIds)
+            .Must(list => list.All(id => id != Guid.Empty)).WithMessage("SensorIDs must contain valid non-empty GUIDs.")
+            .Must(list => list.Count <= 5).WithMessage("Sensors can't be more than 5 per microcontroller");
 
-        // Optional checks for Latitude and Longitude if needed:
+        RuleFor(x => x.RemoveMicrocontrollerSensorIds)
+            .Must(list => list.All(id => id != Guid.Empty)).WithMessage("SensorIDs must contain valid non-empty GUIDs.")
+            .Must(list => list.Count <= 5).WithMessage("Sensors can't be more than 5 per microcontroller");
+
         RuleFor(x => x.Latitude)
             .InclusiveBetween(-90.0, 90.0).When(x => x.Latitude.HasValue)
             .WithMessage("Latitude must be between -90 and 90.");

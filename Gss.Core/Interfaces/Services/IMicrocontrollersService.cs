@@ -1,25 +1,25 @@
 ﻿using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
+using Gss.Core.DTOs.Sensor;
 using Gss.Core.Entities;
 
 namespace Gss.Core.Interfaces.Services;
 
 public interface IMicrocontrollersService
 {
-  Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo);
-  Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto);
   Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo);
-  Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(string requestedByEmail, Guid userID, PagedInfoDto pagedInfo);
-  Task<MicrocontrollerDto> GetMicrocontrollerAsync(string requestedByEmail, Guid microcontrollerID);
-  Task<MicrocontrollerDto> AddMicrocontrollerAsync(string requestedByEmail, CreateMicrocontrollerDto createMicrocontrollerDto);
-  Task<MicrocontrollerDto> UpdateMicrocontrollerAsync(string requestedByEmail, Guid microcontrollerID, UpdateMicrocontrollerDto updateMicrocontrollerDto);
-  Task<MicrocontrollerDto> DeleteMicrocontrollerAsync(string requestedByEmail, Guid microcontrollerID);
-  Task<MicrocontrollerDto> ChangeMicrocontrollerOwnerAsync(Guid microcontrollerID, Guid newOwnerID);
-  Task<MicrocontrollerDto> AddSensorAsync(string requestedByEmail, AddSensorDto addSensorDto);
-  Task<MicrocontrollerDto> RemoveSensorAsync(string requestedByEmail, RemoveSensorDto removeSensorDto);
-  Task<RequestSensorValueResponseDto> RequestSensorValue(string requestedByEmail, Guid microcontrollerID, Guid sensorID);
-  Task SetSensorValueThreshold(string requestedByEmail, Guid microcontrollerID, Guid sensorID, int? criticalValue);
+  Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo);
+  Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(Guid userId, PagedInfoDto pagedInfo);
+  Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto);
+  Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId);
+  Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId);
 
-  // For connection service
-  Task<(Microcontroller connectedMicrocontroller, string ownerEmail)> AuthenticateMicrocontrollersAsync(Guid userID, Guid microcontrollerID, string microcontrollerPassword, string ipaddress);
+  Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto);
+  Task UpdateMicrocontrollerAsync(Guid microcontrollerId, UpdateMicrocontrollerDto updateMicrocontrollerDto);
+  Task DeleteMicrocontrollerAsync(Guid microcontrollerId);
+
+  Task<RequestSensorValueResponseDto> RequestSensorValueAsync(Guid microcontrollerId, Guid microcontrollerSensorId);
+  Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue);
+
+  Task<Microcontroller?> AuthenticateMicrocontrollersAsync(Guid microcontrollerId, string microcontrollerKey);
 }

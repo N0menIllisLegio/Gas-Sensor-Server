@@ -1,4 +1,4 @@
-﻿using Gss.Core.Enums;
+﻿using Gss.Core.Utils;
 
 namespace Gss.Core.DTOs.SensorData;
 

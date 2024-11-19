@@ -1,4 +1,4 @@
-﻿namespace Gss.Core.Models;
+﻿namespace Gss.Core.Utils;
 
 public sealed class EmailOptions
 {

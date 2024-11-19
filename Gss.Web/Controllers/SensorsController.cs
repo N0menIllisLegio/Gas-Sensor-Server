@@ -23,6 +23,7 @@ public class SensorsController : ControllerBase
   [SwaggerOperation("Authorized", "Gets all sensors.")]
   [SwaggerResponse(200, type: typeof(PagedResultDto<SensorDto>))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
+  [SwaggerResponse(401, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
   public async Task<IActionResult> GetAllSensors([FromBody] PagedInfoDto pagedRequest)
   {
@@ -35,6 +36,8 @@ public class SensorsController : ControllerBase
   [HttpGet("{id}")]
   [SwaggerOperation("Administrator Only", "Gets sensor by id.")]
   [SwaggerResponse(200, type: typeof(SensorDto))]
+  [SwaggerResponse(401, type: typeof(ProblemDetails))]
+  [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
   public async Task<IActionResult> GetSensor([FromRoute] Guid id)
   {
@@ -48,6 +51,8 @@ public class SensorsController : ControllerBase
   [SwaggerOperation("Administrator Only", "Creates sensor.")]
   [SwaggerResponse(201, type: typeof(SensorDto))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
+  [SwaggerResponse(401, type: typeof(ProblemDetails))]
+  [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
   public async Task<IActionResult> Create([FromBody] CreateSensorDto dto)
   {
@@ -61,6 +66,8 @@ public class SensorsController : ControllerBase
   [SwaggerOperation("Administrator Only", "Updates sensor.")]
   [SwaggerResponse(200)]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
+  [SwaggerResponse(401, type: typeof(ProblemDetails))]
+  [SwaggerResponse(403, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
   public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSensorDto updateSensorDto)
   {
