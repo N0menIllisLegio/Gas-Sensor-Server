@@ -2,11 +2,10 @@
 
 public class NotifySensorResponseDto
 {
-  public string SensorType { get; set; }
-  public string SensorTypeIcon { get; set; }
-  public string SensorTypeUnits { get; set; }
-  public string SensorName { get; set; }
+  public required string SensorType { get; set; }
+  public required string? SensorTypeIcon { get; set; }
+  public required string? SensorTypeUnits { get; set; }
+  public required string SensorName { get; set; }
   public decimal SensorValue { get; set; }
-  public Guid MicrocontrollerID { get; set; }
-  public Guid SensorID { get; set; }
+  public Guid MicrocontrollerSensorId { get; set; }
 }

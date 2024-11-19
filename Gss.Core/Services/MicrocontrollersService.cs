@@ -192,13 +192,22 @@ public class MicrocontrollersService : IMicrocontrollersService
     await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId, cancellationToken);
   }
 
-  public async Task<Microcontroller?> AuthenticateMicrocontrollersAsync(
-    Guid microcontrollerId, string microcontrollerKey, CancellationToken cancellationToken = default)
+  public async Task<Microcontroller?> AuthenticateMicrocontrollersAsync(Guid userId, Guid microcontrollerId,
+    string microcontrollerKey, CancellationToken cancellationToken = default)
   {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
+    var microcontroller = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(
+      mc => mc.Id == microcontrollerId,
+      x => x
+        .Include(p => p.MicrocontrollerSensors)
+          .ThenInclude(p => p.Sensor)
+            .ThenInclude(p => p.Type),
+      cancellationToken);
 
-    // TODO: HMAC. API-Key
-    if (microcontroller.Key != "")
+    if (microcontroller is null)
+      return null;
+
+    // TODO: HMAC. API-Key or hash
+    if (microcontroller.Key == microcontrollerKey)
       return null;
 
     microcontroller.LastResponseTime = DateTime.UtcNow;

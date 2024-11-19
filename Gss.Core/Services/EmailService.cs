@@ -17,8 +17,8 @@ public class EmailService : IEmailService
     _emailOptions = emailOptions.Value;
   }
 
-  public async Task<bool> SendCriticalValueEmailAsync(string email, int receivedCriticalValue, int setCriticalValue,
-    Microcontroller microcontroller, Sensor sensor, SensorType sensorType, CancellationToken cancellationToken = default)
+  public async Task<bool> SendCriticalValueEmailAsync(int receivedCriticalValue, int setCriticalValue,
+    Microcontroller microcontroller, Sensor sensor, CancellationToken cancellationToken = default)
   {
     string html = Messages.CriticalValueNotificationEmailTemplate
       .Replace("{sensorName}", sensor.Name)
@@ -26,7 +26,7 @@ public class EmailService : IEmailService
       .Replace("{microcontrollerName}", microcontroller.Name)
       .Replace("{microcontrollerLatitude}", microcontroller.Latitude.ToString())
       .Replace("{microcontrollerLongitude}", microcontroller.Longitude.ToString())
-      .Replace("{sensorType}", sensorType.Name)
+      .Replace("{sensorType}", sensor.Type.Name)
       .Replace("{sensorCriticalValue}", setCriticalValue.ToString())
       .Replace("{microcontrollerPageUrl}", $"{Messages.SiteURLString}/microcontroller/{microcontroller.Id}")
       .Replace("{contactInfo}", Messages.ContactInfoString)
@@ -39,7 +39,7 @@ public class EmailService : IEmailService
     };
 
     emailMessage.From.Add(new MailboxAddress("Gas sensors Administration", _emailOptions.Address));
-    emailMessage.To.Add(MailboxAddress.Parse(email));
+    // TODO: emailMessage.To.Add(MailboxAddress.Parse(email));
     emailMessage.Subject = $"Sensor {sensor.Name} reached critical threshold - {receivedCriticalValue}!";
     emailMessage.Body = builder.ToMessageBody();
 
