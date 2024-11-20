@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Gss.MicrocontrollerDataReceiver;
+namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 
 record AuthRequest(Guid UserId, Guid MicrocontrollerId, string Password);
 record DataRequest(Guid MicrocontrollerSensorId, DateTime SensorValueReadTime, int SensorValue);

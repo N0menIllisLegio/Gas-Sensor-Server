@@ -1,12 +1,10 @@
 ﻿using Gss.Core.Entities;
-using Gss.Core.Interfaces.Services;
 using Gss.Core.Resources;
-using Gss.Core.Utils;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace Gss.Core.Services;
+namespace Gss.MicrocontrollerListener.Email;
 
 public class EmailService : IEmailService
 {

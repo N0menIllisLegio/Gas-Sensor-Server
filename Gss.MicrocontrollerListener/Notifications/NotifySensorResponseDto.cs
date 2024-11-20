@@ -1,4 +1,4 @@
-﻿namespace Gss.Core.DTOs.SensorData;
+﻿namespace Gss.MicrocontrollerListener.Notifications;
 
 public class NotifySensorResponseDto
 {

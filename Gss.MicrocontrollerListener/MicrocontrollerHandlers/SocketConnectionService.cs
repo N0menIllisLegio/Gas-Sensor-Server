@@ -1,22 +1,20 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using Gss.Core.DTOs.SensorData;
 using Gss.Core.Entities;
-using Gss.Core.Interfaces;
-using Gss.Core.Interfaces.Services;
+using Gss.MicrocontrollerListener.Data;
+using Gss.MicrocontrollerListener.Email;
+using Gss.MicrocontrollerListener.Notifications;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Gss.MicrocontrollerDataReceiver;
+namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 
-// TODO: Make it into microservice
 public class SocketConnectionService
 {
   private const int ReceivedSensorsDataMaxSize = 5;
 
   private readonly ILogger<SocketConnectionService> _logger;
+  private readonly IHubContext<NotificationsHub> _notificationHub;
   private readonly IServiceScopeFactory _serviceScopeFactory;
   private readonly MicrocontrollersConnectionsOptions _microcontrollersConnectionsOptions;
 
@@ -27,11 +25,12 @@ public class SocketConnectionService
 
   public SocketConnectionService(IServiceScopeFactory serviceScopeFactory,
     IOptions<MicrocontrollersConnectionsOptions> microcontrollersConnectionsOptions,
-    ILogger<SocketConnectionService> logger)
+    ILogger<SocketConnectionService> logger, IHubContext<NotificationsHub> notificationHub)
   {
     _serviceScopeFactory = serviceScopeFactory;
     _microcontrollersConnectionsOptions = microcontrollersConnectionsOptions.Value;
     _logger = logger;
+    _notificationHub = notificationHub;
   }
 
   public async void RunAsync()
@@ -76,7 +75,7 @@ public class SocketConnectionService
     using var connectionManager =
       new MicrocontrollerConnectionManager(socket, _microcontrollersConnectionsOptions, _logger);
 
-    Microcontroller? connectedMicrocontroller = null;
+    Core.Entities.Microcontroller? connectedMicrocontroller = null;
 
     try
     {
@@ -95,10 +94,18 @@ public class SocketConnectionService
 
       using (var scope = _serviceScopeFactory.CreateScope())
       {
-        var microcontrollersService = scope.ServiceProvider.GetRequiredService<IMicrocontrollersService>();
+        var listenerRepository = scope.ServiceProvider.GetRequiredService<IListenerRepository>();
 
-        connectedMicrocontroller = await microcontrollersService.AuthenticateMicrocontrollersAsync(
-          authRequest.UserId, authRequest.MicrocontrollerId, authRequest.Password);
+        connectedMicrocontroller = await listenerRepository.GetMicrocontrollerAsync(authRequest.MicrocontrollerId);
+
+        if (connectedMicrocontroller is not null)
+        {
+          // TODO: HMAC. API-Key or hash
+          if (connectedMicrocontroller.Key == authRequest.Password)
+          {
+            await listenerRepository.UpdateLastResponseTimeAsync(connectedMicrocontroller.Id);
+          }
+        }
       }
 
       if (connectedMicrocontroller is null)
@@ -177,13 +184,6 @@ public class SocketConnectionService
           break;
 
         case MicrocontrollerRequest.RequestSensorValueCommand:
-          using (var scope = _serviceScopeFactory.CreateScope())
-          {
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-            connectedMicrocontroller = await unitOfWork.Microcontrollers.ReloadAsync(connectedMicrocontroller);
-          }
-
           if (connectedMicrocontroller.RequestedMicrocontrollerSensorId.HasValue)
           {
             await connectionManager.SendRequestSensorValueAsync(connectedMicrocontroller
@@ -206,9 +206,6 @@ public class SocketConnectionService
 
             await connectionManager.SendOkAsync();
 
-            using var scope = _serviceScopeFactory.CreateScope();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
             var newDataEntry = new SensorData
             {
               MicrocontrollerSensorId = connectedMicrocontroller.RequestedMicrocontrollerSensorId.Value,
@@ -220,15 +217,20 @@ public class SocketConnectionService
             var requestedMicrocontrollerSensor = connectedMicrocontroller.MicrocontrollerSensors.First(
               x => x.Id == connectedMicrocontroller.RequestedMicrocontrollerSensorId);
 
-            connectedMicrocontroller.RequestedMicrocontrollerSensorId = null;
-            unitOfWork.Microcontrollers.Update(connectedMicrocontroller);
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+              var listenerRepository = scope.ServiceProvider.GetRequiredService<IListenerRepository>();
+              await listenerRepository.ResetMicrocontrollerRequestSensorValueAsync(connectedMicrocontroller.Id);
+            }
 
-            await unitOfWork.SensorsData.SingleInsertIfNotExists(newDataEntry);
-            await unitOfWork.SaveAsync();
+            lock (_locker)
+            {
+              _receivedSensorsData.Add(newDataEntry);
 
-            var hub = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationsHub>>();
+              runBulkInsert = _receivedSensorsData.Count > ReceivedSensorsDataMaxSize;
+            }
 
-            await hub.Clients.User(connectedMicrocontroller.OwnerId!.Value.ToString())
+            await _notificationHub.Clients.User(connectedMicrocontroller.OwnerId!.Value.ToString())
               .SendAsync("Notification", new NotifySensorResponseDto
               {
                 MicrocontrollerSensorId = requestedMicrocontrollerSensor.Id,
@@ -238,6 +240,11 @@ public class SocketConnectionService
                 SensorTypeIcon = requestedMicrocontrollerSensor.Sensor.Type.Icon,
                 SensorTypeUnits = requestedMicrocontrollerSensor.Sensor.Type.Units
               });
+
+            if (runBulkInsert)
+            {
+              _ = Task.Run(InsertReceivedSensorsDataAsync);
+            }
           }
           else
             await connectionManager.SendAttentionAsync();
@@ -248,7 +255,7 @@ public class SocketConnectionService
           break;
 
         default:
-          _logger.LogError("Missing implementation for {Command}. {Endpoint} --- {Request}",
+          _logger.LogCritical("Missing implementation for {Command}. {Endpoint} --- {Request}",
             request.Command, socket.RemoteEndPoint, request);
 
           break;
@@ -283,11 +290,11 @@ public class SocketConnectionService
       }
 
       using var scope = _serviceScopeFactory.CreateScope();
-      var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+      var repository = scope.ServiceProvider.GetRequiredService<IListenerRepository>();
 
       try
       {
-        await unitOfWork.SensorsData.BulkInsertIfNotExists(receivedData);
+        await repository.BulkInsertIfNotExistsAsync(receivedData);
       }
       catch (Exception exception)
       {

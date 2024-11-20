@@ -1,12 +1,10 @@
 ﻿using System.Net.Sockets;
 using System.Text;
-using Microsoft.Extensions.Logging;
 
-namespace Gss.MicrocontrollerDataReceiver;
+namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 
 internal sealed class MicrocontrollerConnectionManager: IDisposable
 {
-    private const char CommandSeparator = '|';
     private const string OkResponse = "Server_OK";
     private const string AttentionResponse = "Server_AT";
     private const string SensorValueResponse = "Server_SV";

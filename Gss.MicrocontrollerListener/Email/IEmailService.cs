@@ -1,6 +1,6 @@
 ﻿using Gss.Core.Entities;
 
-namespace Gss.Core.Interfaces.Services;
+namespace Gss.MicrocontrollerListener.Email;
 
 public interface IEmailService
 {
