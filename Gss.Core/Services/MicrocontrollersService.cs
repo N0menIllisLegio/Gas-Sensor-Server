@@ -110,7 +110,7 @@ public class MicrocontrollersService : IMicrocontrollersService
     {
       OwnerId = _currentUser.Id,
       Name = createMicrocontrollerDto.Name,
-      Key = createMicrocontrollerDto.Password, // TODO: HMAC/API-Key
+      Key = createMicrocontrollerDto.Key,
       Public = createMicrocontrollerDto.Public,
       Longitude = createMicrocontrollerDto.Longitude,
       Latitude = createMicrocontrollerDto.Latitude,
@@ -154,7 +154,7 @@ public class MicrocontrollersService : IMicrocontrollersService
       throw new UserInputException("Sensors can't be more than 5 per microcontroller");
 
     microcontroller.Name = updateMicrocontrollerDto.Name;
-    microcontroller.Key = updateMicrocontrollerDto.Password; // TODO: HMAC/API-Key
+    microcontroller.Key = updateMicrocontrollerDto.Key;
     microcontroller.Public = updateMicrocontrollerDto.Public;
     microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
     microcontroller.Latitude = updateMicrocontrollerDto.Latitude;

@@ -14,8 +14,8 @@ public sealed class UpdateMicrocontrollerDtoValidator: AbstractValidator<UpdateM
         RuleFor(x => x.Public)
             .NotNull().WithMessage("Public flag is required.");
 
-        RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.");
+        RuleFor(x => x.Key)
+            .NotEmpty().WithMessage("Key is required.");
 
         RuleFor(x => x.AddSensorIds)
             .Must(list => list.All(id => id != Guid.Empty)).WithMessage("SensorIDs must contain valid non-empty GUIDs.")

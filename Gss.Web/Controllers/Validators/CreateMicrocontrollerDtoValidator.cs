@@ -14,8 +14,8 @@ public sealed class CreateMicrocontrollerDtoValidator: AbstractValidator<CreateM
         RuleFor(x => x.Public)
             .NotNull().WithMessage("Public field is required.");
 
-        RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.");
+        RuleFor(x => x.Key)
+            .NotEmpty().WithMessage("Key is required.");
 
         RuleFor(x => x.SensorIDs)
             .NotEmpty().WithMessage("SensorIDs must not be empty.")
