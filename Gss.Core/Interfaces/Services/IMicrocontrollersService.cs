@@ -1,7 +1,6 @@
 ﻿using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.DTOs.Sensor;
-using Gss.Core.Entities;
 
 namespace Gss.Core.Interfaces.Services;
 
@@ -20,7 +19,4 @@ public interface IMicrocontrollersService
 
   Task<RequestSensorValueResponseDto> RequestSensorValueAsync(Guid microcontrollerId, Guid microcontrollerSensorId, CancellationToken cancellationToken = default);
   Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default);
-
-  Task<Microcontroller?> AuthenticateMicrocontrollersAsync(Guid userId, Guid microcontrollerId,
-    string microcontrollerKey, CancellationToken cancellationToken = default);
 }

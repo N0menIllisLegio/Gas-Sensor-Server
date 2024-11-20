@@ -14,8 +14,6 @@ public interface IRepositoryBase<TEntity>
     CancellationToken cancellationToken = default);
 
   Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default);
-  void Update(TEntity entity);
   Guid Add(TEntity entity);
-  Task<TEntity> ReloadAsync(TEntity entityToReload, CancellationToken cancellationToken = default);
   Task<int> RemoveAsync(Guid entityId, CancellationToken cancellationToken = default);
 }

@@ -2,6 +2,6 @@
 
 public class RequestSensorValueResponseDto
 {
-  public Guid? PreviousRequestedSensorID { get; set; }
-  public Guid CurrentRequestedSensorID { get; set; }
+  public Guid? PreviousRequestedSensorId { get; set; }
+  public Guid CurrentRequestedSensorId { get; set; }
 }

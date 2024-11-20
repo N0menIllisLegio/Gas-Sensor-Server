@@ -5,27 +5,15 @@ using Gss.Core.Exceptions;
 using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Services;
-using Gss.Core.Utils;
 using Gss.Infrastructure;
-using Gss.MicrocontrollerDataReceiver;
-using Gss.Web;
 using Gss.Web.Configuration;
 using Gss.Web.CurrentUser;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-const string NotificationHubUrl = "/api/notifications";
-
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.Configure<EmailOptions>(
-    builder.Configuration.GetSection(EmailOptions.SectionName));
-
-builder.Services.Configure<MicrocontrollersConnectionsOptions>(
-    builder.Configuration.GetSection(MicrocontrollersConnectionsOptions.SectionName));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options
@@ -75,38 +63,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Authentication:Issuer"],
             ClockSkew = TimeSpan.Zero,
         };
-
-        // TODO:
-        // o.Events = new JwtBearerEvents
-        // {
-        //     OnMessageReceived = context =>
-        //     {
-        //         string accessToken = context.Request.Query["access_token"];
-        //
-        //         if (!String.IsNullOrEmpty(accessToken)
-        //             && context.HttpContext.Request.Path.StartsWithSegments(NotificationHubUrl))
-        //         {
-        //             context.Token = accessToken;
-        //         }
-        //
-        //         return Task.CompletedTask;
-        //     }
-        // };
     });
 
 builder.Services.ConfigureSwagger(builder.Configuration);
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IMicrocontrollersService, MicrocontrollersService>();
 builder.Services.AddScoped<ISensorsTypesService, SensorsTypesService>();
 builder.Services.AddScoped<ISensorsService, SensorsService>();
 builder.Services.AddScoped<ISensorsDataService, SensorsDataService>();
-
-builder.Services.AddSignalR();
-builder.Services.AddSingleton<SocketConnectionService>();
-builder.Services.AddSingleton<IUserIdProvider, UserEmailProvider>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddFluentValidationAutoValidation();
@@ -136,12 +101,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CurrentUserDataSetterMiddleware>();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapHub<NotificationsHub>(NotificationHubUrl);
-});
-
-app.Services.GetRequiredService<SocketConnectionService>().RunAsync();
+app.MapControllers();
 
 app.Run();

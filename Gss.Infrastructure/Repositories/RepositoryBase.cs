@@ -11,12 +11,8 @@ namespace Gss.Infrastructure.Repositories;
 public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
   where TEntity : class, IEntity
 {
-  private readonly AppDbContext _context;
-
   protected RepositoryBase(AppDbContext context)
   {
-    _context = context;
-
     DbSet = context.Set<TEntity>();
   }
 
@@ -63,11 +59,6 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
     return await DbSet.FindAsync(id, cancellationToken);
   }
 
-  public virtual void Update(TEntity entity)
-  {
-    DbSet.Update(entity);
-  }
-
   public virtual Guid Add(TEntity entity)
   {
     if (entity.Id == Guid.Empty)
@@ -81,11 +72,5 @@ public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
   public virtual async Task<int> RemoveAsync(Guid entityId, CancellationToken cancellationToken = default)
   {
     return await DbSet.Where(x => x.Id == entityId).ExecuteDeleteAsync(cancellationToken: cancellationToken);
-  }
-
-  public async Task<TEntity> ReloadAsync(TEntity entity, CancellationToken cancellationToken = default)
-  {
-    await _context.Entry(entity).ReloadAsync(cancellationToken);
-    return entity;
   }
 }

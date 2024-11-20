@@ -15,31 +15,6 @@ public class SensorsDataRepository: ISensorsDataRepository
     _dbSet = appDbContext.SensorsData;
   }
 
-  public async Task SingleInsertIfNotExists(SensorData sensorData, CancellationToken cancellationToken = default)
-  {
-    await _dbSet.SingleInsertAsync(sensorData, options =>
-    {
-      options.AutoMapOutputDirection = false;
-      options.InsertIfNotExists = true;
-    }, cancellationToken);
-  }
-
-  public async Task BulkInsertIfNotExists(List<SensorData> sensorData, CancellationToken cancellationToken = default)
-  {
-    var dataForInsertion = new List<SensorData>();
-
-    foreach (var group in sensorData.GroupBy(data => new { data.MicrocontrollerSensorId, ValueReadTime = data.ReadTime }))
-    {
-      dataForInsertion.Add(group.First());
-    }
-
-    await _dbSet.BulkInsertAsync(dataForInsertion, options =>
-    {
-      options.AutoMapOutputDirection = false;
-      options.InsertIfNotExists = true;
-    }, cancellationToken);
-  }
-
   public async Task<List<SensorDataDto>> GetSensorDataByPeriodAsync(Guid microcontrollerSensorId,
     DateTimeOffset watchingDate, SensorDataPeriod period, CancellationToken cancellationToken = default)
   {

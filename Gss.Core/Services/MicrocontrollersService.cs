@@ -192,31 +192,6 @@ public class MicrocontrollersService : IMicrocontrollersService
     await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId, cancellationToken);
   }
 
-  public async Task<Microcontroller?> AuthenticateMicrocontrollersAsync(Guid userId, Guid microcontrollerId,
-    string microcontrollerKey, CancellationToken cancellationToken = default)
-  {
-    var microcontroller = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(
-      mc => mc.Id == microcontrollerId,
-      x => x
-        .Include(p => p.MicrocontrollerSensors)
-          .ThenInclude(p => p.Sensor)
-            .ThenInclude(p => p.Type),
-      cancellationToken);
-
-    if (microcontroller is null)
-      return null;
-
-    // TODO: HMAC. API-Key or hash
-    if (microcontroller.Key == microcontrollerKey)
-      return null;
-
-    microcontroller.LastResponseTime = DateTime.UtcNow;
-
-    await _unitOfWork.SaveAsync(cancellationToken);
-
-    return microcontroller;
-  }
-
   public async Task<RequestSensorValueResponseDto> RequestSensorValueAsync(
     Guid microcontrollerId, Guid microcontrollerSensorId, CancellationToken cancellationToken = default)
   {
@@ -226,8 +201,8 @@ public class MicrocontrollersService : IMicrocontrollersService
     {
       return new RequestSensorValueResponseDto
       {
-        PreviousRequestedSensorID = microcontrollerSensorId,
-        CurrentRequestedSensorID = microcontrollerSensorId
+        PreviousRequestedSensorId = microcontrollerSensorId,
+        CurrentRequestedSensorId = microcontrollerSensorId
       };
     }
 
@@ -236,8 +211,8 @@ public class MicrocontrollersService : IMicrocontrollersService
 
     var result = new RequestSensorValueResponseDto
     {
-      PreviousRequestedSensorID = microcontroller.RequestedMicrocontrollerSensorId,
-      CurrentRequestedSensorID = microcontrollerSensorId
+      PreviousRequestedSensorId = microcontroller.RequestedMicrocontrollerSensorId,
+      CurrentRequestedSensorId = microcontrollerSensorId
     };
 
     microcontroller.RequestedMicrocontrollerSensorId = microcontrollerSensorId;
