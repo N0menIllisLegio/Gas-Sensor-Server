@@ -13,25 +13,25 @@ internal sealed class ListenerRepository : IListenerRepository
         _appDbContext = appDbContext;
     }
 
-    public async Task<Microcontroller?> GetMicrocontrollerAsync(Guid microcontrollerId)
+    public async Task<Microcontroller?> GetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
     {
         return await _appDbContext.Microcontrollers
             .Include(x => x.MicrocontrollerSensors)
                 .ThenInclude(x => x.Sensor)
                     .ThenInclude(x => x.Type)
-            .FirstOrDefaultAsync(x => x.Id == microcontrollerId);
+            .FirstOrDefaultAsync(x => x.Id == microcontrollerId, cancellationToken: cancellationToken);
     }
 
-    public async Task ResetMicrocontrollerRequestSensorValueAsync(Guid microcontrollerId)
+    public async Task ResetMicrocontrollerRequestSensorValueAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
     {
         await _appDbContext.Microcontrollers.Where(x => x.Id == microcontrollerId)
-            .ExecuteUpdateAsync(x => x.SetProperty(p => p.RequestedMicrocontrollerSensorId, (Guid?)null));
+            .ExecuteUpdateAsync(x => x.SetProperty(p => p.RequestedMicrocontrollerSensorId, (Guid?)null), cancellationToken: cancellationToken);
     }
 
-    public async Task UpdateLastResponseTimeAsync(Guid microcontrollerId)
+    public async Task UpdateLastResponseTimeAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
     {
         await _appDbContext.Microcontrollers.Where(x => x.Id == microcontrollerId)
-            .ExecuteUpdateAsync(x => x.SetProperty(p => p.LastResponseTime, DateTimeOffset.UtcNow));
+            .ExecuteUpdateAsync(x => x.SetProperty(p => p.LastResponseTime, DateTimeOffset.UtcNow), cancellationToken: cancellationToken);
     }
 
     public async Task BulkInsertIfNotExistsAsync(List<SensorData> sensorData, CancellationToken cancellationToken = default)

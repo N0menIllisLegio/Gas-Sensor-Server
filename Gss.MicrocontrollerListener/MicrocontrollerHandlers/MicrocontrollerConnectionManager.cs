@@ -22,9 +22,9 @@ internal sealed class MicrocontrollerConnectionManager: IDisposable
         _logger = logger;
     }
 
-    public async Task<MicrocontrollerRequest?> ReceiveRequestAsync()
+    public async Task<MicrocontrollerRequest?> ReceiveRequestAsync(CancellationToken cancellationToken = default)
     {
-        var request = await ReceiveAsync();
+        var request = await ReceiveAsync(cancellationToken);
         var microcontrollerRequest = new MicrocontrollerRequest(request);
 
         if (microcontrollerRequest.ValidateCommand())
@@ -35,37 +35,36 @@ internal sealed class MicrocontrollerConnectionManager: IDisposable
         return null;
     }
 
-    public async Task SendOkAsync()
+    public async Task SendOkAsync(CancellationToken cancellationToken = default)
     {
-        await SendAsync(OkResponse);
+        await SendAsync(OkResponse, cancellationToken);
     }
 
-    public async Task SendRequestSensorValueAsync(Guid sensorId)
+    public async Task SendRequestSensorValueAsync(Guid sensorId, CancellationToken cancellationToken = default)
     {
-        await SendAsync($"{SensorValueResponse}|{sensorId};");
+        await SendAsync($"{SensorValueResponse}|{sensorId};", cancellationToken);
     }
 
-    public async Task SendAttentionAsync()
+    public async Task SendAttentionAsync(CancellationToken cancellationToken = default)
     {
-        await SendAsync(AttentionResponse);
+        await SendAsync(AttentionResponse, cancellationToken);
     }
 
-    public async Task SendDateTimeAsync()
+    public async Task SendDateTimeAsync(CancellationToken cancellationToken = default)
     {
         var currentDateTime = DateTime.UtcNow;
 
         await SendAsync($"Server_DT|" +
                         $"Date={currentDateTime.Day};Month={currentDateTime.Month};Year={currentDateTime.Date:yy};" +
                         $"WeekDay={(int)currentDateTime.DayOfWeek};Hours={currentDateTime.Hour};" +
-                        $"Minutes={currentDateTime.Minute};Seconds={currentDateTime.Second};");
+                        $"Minutes={currentDateTime.Minute};Seconds={currentDateTime.Second};", cancellationToken);
     }
 
-    private async Task<string> ReceiveAsync()
+    private async Task<string> ReceiveAsync(CancellationToken cancellationToken = default)
     {
         var receivedMessageBuilder = new StringBuilder();
         var receivedData = new byte[256];
-
-        var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cancellationTokenSource.CancelAfter(_options.ReceiveTimeout);
 
         do
@@ -82,12 +81,12 @@ internal sealed class MicrocontrollerConnectionManager: IDisposable
         return receivedMessageBuilder.ToString();
     }
 
-    private async Task SendAsync(string response)
+    private async Task SendAsync(string response, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Sending Data. {Endpoint} --- {Response}", _socket.RemoteEndPoint, response);
 
         var responseBytes = Encoding.ASCII.GetBytes(response);
-        await _socket.SendAsync(responseBytes, SocketFlags.None);
+        await _socket.SendAsync(responseBytes, SocketFlags.None, cancellationToken);
     }
 
     public void Dispose()
