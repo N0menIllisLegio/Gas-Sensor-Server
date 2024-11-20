@@ -6,7 +6,7 @@ using MimeKit;
 
 namespace Gss.MicrocontrollerListener.Email;
 
-public class EmailService : IEmailService
+internal class EmailService : IEmailService
 {
   private readonly EmailOptions _emailOptions;
 

@@ -1,6 +1,6 @@
 ﻿namespace Gss.MicrocontrollerListener.Email;
 
-public sealed class EmailOptions
+internal sealed class EmailOptions
 {
     public const string SectionName = "Email";
 

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 
-public class SocketConnectionService
+internal class SocketConnectionService
 {
   private const int ReceivedSensorsDataMaxSize = 5;
 

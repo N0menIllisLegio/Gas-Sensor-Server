@@ -2,7 +2,7 @@
 
 namespace Gss.MicrocontrollerListener.Email;
 
-public interface IEmailService
+internal interface IEmailService
 {
   Task<bool> SendCriticalValueEmailAsync(int receivedCriticalValue, int setCriticalValue,
       Microcontroller microcontroller, Sensor sensor, CancellationToken cancellationToken = default);

@@ -1,6 +1,6 @@
 ﻿namespace Gss.MicrocontrollerListener.Notifications;
 
-public class NotifySensorResponseDto
+internal class NotifySensorResponseDto
 {
   public required string SensorType { get; set; }
   public required string? SensorTypeIcon { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 
-public sealed class MicrocontrollersConnectionsOptions
+internal sealed class MicrocontrollersConnectionsOptions
 {
     public const string SectionName = "MicrocontrollersConnectionsOptions";
 

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace Gss.MicrocontrollerListener.Notifications;
 
 [Authorize]
-public class NotificationsHub : Hub
+internal class NotificationsHub : Hub
 {
     public const string Url = "/api/notifications";
 }
