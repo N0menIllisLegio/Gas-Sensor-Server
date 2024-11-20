@@ -53,7 +53,6 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
 builder.Services.AddTransient<IEmailService, EmailService>();
-// builder.Services.AddSingleton<SocketConnectionService>();
 builder.Services.AddHostedService<MicrocontrollerListener>();
 builder.Services.AddScoped<IMicrocontrollerRequestsHandler, MicrocontrollerRequestsHandler>();
 
