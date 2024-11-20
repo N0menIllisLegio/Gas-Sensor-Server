@@ -20,11 +20,13 @@ public class SensorsDataService: ISensorsDataService
   public async Task<List<SensorDataDto>> GetSensorDataAsync(
     RequestSensorDataDto requestSensorDataDto, CancellationToken cancellationToken = default)
   {
-    _ = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(
-        mc => mc.MicrocontrollerSensors.Any(x => x.Id == requestSensorDataDto.MicrocontrollerSensorId)
-          && (_currentUser.IsAdministrator || mc.Public || mc.OwnerId == _currentUser.Id),
-        cancellationToken: cancellationToken)
-      ?? throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
+    var microcontrollers = await _unitOfWork.Microcontrollers.CountAsync(
+      mc => mc.MicrocontrollerSensors.Any(x => x.Id == requestSensorDataDto.MicrocontrollerSensorId) &&
+            (_currentUser.IsAdministrator || mc.Public || mc.OwnerId == _currentUser.Id),
+      cancellationToken);
+
+    if (microcontrollers != 1)
+      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
 
     var result = new List<SensorDataDto>();
 

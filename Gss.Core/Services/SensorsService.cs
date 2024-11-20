@@ -6,7 +6,6 @@ using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Mappers;
 using Gss.Core.Resources;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Core.Services;
 
@@ -23,11 +22,7 @@ public class SensorsService : ISensorsService
 
   public async Task<PagedResultDto<SensorDto>> GetAllSensorsAsync(PagedInfoDto pagedInfoDto, CancellationToken cancellationToken = default)
   {
-    var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(
-        pagedInfoDto,
-        search => search.Name.Contains(pagedInfoDto.SearchString) ||
-                  search.Description != null && search.Description.Contains(pagedInfoDto.SearchString),
-        include => include.Include(sensor => sensor.Type), cancellationToken);
+    var pagedResult = await _unitOfWork.Sensors.GetPagedResultAsync(pagedInfoDto, cancellationToken);
 
     return pagedResult.Convert(x => x.MapToDto());
   }

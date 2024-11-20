@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Gss.Infrastructure\Gss.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

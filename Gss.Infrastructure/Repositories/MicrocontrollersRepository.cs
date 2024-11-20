@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Gss.Core.DTOs;
 using Gss.Core.DTOs.Microcontroller;
 using Gss.Core.Entities;
 using Gss.Core.Interfaces;
@@ -17,6 +18,37 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
     : base(appDbContext)
   {
     _appDbContext = appDbContext;
+  }
+
+  public override async Task<Microcontroller?> FindAsync(Guid id, CancellationToken cancellationToken = default)
+  {
+    var microcontroller = await DbSet
+      .Include(e => e.MicrocontrollerSensors)
+        .ThenInclude(e => e.Sensor)
+          .ThenInclude(e => e.Type)
+      .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    return microcontroller;
+  }
+
+  public async Task<int> CountAsync(Expression<Func<Microcontroller, bool>> searchCriteria, CancellationToken cancellationToken = default)
+  {
+    return await DbSet.CountAsync(searchCriteria, cancellationToken);
+  }
+
+  public async Task<PagedResultDto<Microcontroller>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
+    Expression<Func<Microcontroller, bool>> searchCriteria, CancellationToken cancellationToken = default)
+  {
+    var pagedResultDto = await GetPagedResultAsync(
+      pagedInfoDto,
+      searchCriteria,
+      query => query
+        .Include(mc => mc.MicrocontrollerSensors)
+          .ThenInclude(ms => ms.Sensor)
+            .ThenInclude(s => s.Type),
+      cancellationToken);
+
+    return pagedResultDto;
   }
 
   public async Task<List<MapMicrocontrollerDto>> GetVisibleMicrocontrollersAsync(
@@ -43,15 +75,6 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
           .ToList()
       })
       .ToListAsync(cancellationToken: cancellationToken);
-  }
-
-  public async Task<Microcontroller?> FirstOrDefaultAsync(Expression<Func<Microcontroller, bool>> match,
-    Func<IQueryable<Microcontroller>, IIncludableQueryable<Microcontroller, object>>? include = null,
-    CancellationToken cancellationToken = default)
-  {
-    return include is not null
-      ? await include(DbSet).FirstOrDefaultAsync(match, cancellationToken: cancellationToken)
-      : await DbSet.FirstOrDefaultAsync(match, cancellationToken: cancellationToken);
   }
 
   public async Task<int> SetSensorValueThresholdAsync(

@@ -22,10 +22,7 @@ public class SensorsTypesService : ISensorsTypesService
 
   public async Task<PagedResultDto<SensorTypeDto>> GetAllSensorsTypesAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
   {
-    var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(
-      pagedInfo,
-      type => type.Name.Contains(pagedInfo.SearchString) ||
-              type.Units != null && type.Units.Contains(pagedInfo.SearchString), cancellationToken: cancellationToken);
+    var pagedResultDto = await _unitOfWork.SensorsTypes.GetPagedResultAsync(pagedInfo, cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }

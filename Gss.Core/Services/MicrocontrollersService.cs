@@ -8,7 +8,6 @@ using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Mappers;
 using Gss.Core.Resources;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gss.Core.Services;
 
@@ -29,13 +28,7 @@ public class MicrocontrollersService : IMicrocontrollersService
   public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
   {
     var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
-      pagedInfo,
-      search => search.Name.Contains(pagedInfo.SearchString),
-      query => query
-        .Include(mc => mc.MicrocontrollerSensors)
-          .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type),
-      cancellationToken);
+      pagedInfo, search => search.Name.Contains(pagedInfo.SearchString), cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }
@@ -43,28 +36,19 @@ public class MicrocontrollersService : IMicrocontrollersService
   public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
   {
     var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
-      pagedInfo,
-      search => search.Public && search.Name.Contains(pagedInfo.SearchString),
-      query => query
-        .Include(mc => mc.MicrocontrollerSensors)
-          .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type),
-      cancellationToken);
+      pagedInfo, search => search.Public && search.Name.Contains(pagedInfo.SearchString), cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }
 
   public async Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
   {
-    var result = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(
-      x => x.Id == microcontrollerId,
-      x => x.Include(e => e.Sensors).ThenInclude(e => e.Type),
-      cancellationToken);
+    var result = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
 
     if (result is null)
       throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
 
-    return result.Sensors.Select(x => x.MapToDto()).ToList();
+    return result.MicrocontrollerSensors.Select(x => x.Sensor.MapToDto()).ToList();
   }
 
   public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
@@ -91,13 +75,8 @@ public class MicrocontrollersService : IMicrocontrollersService
         ? mc => mc.OwnerId == userId && mc.Name.Contains(pagedInfo.SearchString)
         : mc => mc.OwnerId == userId && mc.Name.Contains(pagedInfo.SearchString) && mc.Public;
 
-    var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
-      pagedInfo,
-      searchCriteria,
-      query => query
-        .Include(mc => mc.MicrocontrollerSensors)
-          .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type), cancellationToken);
+    var pagedResultDto =
+      await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, searchCriteria, cancellationToken);
 
     return pagedResultDto.Convert(x => x.MapToDto());
   }
@@ -130,12 +109,7 @@ public class MicrocontrollersService : IMicrocontrollersService
     if (!success)
       throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
 
-    var microcontroller = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(
-      x => x.Id == microcontrollerId,
-      query => query
-        .Include(mc => mc.MicrocontrollerSensors)
-          .ThenInclude(ms => ms.Sensor)
-            .ThenInclude(s => s.Type), cancellationToken);
+    var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
 
     if (microcontroller is null)
       throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
@@ -236,9 +210,7 @@ public class MicrocontrollersService : IMicrocontrollersService
 
   private async Task<Microcontroller> TryGetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken)
   {
-    var microcontroller = await _unitOfWork.Microcontrollers.FirstOrDefaultAsync(mc => mc.Id == microcontrollerId,
-      x => x.Include(p => p.MicrocontrollerSensors).ThenInclude(p => p.Sensor).ThenInclude(p => p.Type),
-      cancellationToken);
+    var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
 
     if (microcontroller is not null)
     {

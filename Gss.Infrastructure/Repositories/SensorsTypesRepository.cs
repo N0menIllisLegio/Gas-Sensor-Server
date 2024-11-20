@@ -1,4 +1,5 @@
-﻿using Gss.Core.DTOs.SensorType;
+﻿using Gss.Core.DTOs;
+using Gss.Core.DTOs.SensorType;
 using Gss.Core.Entities;
 using Gss.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,17 @@ public class SensorsTypesRepository : RepositoryBase<SensorType>, ISensorsTypesR
   public SensorsTypesRepository(AppDbContext appDbContext)
     : base(appDbContext)
   {
+  }
+
+  public async Task<PagedResultDto<SensorType>> GetPagedResultAsync(PagedInfoDto pagedInfoDto, CancellationToken cancellationToken = default)
+  {
+    var pagedResultDto = await GetPagedResultAsync(
+      pagedInfoDto,
+      type => type.Name.Contains(pagedInfoDto.SearchString) ||
+              type.Units != null && type.Units.Contains(pagedInfoDto.SearchString),
+      cancellationToken: cancellationToken);
+
+    return pagedResultDto;
   }
 
   public async Task<int> UpdateSensorTypeAsync(
