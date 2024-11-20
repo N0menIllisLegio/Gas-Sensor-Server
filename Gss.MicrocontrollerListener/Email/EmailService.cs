@@ -1,8 +1,7 @@
-﻿using Gss.Core.Entities;
+﻿using System.Diagnostics;
+using Gss.Core.Entities;
 using Gss.Core.Resources;
-using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
-using MimeKit;
 
 namespace Gss.MicrocontrollerListener.Email;
 
@@ -26,36 +25,41 @@ internal class EmailService : IEmailService
       .Replace("{microcontrollerLongitude}", microcontroller.Longitude.ToString())
       .Replace("{sensorType}", sensor.Type.Name)
       .Replace("{sensorCriticalValue}", setCriticalValue.ToString())
-      .Replace("{microcontrollerPageUrl}", $"{Messages.SiteURLString}/microcontroller/{microcontroller.Id}")
+      .Replace("{microcontrollerPageUrl}", $"{_emailOptions.SiteUrl}/microcontroller/{microcontroller.Id}") // TODO: check
       .Replace("{contactInfo}", Messages.ContactInfoString)
-      .Replace("{siteUrl}", Messages.SiteURLString);
+      .Replace("{siteUrl}", _emailOptions.SiteUrl);
 
-    var emailMessage = new MimeMessage();
-    var builder = new BodyBuilder
-    {
-      HtmlBody = html
-    };
+    Debug.WriteLine(html);
 
-    emailMessage.From.Add(new MailboxAddress("Gas sensors Administration", _emailOptions.Address));
-    // TODO: emailMessage.To.Add(MailboxAddress.Parse(email));
-    emailMessage.Subject = $"Sensor {sensor.Name} reached critical threshold - {receivedCriticalValue}!";
-    emailMessage.Body = builder.ToMessageBody();
+    return false;
 
-    bool sendSuccessfully = true;
-    using var client = new SmtpClient();
-
-    try
-    {
-      await client.ConnectAsync(_emailOptions.SmtpServer, _emailOptions.SmtpPort, _emailOptions.SmtpUseSsl, cancellationToken);
-      await client.AuthenticateAsync(_emailOptions.Address, _emailOptions.Password, cancellationToken);
-      await client.SendAsync(emailMessage, cancellationToken);
-      await client.DisconnectAsync(true, cancellationToken);
-    }
-    catch
-    {
-      sendSuccessfully = false;
-    }
-
-    return sendSuccessfully;
+    // TODO: Separate email sender.
+    // var emailMessage = new MimeMessage();
+    // var builder = new BodyBuilder
+    // {
+    //   HtmlBody = html
+    // };
+    //
+    // emailMessage.From.Add(new MailboxAddress("Gas sensors Administration", _emailOptions.Address));
+    // emailMessage.To.Add(MailboxAddress.Parse(email));
+    // emailMessage.Subject = $"Sensor {sensor.Name} reached critical threshold - {receivedCriticalValue}!";
+    // emailMessage.Body = builder.ToMessageBody();
+    //
+    // bool sendSuccessfully = true;
+    // using var client = new SmtpClient();
+    //
+    // try
+    // {
+    //   await client.ConnectAsync(_emailOptions.SmtpServer, _emailOptions.SmtpPort, _emailOptions.SmtpUseSsl, cancellationToken);
+    //   await client.AuthenticateAsync(_emailOptions.Address, _emailOptions.Password, cancellationToken);
+    //   await client.SendAsync(emailMessage, cancellationToken);
+    //   await client.DisconnectAsync(true, cancellationToken);
+    // }
+    // catch
+    // {
+    //   sendSuccessfully = false;
+    // }
+    //
+    // return sendSuccessfully;
   }
 }
