@@ -9,5 +9,5 @@ internal sealed class EmailOptions
     public string SmtpServer { get; set; } = null!;
     public int SmtpPort { get; set; }
     public bool SmtpUseSsl { get; set; }
-    public string SiteUrl { get; set; }
+    public string SiteUrl { get; set; } = string.Empty;
 }
