@@ -31,7 +31,7 @@ internal sealed class MicrocontrollerListener: BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        socket.Bind(new IPEndPoint(IPAddress.Parse(_options.IpAddress), _options.Port));
+        socket.Bind(new IPEndPoint(IPAddress.Any, _options.Port));
         socket.Listen(_options.ListenQueue);
 
         try

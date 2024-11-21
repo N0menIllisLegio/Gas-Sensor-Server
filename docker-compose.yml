@@ -23,8 +23,7 @@
       - 5001:8080
       - 5002:5002
     environment:
-      # Running dev env
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
       - web
 
