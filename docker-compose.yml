@@ -1,0 +1,54 @@
+﻿services:
+  web:
+    image: gss.web
+    container_name: Gss.Web
+    build:
+      context: .
+      dockerfile: Gss.Web/Dockerfile
+    ports:
+      - 5000:8080
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - keycloak
+      - postgres
+
+  microcontroller-listener:
+    image: gss.microcontroller-listener
+    container_name: Gss.MicrocontrollerListener
+    build:
+      context: .
+      dockerfile: Gss.MicrocontrollerListener/Dockerfile
+    ports:
+      - 5001:8080
+      - 5002:5002
+    environment:
+      # Running dev env
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - web
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: Gss.KeyCloak
+    command: start-dev
+    ports:
+      - 18080:8080
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+    volumes:
+      - ./.containers/keycloak:/opt/keycloak/data
+
+  postgres:
+    image: postgres:latest
+    container_name: Gss.PostgreSQL
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=GasSensorServer
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    volumes:
+      - ./.containers/postgresql:/var/lib/postgresql/data
