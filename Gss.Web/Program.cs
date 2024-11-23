@@ -91,7 +91,7 @@ if (!app.Environment.IsDevelopment())
 app.UseProblemDetails();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(o => o.OAuthClientId("public-client"));
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -20,12 +20,7 @@ internal static class SwaggerExtension
           {
             Implicit = new OpenApiOAuthFlow()
             {
-              AuthorizationUrl = new Uri(configuration["Authentication:KeyCloak:AuthorizationUrl"]!),
-              Scopes = new Dictionary<string, string>()
-              {
-                { "openid", "openid" },
-                { "profile", "profile" }
-              }
+              AuthorizationUrl = new Uri(configuration["Authentication:KeyCloak:AuthorizationUrl"]!)
             }
           }
         });
