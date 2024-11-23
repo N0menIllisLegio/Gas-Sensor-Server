@@ -87,6 +87,7 @@ public class MicrocontrollersService : IMicrocontrollersService
 
     _unitOfWork.Microcontrollers.Add(new Microcontroller
     {
+      Id = microcontrollerId,
       OwnerId = _currentUser.Id,
       Name = createMicrocontrollerDto.Name,
       Key = createMicrocontrollerDto.Key,
