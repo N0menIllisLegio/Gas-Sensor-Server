@@ -64,7 +64,7 @@ internal sealed class MicrocontrollerRequest
         if (!ValidateCommand(DataCommand)
             || _commandParams.Length != 3
             || !Guid.TryParse(_commandParams[0], out var microcontrollerSensorId)
-            || !DateTime.TryParse(_commandParams[1], CultureInfo.CreateSpecificCulture("en-US"), DateTimeStyles.None,
+            || !DateTime.TryParse(_commandParams[1], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal,
                 out var sensorValueReadDateTime)
             || !int.TryParse(_commandParams[2], out var sensorValue))
         {
