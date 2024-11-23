@@ -350,5 +350,11 @@ MigrationBackup/
 .ionide/
 
 appsettings.Development.json
-.containers
+
+
+.containers/postgresql
+.containers/keycloak/*
+!.containers/keycloak/import/
+
+
 .idea

@@ -30,7 +30,7 @@
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: Gss.KeyCloak
-    command: start-dev
+    command: start-dev --import-realm
     ports:
       - 18080:8080
     environment:
