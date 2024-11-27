@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: mat.$green-palette,
+    typography: Roboto,
+    density: 0
+  ));
+}
+
+html, body { height: 100%; }
+body { margin: 0; }
+
+:root {
+  @include mat.sidenav-overrides((
+    container-width: 16rem,
+    container-background-color: var(--mat-sys-surface-container),
+    content-background-color: var(--mat-sys-surface)
+  ));
+}
