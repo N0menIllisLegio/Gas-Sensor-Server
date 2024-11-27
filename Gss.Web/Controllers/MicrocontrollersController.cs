@@ -57,12 +57,12 @@ public class MicrocontrollersController : ControllerBase
     return Ok(pagedResultDto);
   }
 
-  [HttpPost]
+  [HttpGet]
   [SwaggerOperation(Description = "Gets all public microcontrollers. For map.")]
   [SwaggerResponse(200, type: typeof(List<MapMicrocontrollerDto>))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> GetPublicMicrocontrollersMap([FromBody] MapRequestDto dto, CancellationToken cancellationToken)
+  public async Task<IActionResult> GetPublicMicrocontrollersMap([FromQuery] MapRequestDto dto, CancellationToken cancellationToken)
   {
     var mapResponse = await _microcontrollerService.GetPublicMicrocontrollersMapAsync(dto, cancellationToken);
 

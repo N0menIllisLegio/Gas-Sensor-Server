@@ -8,19 +8,19 @@ public sealed class MapRequestDtoValidator: AbstractValidator<MapRequestDto>
     public MapRequestDtoValidator()
     {
         RuleFor(x => x.NorthEastLatitude)
-            .LessThan(-90)
-            .GreaterThan(90);
+            .GreaterThanOrEqualTo(-90)
+            .LessThanOrEqualTo(90);
 
         RuleFor(x => x.SouthWestLatitude)
-            .LessThan(-90)
-            .GreaterThan(90);
+            .GreaterThanOrEqualTo(-90)
+            .LessThanOrEqualTo(90);
 
         RuleFor(x => x.NorthEastLongitude)
-            .LessThan(-180)
-            .GreaterThan(180);
+            .GreaterThanOrEqualTo(-180)
+            .LessThanOrEqualTo(180);
 
         RuleFor(x => x.SouthWestLongitude)
-            .LessThan(-180)
-            .GreaterThan(180);
+            .GreaterThanOrEqualTo(-180)
+            .LessThanOrEqualTo(180);
     }
 }
