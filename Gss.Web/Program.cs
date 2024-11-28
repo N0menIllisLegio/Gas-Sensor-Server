@@ -23,11 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services
     .AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        options.JsonSerializerOptions.PropertyNamingPolicy = null;
-    });
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services
     .AddProblemDetails(options =>
