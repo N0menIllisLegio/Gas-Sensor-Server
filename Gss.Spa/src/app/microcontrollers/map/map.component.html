@@ -1,0 +1,7 @@
+<div class="h-full p-2">
+    <div class="h-1/2" leaflet
+        [leafletOptions]="initMapOptions"
+        [leafletLayers]="mapLayers()"
+        (leafletMapMoveEnd)="onMapMoveEnd($event.target)">
+    </div>
+</div>
