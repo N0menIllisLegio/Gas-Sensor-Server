@@ -67,4 +67,9 @@ export class MapComponent {
         const mapBounds = map.getBounds();
         this.mapBoundsSubject.next(mapBounds);
     }
+
+    onMapReady(map: Map) {
+        const mapBounds = map.getBounds();
+        this.mapBoundsSubject.next(mapBounds);
+    }
 }

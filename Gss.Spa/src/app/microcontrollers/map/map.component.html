@@ -2,6 +2,7 @@
     <div class="h-1/2" leaflet
         [leafletOptions]="initMapOptions"
         [leafletLayers]="mapLayers()"
-        (leafletMapMoveEnd)="onMapMoveEnd($event.target)">
+        (leafletMapMoveEnd)="onMapMoveEnd($event.target)"
+        (leafletMapReady)="onMapReady($event)">
     </div>
 </div>
