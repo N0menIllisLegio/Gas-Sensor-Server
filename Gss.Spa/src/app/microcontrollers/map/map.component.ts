@@ -1,6 +1,6 @@
 import { Component, inject, signal } from "@angular/core";
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { latLng, tileLayer, Map, marker, Layer, icon, Icon, latLngBounds, MapOptions, LatLngBounds } from "leaflet";
+import { latLng, tileLayer, Map, marker, Layer, icon, Icon, latLngBounds, MapOptions, LatLngBounds, tooltip } from "leaflet";
 import { MicrocontrollersQueryService } from "../core/microcontrollers-query.service";
 import { BehaviorSubject, debounceTime, distinctUntilChanged, filter, switchMap } from "rxjs";
 
@@ -54,12 +54,20 @@ export class MapComponent {
                     return this.microcontrollerQueryService
                         .getMicrocontrollersMap(southWest.lat, southWest.lng, northEast.lat, northEast.lng);
                 }))
-            .subscribe(response => {
-                console.log(response);
+            .subscribe(microcontrollers => {
+                this.mapLayers.set(microcontrollers.map(microcontroller => {
+                    const mcMarker = marker([microcontroller.latitude, microcontroller.longitude], {
+                        icon: this.markerIcon,
+                    });
 
-                this.mapLayers.set(response.map(x => marker([x.latitude, x.longitude], {
-                    icon: this.markerIcon
-                })));
+                    const markerTooltip = tooltip({
+                        content: microcontroller.sensorTypes.map(x => x.name).join('<br/>'),
+                    });
+                    
+                    mcMarker.bindTooltip(markerTooltip);
+
+                    return mcMarker;
+                }));
             });
     }
 
