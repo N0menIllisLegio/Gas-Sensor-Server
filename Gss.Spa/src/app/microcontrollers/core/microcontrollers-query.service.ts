@@ -4,6 +4,7 @@ import MapMicrocontrollerModel from "../map/map-microcontroller.model";
 import PagedRequestModel from "../../core/paged-request.model";
 import PagedResponseModel from "../../core/paged-response.model";
 import MicrocontrollerModel from "./microcontroller.model";
+import { map } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class MicrocontrollersQueryService {
@@ -14,6 +15,15 @@ export class MicrocontrollersQueryService {
     }
 
     getPublicMicrocontrollers(pagedRequest: PagedRequestModel) {
-        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>('api/Microcontrollers/GetPublicMicrocontrollers', pagedRequest);
+        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>('api/Microcontrollers/GetPublicMicrocontrollers', pagedRequest)
+            .pipe(map(response => {
+                    response.items.forEach(x => {
+                        if (x.lastResponseTime)
+                            x.lastResponseTime = new Date(x.lastResponseTime)
+                    });
+
+                    return response;
+                }
+            ));
     }
 }
