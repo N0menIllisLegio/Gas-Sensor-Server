@@ -62,7 +62,7 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
       .Where(mc => mc.Latitude.HasValue && mc.Longitude.HasValue
         && mc.Latitude > southWestLatitude && mc.Latitude < northEastLatitude
         && mc.Longitude > southWestLongitude && mc.Longitude < northEastLongitude
-        && mc.Public && mc.MicrocontrollerSensors.Count > 0)
+        && mc.Public)
       .OrderBy(mc => mc.Name)
       .Take(100)
       .Select(mc => new MapMicrocontrollerDto
