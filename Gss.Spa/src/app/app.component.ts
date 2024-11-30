@@ -26,10 +26,6 @@ export class AppComponent {
       title: 'Map'
     },
     {
-      url: '/microcontrollers/public',
-      title: 'Public Microcontrollers'
-    },
-    {
       url: '/configuration-generator',
       title: 'Config Generator'
     },
