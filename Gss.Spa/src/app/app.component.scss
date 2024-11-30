@@ -22,7 +22,7 @@ $color: var(--mat-sys-primary);
 		position: relative;
 		transition: transform $ease $time;
 		padding: 0 0.01em;
-		
+
 		@for $i from 0 through $number {
 			&:nth-child(#{$i}n) {
                 transition-delay: calc($time * $i / $number);
@@ -56,7 +56,7 @@ $color: var(--mat-sys-primary);
 
 	&:active {
 		span {
-			transform: translateY(0);	
+			transform: translateY(0);
 			transition: transform $ease calc($time / 2);
 			transition-delay: 0 !important;
 			&:after{
@@ -65,7 +65,7 @@ $color: var(--mat-sys-primary);
 				transition-delay: 0 !important;
 			}
 		}
-	}	
+	}
 }
 
 mat-nav-list > a.active {
