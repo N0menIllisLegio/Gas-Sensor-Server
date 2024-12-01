@@ -6,4 +6,9 @@ export default class SortOptionModel {
         this.isAscending = isAscending;
         this.propertyName = propertyName;
     }
+
+    equals(comparingModel: SortOptionModel) {
+        return this.isAscending === comparingModel.isAscending
+            && this.propertyName === comparingModel.propertyName;
+    }
 }

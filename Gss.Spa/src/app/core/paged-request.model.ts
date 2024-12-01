@@ -12,4 +12,11 @@ export default class PagedRequestModel {
         this.searchString = searchString ?? '';
         this.sortOptions = sortOptions ?? [];
     }
+
+    equals(comparingModel: PagedRequestModel) {
+        return this.pageNumber === comparingModel.pageNumber
+            && this.pageSize === comparingModel.pageSize
+            && this.searchString === comparingModel.searchString
+            && this.sortOptions.every(x => comparingModel.sortOptions.find(y => y.equals(x) !== undefined));
+    }
 }
