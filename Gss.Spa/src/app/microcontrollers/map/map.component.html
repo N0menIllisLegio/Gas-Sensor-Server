@@ -1,8 +1,69 @@
-<div class="h-full p-2">
-    <div class="h-1/2" leaflet
-        [leafletOptions]="initMapOptions"
-        [leafletLayers]="mapLayers()"
-        (leafletMapMoveEnd)="onMapMoveEnd($event.target)"
-        (leafletMapReady)="onMapReady($event)">
-    </div>
+<div id="map-content-container">
+    <mat-card id="map-card" appearance="outlined">
+        <mat-card-content class="h-full !p-0">
+            <div id="microcontrollers-leaflet-map" class="h-full" leaflet
+                [leafletOptions]="initMapOptions"
+                [leafletLayers]="mapLayers()"
+                (leafletMapMoveEnd)="updateMapData($event.target)"
+                (leafletMapReady)="onMapReady($event)">
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card id="public-microcontrollers-table-card" appearance="outlined">
+        <mat-card-content class="h-full">
+            <mat-form-field class="w-full">
+                <mat-label>Filter</mat-label>
+                <input matInput [(ngModel)]="searchString" (ngModelChange)="loadPublicMicrocontrollers()" placeholder="Search..." />
+            </mat-form-field>
+
+            <div id="table-container">
+                @if (isTableLoading()) {
+                    <spinner />
+                }
+
+                <table mat-table [dataSource]="dataSource()" matSort (matSortChange)="sortData($event)" style="background-color: inherit">
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header="Name">Name</th>
+                        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="coordinates">
+                        <th mat-header-cell *matHeaderCellDef>Coordinates</th>
+                        <td mat-cell *matCellDef="let element">
+                            <span [style]="{ color: (element.sensors.length === 0 || element.latitude === null || element.longitude === null)
+                                                ? 'var(--mat-sys-secondary)'
+                                                : 'var(--mat-sys-primary)' }"
+                                class="hover:underline cursor-pointer"
+                                (click)="onCoordsClick(element)">
+                                {{ { latitude: element.latitude, longitude: element.longitude } | coordinates | emptyPlaceholder }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="lastResponseTime">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header="LastResponseTime">Last Response Time</th>
+                        <td mat-cell *matCellDef="let element">{{ element.lastResponseTime | dateTime | emptyPlaceholder }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="sensorsCount">
+                        <th mat-header-cell *matHeaderCellDef>Sensors Connected</th>
+                        <td mat-cell *matCellDef="let element">{{ element.sensors.length }}</td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+            </div>
+
+            <mat-paginator
+                [length]="totalMicrocontrollers()"
+                [pageIndex]="pageNumber"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="[10, 30, 50]"
+                (page)="onPageChanged($event.pageIndex, $event.pageSize)"
+                showFirstLastButtons>
+            </mat-paginator>
+        </mat-card-content>
+    </mat-card>
 </div>
