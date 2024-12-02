@@ -1,5 +1,5 @@
 import { Component, inject, signal } from "@angular/core";
-import { latLng, tileLayer, Map, marker, Layer, icon, Icon, latLngBounds, MapOptions, LatLngBounds, tooltip } from "leaflet";
+import { latLng, Map, LatLngBounds } from "leaflet";
 import { MatTableModule } from "@angular/material/table";
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -19,11 +19,14 @@ import SortOptionModel from "../../core/sort-option.model";
 import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 import { MatSnackBar } from '@angular/material/snack-bar';
 import ErrorHandlingService from "../../core/error-handling.service";
+import { MapComponent } from "../shared/map/map.component";
+import FlyToTargetModel from "../shared/map/fly-to-target.model";
+import DisplayableMicrocontrollerModel from "../shared/map/displayable-microcontroller.model";
 
 @Component({
     selector: 'microcontrollers-map',
-    templateUrl: './map.component.html',
-    styleUrl: './map.component.scss',
+    templateUrl: './microcontrollers-map.component.html',
+    styleUrl: './microcontrollers-map.component.scss',
     imports: [
         LeafletModule,
         DateTimePipe,
@@ -37,42 +40,21 @@ import ErrorHandlingService from "../../core/error-handling.service";
         MatInputModule,
         MatFormFieldModule,
         SpinnerComponent,
-        FormsModule
+        FormsModule,
+        MapComponent
     ],
 })
-export class MapComponent {
-    title = 'Map';
-
+export class MicrocontrollersMapComponent {
     private snackBar = inject(MatSnackBar);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private errorHandlingService = inject(ErrorHandlingService);
     private mapBoundsSubject = new BehaviorSubject<LatLngBounds | null>(null);
     private pagedRequestSubject = new BehaviorSubject<PagedRequestModel | null>(null);
-    private markerIcon = icon({
-        ...Icon.Default.prototype.options,
-        iconUrl: 'assets/marker-icon.png',
-        iconRetinaUrl: 'assets/marker-icon-2x.png',
-        shadowUrl: 'assets/marker-shadow.png'
-    });
 
-    private map: Map | undefined;
-    mapLayers = signal<Layer[]>([]);
-    initMapOptions: MapOptions = {
-        layers: [
-            tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }),
-        ],
-
-        maxZoom: 18,
-        center: latLng(54.5260, 15.2551),
-        zoom: 4,
-
-        // Prevent moving out of the world bounds
-        minZoom: 3,
-        maxBounds: latLngBounds(latLng(-90, -180), latLng(90, 180)),
-        maxBoundsViscosity: 1,
-    };
+    addMicrocontrollers = new BehaviorSubject<DisplayableMicrocontrollerModel[] | null>(null);
+    flyToTarget = new BehaviorSubject<FlyToTargetModel | null>(null);
+    mapZoom = 4;
+    mapCenter = latLng(54.5260, 15.2551);
 
     displayedColumns = ['name', 'coordinates', 'lastResponseTime', 'sensorsCount'];
     isTableLoading = signal<boolean>(false);
@@ -101,21 +83,9 @@ export class MapComponent {
                 if (!microcontrollers)
                     return;
 
-                this.mapLayers.set(microcontrollers.map(microcontroller => {
-                    const mcMarker = marker([microcontroller.latitude, microcontroller.longitude], {
-                        icon: this.markerIcon,
-                    });
-
-                    const markerTooltip = tooltip({
-                        content: microcontroller.sensorTypes.length > 0
-                            ? microcontroller.sensorTypes.map(x => x.name).join('<br/>')
-                            : 'No sensors connected',
-                    });
-
-                    mcMarker.bindTooltip(markerTooltip);
-
-                    return mcMarker;
-                }));
+                this.addMicrocontrollers.next(
+                    microcontrollers.map(microcontroller => new DisplayableMicrocontrollerModel(
+                        microcontroller.latitude, microcontroller.longitude, microcontroller.sensorTypes.map(x => x.name))));
             });
 
         this.pagedRequestSubject
@@ -153,30 +123,6 @@ export class MapComponent {
         this.loadPublicMicrocontrollers();
     }
 
-    onMapReady(map: Map) {
-        this.map = map;
-        this.updateMapData(map);
-    }
-
-    ngOnInit() {
-        const mapResizeObserver = new ResizeObserver((entry) => {
-            // without it, map renders without half of tiles
-            const mapElement = entry[0];
-
-            if (mapElement.contentRect.height > 0) {
-                this.map!.invalidateSize();
-                mapResizeObserver.disconnect();
-            }
-        })
-
-        mapResizeObserver.observe(document.querySelector('#microcontrollers-leaflet-map')!);
-    }
-
-    updateMapData(map: Map) {
-        const mapBounds = map.getBounds();
-        this.mapBoundsSubject.next(mapBounds);
-    }
-
     onPageChanged(pageNumber: number, pageSize: number) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
@@ -198,9 +144,15 @@ export class MapComponent {
             new PagedRequestModel(this.pageNumber + 1, this.pageSize, this.searchString, this.sortOptions));
     }
 
+    updateMapData(map: Map) {
+        const mapBounds = map.getBounds();
+        this.mapBoundsSubject.next(mapBounds);
+    }
+
     onCoordsClick(microcontroller: MicrocontrollerModel) {
-        if (microcontroller.latitude && microcontroller.longitude && this.map) {
-            this.map.flyTo(latLng(microcontroller.latitude, microcontroller.longitude), 8, { animate: true });
+        if (microcontroller.latitude && microcontroller.longitude) {
+            this.flyToTarget.next(
+                new FlyToTargetModel(microcontroller.latitude, microcontroller.longitude, 8));
         }
     }
 }

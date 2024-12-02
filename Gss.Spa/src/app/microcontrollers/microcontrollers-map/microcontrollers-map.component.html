@@ -1,12 +1,13 @@
 <div id="map-content-container">
     <mat-card id="map-card" appearance="outlined">
         <mat-card-content class="h-full !p-0">
-            <div id="microcontrollers-leaflet-map" class="h-full" leaflet
-                [leafletOptions]="initMapOptions"
-                [leafletLayers]="mapLayers()"
-                (leafletMapMoveEnd)="updateMapData($event.target)"
-                (leafletMapReady)="onMapReady($event)">
-            </div>
+            <map [(zoom)]="mapZoom"
+                [(center)]="mapCenter"
+                [microcontrollersAdded]="addMicrocontrollers.asObservable()"
+                [flyToTarget]="flyToTarget.asObservable()"
+                (leafletMapMoveEnd)="updateMapData($event)"
+                (leafletMapReady)="updateMapData($event)">
+            </map>
         </mat-card-content>
     </mat-card>
 

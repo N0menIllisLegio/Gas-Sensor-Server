@@ -8,5 +8,4 @@ import { RouterLink } from "@angular/router";
     templateUrl: './not-found.component.html'
 })
 export class NotFoundComponent {
-    title = 'Not Found';
 }

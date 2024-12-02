@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import MapMicrocontrollerModel from "../map/map-microcontroller.model";
+import MicrocontrollersMapMicrocontrollerModel from "../microcontrollers-map/microcontrollers-map-microcontroller.model";
 import PagedRequestModel from "../../core/paged-request.model";
 import PagedResponseModel from "../../core/paged-response.model";
 import MicrocontrollerModel from "./microcontroller.model";
@@ -11,12 +11,13 @@ export class MicrocontrollersQueryService {
     constructor(private httpClient: HttpClient) {}
 
     getMicrocontrollersMap(southWestLat: Number, southWestLong: Number, northEastLat: Number, northEastLong: Number) {
-        return this.httpClient.get<MapMicrocontrollerModel[]>(`api/Microcontrollers/GetPublicMicrocontrollersMap?SouthWestLatitude=${southWestLat}&SouthWestLongitude=${southWestLong}&NorthEastLatitude=${northEastLat}&NorthEastLongitude=${northEastLong}`);
+        return this.httpClient.get<MicrocontrollersMapMicrocontrollerModel[]>(`api/Microcontrollers/GetPublicMicrocontrollersMap?SouthWestLatitude=${southWestLat}&SouthWestLongitude=${southWestLong}&NorthEastLatitude=${northEastLat}&NorthEastLongitude=${northEastLong}`);
     }
 
     getPublicMicrocontrollers(pagedRequest: PagedRequestModel) {
         return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>('api/Microcontrollers/GetPublicMicrocontrollers', pagedRequest)
-            .pipe(map(response => {
+            .pipe(
+                map(response => {
                     response.items.forEach(x => {
                         if (x.lastResponseTime)
                             x.lastResponseTime = new Date(x.lastResponseTime)

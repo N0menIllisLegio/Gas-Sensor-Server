@@ -1,0 +1,14 @@
+<div id="leaflet-map" class="h-full"
+    leaflet
+
+    [leafletZoom]="zoom()"
+    (leafletZoomChange)="zoomChange.emit($event)"
+
+    [leafletCenter]="center()"
+    (leafletCenterChange)="centerChange.emit($event)"
+
+    [leafletOptions]="initMapOptions"
+    [leafletLayers]="mapLayers()"
+    (leafletMapMoveEnd)="leafletMapMoveEnd.emit($event.target)"
+    (leafletMapReady)="onMapReady($event)">
+</div>
