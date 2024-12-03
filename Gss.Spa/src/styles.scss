@@ -23,4 +23,12 @@ body { margin: 0; }
     container-background-color: var(--mat-sys-surface-container),
     content-background-color: var(--mat-sys-surface)
   ));
+
+  @include mat.expansion-overrides((
+    container-background-color: var(--mat-sys-surface-container-lowest),
+  ));
+
+  @include mat.card-overrides((
+    outlined-container-color: var(--mat-sys-surface-container-lowest),
+  ));
 }
