@@ -118,7 +118,6 @@ export class MapComponent {
 
             if (mapElement.contentRect.height > 0) {
                 this.map!.invalidateSize();
-                mapResizeObserver.disconnect();
             }
         })
 
