@@ -18,7 +18,7 @@ public class SensorsDataController: ControllerBase
 
   [HttpPost]
   [SwaggerOperation(Description = "Gets sensor's data.")]
-  [SwaggerResponse(200, type: typeof(List<SensorDataDto>))]
+  [SwaggerResponse(200, type: typeof(Dictionary<DateOnly, List<SensorDataDto>>))]
   [SwaggerResponse(400, type: typeof(ProblemDetails))]
   [SwaggerResponse(404, type: typeof(ProblemDetails))]
   public async Task<IActionResult> GetSensorData([FromBody] RequestSensorDataDto requestSensorDataDto, CancellationToken cancellationToken)

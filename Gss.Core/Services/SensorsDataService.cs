@@ -17,7 +17,7 @@ public class SensorsDataService: ISensorsDataService
     _currentUser = currentUser;
   }
 
-  public async Task<List<SensorDataDto>> GetSensorDataAsync(
+  public async Task<Dictionary<DateOnly, List<SensorDataDto>>> GetSensorDataAsync(
     RequestSensorDataDto requestSensorDataDto, CancellationToken cancellationToken = default)
   {
     var microcontrollers = await _unitOfWork.Microcontrollers.CountAsync(
@@ -28,22 +28,24 @@ public class SensorsDataService: ISensorsDataService
     if (microcontrollers != 1)
       throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
 
-    var result = new List<SensorDataDto>();
+    var result = new Dictionary<DateOnly, List<SensorDataDto>>();
 
     foreach (var watchingDate in requestSensorDataDto.WatchingDates)
     {
       var sensorData = await _unitOfWork.SensorsData.GetSensorDataByPeriodAsync(
         requestSensorDataDto.MicrocontrollerSensorId, watchingDate, requestSensorDataDto.Period, cancellationToken);
 
-      result.AddRange(sensorData);
+      result[watchingDate] = sensorData
+        .Select(x => new SensorDataDto
+        {
+          ReadTime = DateTime.SpecifyKind(x.ReadTime, DateTimeKind.Utc),
+          AverageValue = Math.Floor(x.AverageValue),
+          WatchingDate = x.WatchingDate
+        })
+        .OrderBy(x => x.ReadTime)
+        .ToList();
     }
 
-    result.ForEach(x =>
-    {
-      x.ReadTime = DateTime.SpecifyKind(x.ReadTime, DateTimeKind.Utc);
-      x.AverageValue = Math.Floor(x.AverageValue);
-    });
-
-    return result.OrderBy(sensorData => sensorData.ReadTime).ToList();
+    return result;
   }
 }

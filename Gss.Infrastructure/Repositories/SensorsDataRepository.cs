@@ -16,7 +16,7 @@ public class SensorsDataRepository: ISensorsDataRepository
   }
 
   public async Task<List<SensorDataDto>> GetSensorDataByPeriodAsync(Guid microcontrollerSensorId,
-    DateTimeOffset watchingDate, SensorDataPeriod period, CancellationToken cancellationToken = default)
+    DateOnly watchingDate, SensorDataPeriod period, CancellationToken cancellationToken = default)
   {
     var query = period switch
     {
@@ -31,7 +31,7 @@ public class SensorsDataRepository: ISensorsDataRepository
   }
 
   private IQueryable<SensorDataDto> GetSensorDataQueryByYearPeriod(
-    Guid microcontrollerSensorId, DateTimeOffset watchingDate)
+    Guid microcontrollerSensorId, DateOnly watchingDate)
   {
     return _dbSet
       .Where(sensorData => sensorData.MicrocontrollerSensorId == microcontrollerSensorId &&
@@ -46,14 +46,14 @@ public class SensorsDataRepository: ISensorsDataRepository
       .ThenBy(group => group.Key.Month)
       .Select(group => new SensorDataDto
       {
-        WatchingDate = watchingDate,
+        WatchingDate = watchingDate.ToDateTime(TimeOnly.MinValue),
         AverageValue = group.Average(s => s.Value),
         ReadTime = new DateTime(group.Key.Year, group.Key.Month, 1),
       });
   }
 
   private IQueryable<SensorDataDto> GetSensorDataQueryByMonthPeriod(
-    Guid microcontrollerSensorId, DateTimeOffset watchingDate)
+    Guid microcontrollerSensorId, DateOnly watchingDate)
   {
     return _dbSet
       .Where(sensorData => sensorData.MicrocontrollerSensorId == microcontrollerSensorId &&
@@ -67,18 +67,20 @@ public class SensorsDataRepository: ISensorsDataRepository
       .OrderBy(group => group.Key.Date)
       .Select(group => new SensorDataDto
       {
-        WatchingDate = watchingDate,
+        WatchingDate = watchingDate.ToDateTime(TimeOnly.MinValue),
         AverageValue = group.Average(s => s.Value),
         ReadTime = group.Key.Date,
       });
   }
 
   private IQueryable<SensorDataDto> GetSensorDataQueryByDayPeriod(
-    Guid microcontrollerSensorId, DateTimeOffset watchingDate)
+    Guid microcontrollerSensorId, DateOnly watchingDate)
   {
     return _dbSet
       .Where(sensorData => sensorData.MicrocontrollerSensorId == microcontrollerSensorId &&
-                           sensorData.ReadTime.Date == watchingDate.Date)
+                           sensorData.ReadTime.Year == watchingDate.Year &&
+                           sensorData.ReadTime.Month == watchingDate.Month &&
+                           sensorData.ReadTime.Day == watchingDate.Day)
       .GroupBy(sensorData => new
       {
         sensorData.ReadTime.Date,
@@ -86,10 +88,10 @@ public class SensorsDataRepository: ISensorsDataRepository
         sensorData.MicrocontrollerSensorId
       })
       .OrderBy(group => group.Key.Date)
-      .ThenBy(group => group.Key.Hours)
+        .ThenBy(group => group.Key.Hours)
       .Select(group => new SensorDataDto
       {
-        WatchingDate = watchingDate,
+        WatchingDate = watchingDate.ToDateTime(new TimeOnly(group.Key.Hours, 0, 0)),
         AverageValue = group.Average(s => s.Value),
         ReadTime = new DateTime(group.Key.Date.Year, group.Key.Date.Month, group.Key.Date.Day, group.Key.Hours, 0, 0),
       });
