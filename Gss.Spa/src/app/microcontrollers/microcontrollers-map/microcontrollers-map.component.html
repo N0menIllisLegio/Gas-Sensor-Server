@@ -52,6 +52,20 @@
                         <td mat-cell *matCellDef="let element">{{ element.sensors.length }}</td>
                     </ng-container>
 
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element">
+                            <button mat-mini-fab
+                                (click)="onNavigateToMicrocontrollerPage(element)"
+                                class="!shadow-none"
+                                style="background-color: var(--mat-sys-primary);
+                                       color: var(--mat-sys-on-primary)"
+                                aria-label="Navigate to microcontroller page button">
+                                <mat-icon>chevron_right</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
                     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>

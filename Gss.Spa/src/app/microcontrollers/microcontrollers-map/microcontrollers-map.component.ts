@@ -22,6 +22,9 @@ import ErrorHandlingService from "../../core/error-handling.service";
 import { MapComponent } from "../shared/map/map.component";
 import FlyToTargetModel from "../shared/map/fly-to-target.model";
 import DisplayableMicrocontrollerModel from "../shared/map/displayable-microcontroller.model";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'microcontrollers-map',
@@ -39,6 +42,8 @@ import DisplayableMicrocontrollerModel from "../shared/map/displayable-microcont
         MatSortModule,
         MatInputModule,
         MatFormFieldModule,
+        MatButtonModule,
+        MatIconModule,
         SpinnerComponent,
         FormsModule,
         MapComponent
@@ -46,6 +51,7 @@ import DisplayableMicrocontrollerModel from "../shared/map/displayable-microcont
 })
 export class MicrocontrollersMapComponent {
     private snackBar = inject(MatSnackBar);
+    private router = inject(Router);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private errorHandlingService = inject(ErrorHandlingService);
     private mapBoundsSubject = new BehaviorSubject<LatLngBounds | null>(null);
@@ -56,7 +62,7 @@ export class MicrocontrollersMapComponent {
     mapZoom = 4;
     mapCenter = latLng(54.5260, 15.2551);
 
-    displayedColumns = ['name', 'coordinates', 'lastResponseTime', 'sensorsCount'];
+    displayedColumns = ['name', 'coordinates', 'lastResponseTime', 'sensorsCount', 'action'];
     isTableLoading = signal<boolean>(false);
     dataSource = signal<MicrocontrollerModel[]>([]);
     totalMicrocontrollers = signal<number>(0);
@@ -154,5 +160,9 @@ export class MicrocontrollersMapComponent {
             this.flyToTarget.next(
                 new FlyToTargetModel(microcontroller.latitude, microcontroller.longitude, 8));
         }
+    }
+
+    onNavigateToMicrocontrollerPage(microcontroller: MicrocontrollerModel) {
+        this.router.navigateByUrl(`/microcontrollers/${microcontroller.id}`);
     }
 }

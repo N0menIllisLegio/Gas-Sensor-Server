@@ -1,0 +1,1 @@
+export type watchingPeriod = 'Year' | 'Month' | 'Day';

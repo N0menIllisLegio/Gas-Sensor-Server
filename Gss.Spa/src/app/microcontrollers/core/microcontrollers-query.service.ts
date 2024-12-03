@@ -5,6 +5,7 @@ import PagedRequestModel from "../../core/paged-request.model";
 import PagedResponseModel from "../../core/paged-response.model";
 import MicrocontrollerModel from "./microcontroller.model";
 import { map } from "rxjs";
+import { guid } from "../../core/guid";
 
 @Injectable({ providedIn: 'root' })
 export class MicrocontrollersQueryService {
@@ -26,5 +27,15 @@ export class MicrocontrollersQueryService {
                     return response;
                 }
             ));
+    }
+
+    getMicrocontroller(id: guid) {
+        return this.httpClient.get<MicrocontrollerModel>(`/api/Microcontrollers/GetMicrocontroller/${id}`)
+            .pipe(map(x => {
+                if (x.lastResponseTime)
+                    x.lastResponseTime = new Date(x.lastResponseTime);
+
+                return x;
+            }));
     }
 }

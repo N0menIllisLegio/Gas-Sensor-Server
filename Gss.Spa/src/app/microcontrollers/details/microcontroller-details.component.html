@@ -1,0 +1,88 @@
+<div class="grid grid-cols-2 gap-4 p-4">
+    <section class="flex flex-col justify-end">
+        <mat-card class="example-card" appearance="outlined" style="min-height: 198px;">
+            <mat-card-header>
+              <mat-card-title-group>
+                <mat-card-title>Microcontroller Info</mat-card-title>
+              </mat-card-title-group>
+            </mat-card-header>
+            <mat-card-content class="relative">
+                @if (microcontroller()) {
+                    <div class="grid grid-cols-3 mt-4">
+                        <div class="font-bold">Id:</div>
+                        <div class="col-span-2">{{ microcontroller()!.id }}</div>
+                        <div class="font-bold">Name:</div>
+                        <div class="col-span-2">{{ microcontroller()!.name }}</div>
+                        <div class="font-bold">Public:</div>
+                        <div class="col-span-2">{{ microcontroller()!.public | boolYesNo }}</div>
+                        <div class="font-bold">Coordinates:</div>
+                        <div class="col-span-2">{{ { latitude: microcontroller()!.latitude, longitude: microcontroller()!.longitude } | coordinates | emptyPlaceholder }}</div>
+                        <div class="font-bold">Last Response Time:</div>
+                        <div class="col-span-2">{{ microcontroller()!.lastResponseTime | dateTime | emptyPlaceholder }}</div>
+                    </div>
+                }
+                @else {
+                    <spinner />
+                }
+            </mat-card-content>
+        </mat-card>
+    </section>
+    <section>
+        <mat-card class="overflow-hidden" appearance="outlined">
+            <mat-card-content class="!p-0" style="height: 198px;">
+                <map [microcontrollerAdded]="addMicrocontroller.asObservable()"
+                    [flyToTarget]="flyToTarget.asObservable()">
+                </map>
+            </mat-card-content>
+        </mat-card>
+    </section>
+    @if (microcontroller() && microcontroller()!.sensors.length > 0) {
+        <div class="col-span-2">
+            <mat-accordion>
+                @for (sensor of microcontroller()!.sensors; track sensor.id) {
+                    <mat-expansion-panel [expanded]="sensor.id === microcontroller()!.sensors[0].id">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                @if (sensor.type.icon) {
+                                    <img class="me-4" style="width: 24px; height: 24px;" [src]="sensor.type.icon">
+                                }
+                                <span>{{ sensor.name }}</span>
+                            </mat-panel-title>
+                            <mat-panel-description class="text-sm font-light">
+                                {{ sensor.microcontrollerSensorId }}
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        @if (sensor.description) {
+                            <p>{{ sensor.description }}</p>
+                        }
+
+                        @if (sensor.criticalValue) {
+                            <p>
+                                Set critical value:
+                                <span class="font-medium" style="color: var(--mat-sys-error)">
+                                    {{ sensor.criticalValue }} {{ sensor.type.units }}
+                                </span>
+                            </p>
+                        }
+
+                        @if(sensor.description || sensor.criticalValue) {
+                            <mat-divider class="!mt-4 !border-gray-200"></mat-divider>
+                        }
+
+                        <div class="mt-4">
+                            <data-chart
+                                [criticalValue]="sensor.criticalValue"
+                                [microcontrollerSensorId]="sensor.microcontrollerSensorId" />
+                        </div>
+                    </mat-expansion-panel>
+                }
+            </mat-accordion>
+        </div>
+    }
+    @else if (microcontroller() && microcontroller()!.sensors.length === 0) {
+        <div>No sensors connected</div>
+    }
+    @else {
+        <div>Loading...</div>
+    }
+</div>

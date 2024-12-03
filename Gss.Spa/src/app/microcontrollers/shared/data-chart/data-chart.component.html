@@ -1,0 +1,49 @@
+<div class="flex flex-col">
+    <div class="flex justify-around items-start">
+        <mat-form-field>
+            <mat-label>Choose a Period</mat-label>
+            <mat-select [(value)]="period" (valueChange)="getData()">
+                <mat-option value="Day">Day</mat-option>
+                <mat-option value="Month">Month</mat-option>
+                <mat-option value="Year">Year</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Choose a Watching Date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <button mat-flat-button
+            class="mt-2"
+            (click)="addWatchingDate()">
+            Add Watching Date
+        </button>
+    </div>
+
+    @if (watchingDates().length > 0) {
+        <mat-chip-set>
+            @for (watchingDate of watchingDates(); track watchingDate) {
+                <mat-chip-option (removed)="removeWatchingDate(watchingDate)">
+                    {{ watchingDate.toDateString() }}
+                    <button matChipRemove>
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </mat-chip-option>
+            }
+        </mat-chip-set>
+    }
+
+    <apx-chart
+        [series]="chartData()"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [stroke]="chartOptions.stroke!"
+        [tooltip]="chartOptions.tooltip!"
+        [dataLabels]="chartOptions.dataLabels!"
+        [annotations]="annotations() ?? {}"
+    ></apx-chart>
+</div>
+
