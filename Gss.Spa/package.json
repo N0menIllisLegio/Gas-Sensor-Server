@@ -1,6 +1,6 @@
 {
   "name": "gss.spa",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -22,6 +22,7 @@
     "@angular/router": "^19.0.0",
     "@bluehalo/ngx-leaflet": "^19.0.0",
     "leaflet": "^1.9.4",
+    "ng-apexcharts": "^1.15.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
