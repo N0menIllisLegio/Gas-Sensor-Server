@@ -5,6 +5,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import AuthService from './core/auth.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +16,9 @@ import AuthService from './core/auth.service';
     RouterLinkActive,
     MatSidenavModule,
     MatButtonModule,
-    MatListModule
+    MatListModule,
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

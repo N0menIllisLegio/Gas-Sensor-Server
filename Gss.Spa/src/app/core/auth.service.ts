@@ -22,6 +22,7 @@ export default class AuthService {
     private keycloak: Keycloak;
 
     isLoggedIn = signal<boolean>(false);
+    isAuthOperationInProgress = signal<boolean>(true); // silent sso
 
     public get accessToken() : string | undefined {
         return this.keycloak.token;
@@ -48,10 +49,12 @@ export default class AuthService {
 
         this.keycloak.onAuthSuccess = () => {
             this.isLoggedIn.set(true);
+            this.isAuthOperationInProgress.set(false);
         }
 
         this.keycloak.onAuthError = () => {
             this.isLoggedIn.set(false);
+            this.isAuthOperationInProgress.set(false);
             this.keycloak.clearToken();
         }
 
@@ -73,20 +76,24 @@ export default class AuthService {
         }))
         .subscribe(x => {
             this.isLoggedIn.set(x);
+            this.isAuthOperationInProgress.set(false);
         });
     }
 
     login() {
+        this.isAuthOperationInProgress.set(true);
         this.keycloak.login({
             redirectUri: location.toString()
         });
     }
 
     logout() {
-        this.keycloak.logout({
-            redirectUri: location.origin.toString()
-        });
+        this.isAuthOperationInProgress.set(true);
+
+        this.keycloak.logout();
 
         this.keycloak.clearToken();
+
+        this.isAuthOperationInProgress.set(false);
     }
 }

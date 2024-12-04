@@ -35,7 +35,16 @@
           <button mat-stroked-button class="w-full" (click)="authService.logout()">Log out</button>
         }
         @else {
-          <button mat-stroked-button class="w-full" (click)="authService.login()">Log in</button>
+          <button mat-stroked-button class="w-full flex items-center gap-2"
+            (click)="authService.login()"
+            [disabled]="authService.isAuthOperationInProgress()">
+            <span class="flex items-center gap-4">
+              @if (authService.isAuthOperationInProgress()) {
+                <mat-spinner [diameter]="15" />
+              }
+              <span>Log in</span>
+            </span>
+          </button>
         }
       </div>
     </nav>
