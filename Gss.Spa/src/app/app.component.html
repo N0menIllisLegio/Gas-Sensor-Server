@@ -31,7 +31,12 @@
         </mat-nav-list>
       </div>
       <div class="p-2">
-        <button mat-stroked-button class="w-full">Log in</button>
+        @if (authService.isLoggedIn()) {
+          <button mat-stroked-button class="w-full" (click)="authService.logout()">Log out</button>
+        }
+        @else {
+          <button mat-stroked-button class="w-full" (click)="authService.login()">Log in</button>
+        }
       </div>
     </nav>
   </mat-sidenav>
