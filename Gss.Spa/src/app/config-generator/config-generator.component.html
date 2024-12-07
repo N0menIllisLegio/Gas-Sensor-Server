@@ -1,0 +1,127 @@
+<div class="p-4 grid grid-cols-3 gap-4">
+    <div>
+        <div class="flex gap-2 justify-between">
+            <mat-form-field>
+                <mat-label>Microcontroller initial date</mat-label>
+                <input matInput [matDatepicker]="datepicker" [(ngModel)]="config.initDateTime">
+                <mat-datepicker #datepicker/>
+                <mat-datepicker-toggle [for]="datepicker" matSuffix/>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Microcontroller initial time</mat-label>
+                <input matInput
+                    [matTimepicker]="timepicker"
+                    [(ngModel)]="config.initDateTime"
+                    [ngModelOptions]="{ updateOn: 'blur' }">
+                <mat-timepicker #timepicker/>
+                <mat-timepicker-toggle [for]="timepicker" matSuffix/>
+            </mat-form-field>
+        </div>
+
+        <mat-form-field class="w-full">
+            <mat-label>WiFi SSID</mat-label>
+            <input matInput [(ngModel)]="config.ssid">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>WiFi Password</mat-label>
+            <input matInput [(ngModel)]="config.wifiPassword">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>WiFi Privacy Mode</mat-label>
+            <mat-select [(value)]="config.wifiPrivacyMode">
+                <mat-option value="0">None</mat-option>
+                <mat-option value="1">WEP</mat-option>
+                <mat-option value="2">WPA Personal</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>Server Address</mat-label>
+            <input matInput placeholder="https://server.com, http://127.0.0.1" [(ngModel)]="config.serverAddress">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Server Port</mat-label>
+            <input matInput placeholder="5000" [(ngModel)]="config.serverPort">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Server Communication Protocol</mat-label>
+            <mat-select [(value)]="config.serverCommunicationProtocol">
+                <mat-option value="t">TCP</mat-option>
+                <mat-option value="u" disabled>UDP (not supported)</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>SD card write period (seconds)</mat-label>
+            <input matInput [(ngModel)]="config.sdWritePeriodSeconds">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Send data to server every (seconds)</mat-label>
+            <input matInput [(ngModel)]="config.transmitPeriodSeconds">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Check if sensor data was requested every (seconds)</mat-label>
+            <input matInput [(ngModel)]="config.dataRequestSeconds">
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>Microcontroller's ID</mat-label>
+            <input matInput placeholder="97944fd1-0dd5-481b-bcfd-5039ff376584" [(ngModel)]="config.microcontrollerId">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Microcontroller's Key</mat-label>
+            <input matInput [(ngModel)]="config.microcontrollerKey">
+        </mat-form-field>
+        <mat-form-field class="w-full">
+            <mat-label>Microcontroller's sensor ID</mat-label>
+            <input matInput placeholder="97944fd1-0dd5-481b-bcfd-5039ff376584" [(ngModel)]="config.microcontrollerSensorId">
+        </mat-form-field>
+    </div>
+    <div class="col-span-2">
+        <mat-card id="public-microcontrollers-table-card" appearance="outlined">
+            <mat-card-content class="h-full">
+                <div #configurationText>
+                    <div>Date={{ config.initDateTime.getDate() }};</div>
+                    <div>Month={{ config.initDateTime.getMonth() }};</div>
+                    <div>Year={{ config.initDateTime.getFullYear() }};</div>
+                    <div>WeekDay={{ config.initDateTime.getDay() }};</div>
+                    <div>Hours={{ config.initDateTime.getHours() }};</div>
+                    <div>Minutes={{ config.initDateTime.getMinutes() }};</div>
+                    <div>Seconds={{ config.initDateTime.getSeconds() }};</div>
+                    <br />
+                    <div>SSID={{ config.ssid }};</div>
+                    <div>SecurityKey={{ config.wifiPassword }};</div>
+                    <div>PrivateMode={{ config.wifiPrivacyMode }};</div>
+                    <br />
+                    <div>writeSDIntervalSeconds={{ config.sdWritePeriodSeconds }};</div>
+                    <div>transmitIntervalSeconds={{ config.transmitPeriodSeconds }};</div>
+                    <div>requestIntervalSeconds={{ config.dataRequestSeconds }};</div>
+                    <br />
+                    <div>IP={{ config.serverAddress }};</div>
+                    <div>Port={{ config.serverPort }};</div>
+                    <div>Protocol={{ config.serverCommunicationProtocol }};</div>
+                    <br />
+                    <!-- Remove -->
+                    <div>OwnerID={{ config.ownerId }};</div>
+                    <div>MicrocontrollerID={{ config.microcontrollerId }};</div>
+                    <!-- Change naming in the protocol -->
+                    <div>MicrocontrollerPassword={{ config.microcontrollerKey }};</div>
+                    <!-- Change naming in the protocol -->
+                    <div>SensorID={{ config.microcontrollerSensorId }};</div>
+                </div>
+                <div class="absolute bottom-4 right-4 flex gap-2">
+                    <button mat-mini-fab class="!shadow-none" (click)="onCopy()">
+                        <mat-icon>content_copy</mat-icon>
+                    </button>
+                    <button mat-mini-fab class="!shadow-none" (click)="onDownload()">
+                        <mat-icon>download</mat-icon>
+                    </button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <div class="p-4 text-gray-500">
+            This file needs to be saved in microSD's root directory with <span class="font-bold">config.txt</span> name.
+        </div>
+    </div>
+</div>
