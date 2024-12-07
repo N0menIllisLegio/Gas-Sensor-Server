@@ -44,8 +44,4 @@ export class AppComponent {
       title: 'Sensor Types'
     },
   ];
-
-  constructor() {
-    this.authService.initialize();
-  }
 }

@@ -1,28 +1,38 @@
 import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, from } from 'rxjs';
+import { catchError, from, mergeMap } from 'rxjs';
 import Keycloak from 'keycloak-js';
 
 export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
     const authService = inject(AuthService);
-    const authToken = authService.accessToken;
 
-    if (!authToken)
-        return next(req);
+    return from(authService.initializationPromise)
+        .pipe(
+            mergeMap(() => {
+                const authToken = authService.accessToken;
 
-    const newReq = req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${authToken}`),
-    });
+                if (!authToken)
+                    return next(req);
 
-    return next(newReq);
+                const newReq = req.clone({
+                    headers: req.headers.set('Authorization', `Bearer ${authToken}`),
+                });
+
+                return next(newReq);
+            })
+        );
 }
 
 @Injectable({ providedIn: 'root' })
 export default class AuthService {
     private keycloak: Keycloak;
+    private resolveInitialization: ((value: boolean | PromiseLike<boolean>) => void) | undefined = undefined;
 
     isLoggedIn = signal<boolean>(false);
     isAuthOperationInProgress = signal<boolean>(true); // silent sso
+    initializationPromise = new Promise<boolean>((res) => {
+        this.resolveInitialization = res;
+    });
 
     public get accessToken() : string | undefined {
         return this.keycloak.token;
@@ -61,9 +71,8 @@ export default class AuthService {
         this.keycloak.onAuthLogout = () => {
             this.isLoggedIn.set(false);
         }
-    }
 
-    initialize() {
+
         from(this.keycloak.init({
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
@@ -72,11 +81,15 @@ export default class AuthService {
         .pipe(catchError((err, caught) => {
             console.error('Failed initialize keycloak', err);
 
+            this.resolveInitialization!(false);
+
             return caught;
         }))
         .subscribe(x => {
             this.isLoggedIn.set(x);
             this.isAuthOperationInProgress.set(false);
+
+            this.resolveInitialization!(x);
         });
     }
 
