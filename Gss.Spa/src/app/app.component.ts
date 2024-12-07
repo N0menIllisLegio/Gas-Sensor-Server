@@ -7,6 +7,7 @@ import { MatListModule } from '@angular/material/list';
 import AuthService from './core/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-root',
@@ -18,14 +19,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatButtonModule,
     MatListModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDividerModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   authService = inject(AuthService);
-  navbarLinks = [
+  publicNavbarLinks = [
     {
       url: '/map',
       title: 'Map'
@@ -33,6 +35,13 @@ export class AppComponent {
     {
       url: '/configuration-generator',
       title: 'Config Generator'
+    },
+  ];
+
+  authorizedNavbarLinks = [
+    {
+      url: '/sensor-types',
+      title: 'Sensor Types'
     },
   ];
 

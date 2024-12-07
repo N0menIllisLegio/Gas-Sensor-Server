@@ -3,11 +3,14 @@ import { MicrocontrollersMapComponent } from './microcontrollers/microcontroller
 import { Routes } from '@angular/router';
 import { MicrocontrollerDetailsComponent } from './microcontrollers/details/microcontroller-details.component';
 import { ConfigGeneratorComponent } from './config-generator/config-generator.component';
+import { SensorTypesTableComponent } from './sensor-types/sensor-types-table/sensor-types-table.component';
 
 export const routes: Routes = [
     { path: 'map', component: MicrocontrollersMapComponent },
     { path: 'microcontrollers/:microcontrollerId', component: MicrocontrollerDetailsComponent },
     { path: 'configuration-generator', component: ConfigGeneratorComponent },
+    { path: 'sensor-types', component: SensorTypesTableComponent },
+
     { path: '',   redirectTo: '/map', pathMatch: 'full' },
     { path: 'not-found', component: NotFoundComponent },
     { path: '**', redirectTo: '/not-found' },

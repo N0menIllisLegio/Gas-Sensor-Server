@@ -20,13 +20,25 @@
             <span>M</span>
           </a>
         </div>
-        <mat-nav-list class="!p-2 !mt-2">
-          @for (item of navbarLinks; track item.url) {
+        <mat-nav-list class="!p-2 !pt-4 !mt-2">
+          @for (item of publicNavbarLinks; track item.url) {
             <a mat-list-item
-              class="mt-2"
+              class="my-2"
               routerLinkActive="active"
               [routerLink]="item.url"
               [routerLinkActiveOptions]="{ exact: true }">{{ item.title }}</a>
+          }
+
+          @if (authService.isLoggedIn()) {
+            <mat-divider class="!border-stone-400" />
+
+            @for (item of authorizedNavbarLinks; track item.url) {
+              <a mat-list-item
+                class="my-2"
+                routerLinkActive="active"
+                [routerLink]="item.url"
+                [routerLinkActiveOptions]="{ exact: true }">{{ item.title }}</a>
+            }
           }
         </mat-nav-list>
       </div>

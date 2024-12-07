@@ -2,11 +2,10 @@ import { Component, inject, signal } from "@angular/core";
 import { latLng, Map, LatLngBounds } from "leaflet";
 import { MatTableModule } from "@angular/material/table";
 import { MatCardModule } from '@angular/material/card';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSortModule, Sort } from "@angular/material/sort";
-import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { MicrocontrollersQueryService } from "../core/microcontrollers-query.service";
 import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from "rxjs";
 import { DateTimePipe } from "../../shared/date-time.pipe";
@@ -31,13 +30,11 @@ import { Router } from "@angular/router";
     templateUrl: './microcontrollers-map.component.html',
     styleUrl: './microcontrollers-map.component.scss',
     imports: [
-        LeafletModule,
         DateTimePipe,
         EmptyPlaceholderPipe,
         CoordinatesPipe,
         MatTableModule,
         MatCardModule,
-        MatPaginator,
         MatPaginatorModule,
         MatSortModule,
         MatInputModule,
