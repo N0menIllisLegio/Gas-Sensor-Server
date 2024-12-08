@@ -12,7 +12,7 @@ public sealed class CreateSensorTypeDtoValidator: AbstractValidator<CreateSensor
             .MaximumLength(200).WithMessage("Name must not exceed 200 characters.");
 
         RuleFor(x => x.Icon)
-            .MaximumLength(200).WithMessage("Icon must not exceed 200 characters.")
+            .MaximumLength(8000).WithMessage("Icon must not exceed 8000 characters.")
             .When(x => x.Icon != null);
 
         RuleFor(x => x.Units)
