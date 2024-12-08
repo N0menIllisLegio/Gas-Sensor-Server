@@ -7,7 +7,7 @@
                     <input matInput [(ngModel)]="searchString" (ngModelChange)="loadSensorTypes()" placeholder="Search..." />
                 </mat-form-field>
 
-                <button mat-flat-button class="h-full mt-3">Create Type</button>
+                <button mat-flat-button class="h-full mt-3" (click)="onCreateType()">Create Type</button>
             </div>
             <div class="overflow-auto flex-grow relative">
                 @if (isTableLoading()) {

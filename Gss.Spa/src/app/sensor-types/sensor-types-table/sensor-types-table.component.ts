@@ -16,6 +16,9 @@ import SortOptionModel from '../../core/sort-option.model';
 import { SensorTypesQueryService } from '../core/sensor-types-query.service';
 import SensorTypeModel from '../core/sensor-type.model';
 import { EmptyPlaceholderPipe } from '../../shared/empty-placeholder.pipe';
+import { EditSensorTypeDialogComponent } from '../edit-sensor-type-dialog/edit-sensor-type-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import DialogResultModel from '../../core/dialog-result.model';
 
 @Component({
     selector: 'sensor-types-table',
@@ -36,6 +39,8 @@ import { EmptyPlaceholderPipe } from '../../shared/empty-placeholder.pipe';
 })
 export class SensorTypesTableComponent {
     private snackBar = inject(MatSnackBar);
+    private dialog = inject(MatDialog);
+
     private errorHandlingService = inject(ErrorHandlingService);
     private pagedRequestSubject = new BehaviorSubject<PagedRequestModel | null>(null);
     private sensorTypesQueryService = inject(SensorTypesQueryService);
@@ -55,11 +60,10 @@ export class SensorTypesTableComponent {
             .pipe(
                 filter(x => x !== null),
                 debounceTime(800),
-                distinctUntilChanged((prev, curr) => prev?.equals(curr) ?? false),
                 switchMap(x => {
                     this.isTableLoading.set(true);
 
-                    return this.sensorTypesQueryService.getPublicMicrocontrollers(x)
+                    return this.sensorTypesQueryService.getSensorTypes(x)
                         .pipe(catchError(err => {
                             const error = this.errorHandlingService.convertError(err);
 
@@ -108,6 +112,38 @@ export class SensorTypesTableComponent {
     }
 
     onRowClicked(sensorType: SensorTypeModel) {
-        console.log(sensorType);
+        const dialogRef = this.dialog.open(EditSensorTypeDialogComponent, {
+            panelClass: 'w-2/5',
+            data: sensorType,
+            disableClose: true
+        });
+
+        dialogRef.afterClosed()
+            .subscribe(x => {
+                const result = x as DialogResultModel;
+
+                if (!result || result.action === 'cancel')
+                    return;
+
+                this.loadSensorTypes();
+            });
+    }
+
+    onCreateType() {
+        const dialogRef = this.dialog.open(EditSensorTypeDialogComponent, {
+            panelClass: 'w-2/5',
+            data: null,
+            disableClose: true
+        });
+
+        dialogRef.afterClosed()
+            .subscribe(x => {
+                const result = x as DialogResultModel;
+
+                if (!result || result.action === 'cancel')
+                    return;
+
+                this.loadSensorTypes();
+            });
     }
 }
