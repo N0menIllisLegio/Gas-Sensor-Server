@@ -19,6 +19,7 @@ import DialogResultModel from '../../core/dialog-result.model';
 import { SensorsQueryService } from '../core/sensor-query.service';
 import SensorModel from '../core/sensor.model';
 import { EditSensorDialogComponent } from '../edit-sensor-dialog/edit-sensor-dialog.component';
+import AuthService from '../../core/auth.service';
 
 @Component({
     selector: 'sensor-table',
@@ -38,6 +39,7 @@ import { EditSensorDialogComponent } from '../edit-sensor-dialog/edit-sensor-dia
     ]
 })
 export class SensorsTableComponent {
+    authService = inject(AuthService);
     private snackBar = inject(MatSnackBar);
     private dialog = inject(MatDialog);
 
@@ -112,6 +114,13 @@ export class SensorsTableComponent {
     }
 
     onRowClicked(sensorType: SensorModel) {
+        if (!this.authService.isAdmin) {
+            // TODO: handle gracefully
+            console.log('Insuficient permissions!');
+
+            return;
+        }
+
         const dialogRef = this.dialog.open(EditSensorDialogComponent, {
             panelClass: 'w-2/5',
             data: sensorType,

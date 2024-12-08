@@ -21,23 +21,39 @@
           </a>
         </div>
         <mat-nav-list class="!p-2 !pt-4 !mt-2">
-          @for (item of publicNavbarLinks; track item.url) {
-            <a mat-list-item
-              class="my-2"
-              routerLinkActive="active"
-              [routerLink]="item.url"
-              [routerLinkActiveOptions]="{ exact: true }">{{ item.title }}</a>
-          }
+          <a mat-list-item
+            class="my-2"
+            routerLinkActive="active"
+            routerLink="/map"
+            [routerLinkActiveOptions]="{ exact: true }">Map</a>
+
+          <a mat-list-item
+            class="my-2"
+            routerLinkActive="active"
+            routerLink="/configuration-generator"
+            [routerLinkActiveOptions]="{ exact: true }">Config Generator</a>
 
           @if (authService.isLoggedIn()) {
             <mat-divider class="!border-stone-400" />
 
-            @for (item of authorizedNavbarLinks; track item.url) {
+            <a mat-list-item
+              class="my-2"
+              routerLinkActive="active"
+              [routerLink]="'user-microcontrollers/' + authService.userId"
+              [routerLinkActiveOptions]="{ exact: true }">My Microcontrollers</a>
+
+            <a mat-list-item
+              class="my-2"
+              routerLinkActive="active"
+              routerLink="/sensors"
+              [routerLinkActiveOptions]="{ exact: true }">Sensors</a>
+
+            @if (authService.isAdmin) {
               <a mat-list-item
                 class="my-2"
                 routerLinkActive="active"
-                [routerLink]="item.url"
-                [routerLinkActiveOptions]="{ exact: true }">{{ item.title }}</a>
+                routerLink="/sensor-types"
+                [routerLinkActiveOptions]="{ exact: true }">Sensor Types</a>
             }
           }
         </mat-nav-list>

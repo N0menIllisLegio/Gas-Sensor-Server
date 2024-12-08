@@ -38,6 +38,14 @@ export default class AuthService {
         return this.keycloak.token;
     }
 
+    public get userId() : string | undefined {
+        return this.keycloak.subject;
+    }
+
+    public get isAdmin() : boolean | undefined {
+        return (this.keycloak.tokenParsed as { roles: string[] })?.roles.includes('Administrator');
+    }
+
     constructor() {
         this.keycloak = new Keycloak({
             url: "http://localhost:18080",
@@ -72,18 +80,17 @@ export default class AuthService {
             this.isLoggedIn.set(false);
         }
 
-
         from(this.keycloak.init({
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
             pkceMethod: 'S256',
         }))
-        .pipe(catchError((err, caught) => {
+        .pipe(catchError((err) => {
             console.error('Failed initialize keycloak', err);
 
             this.resolveInitialization!(false);
 
-            return caught;
+            throw err;
         }))
         .subscribe(x => {
             this.isLoggedIn.set(x);

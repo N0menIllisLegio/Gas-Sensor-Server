@@ -27,25 +27,4 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class AppComponent {
   authService = inject(AuthService);
-  publicNavbarLinks = [
-    {
-      url: '/map',
-      title: 'Map'
-    },
-    {
-      url: '/configuration-generator',
-      title: 'Config Generator'
-    },
-  ];
-
-  authorizedNavbarLinks = [
-    {
-      url: '/sensors',
-      title: 'Sensors'
-    },
-    {
-      url: '/sensor-types',
-      title: 'Sensor Types'
-    },
-  ];
 }
