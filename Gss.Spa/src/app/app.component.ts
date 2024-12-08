@@ -40,6 +40,10 @@ export class AppComponent {
 
   authorizedNavbarLinks = [
     {
+      url: '/sensors',
+      title: 'Sensors'
+    },
+    {
       url: '/sensor-types',
       title: 'Sensor Types'
     },

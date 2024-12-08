@@ -11,18 +11,18 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import ErrorHandlingService from '../../core/error-handling.service';
 import PagedRequestModel from '../../core/paged-request.model';
-import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, debounceTime, filter, of, switchMap } from 'rxjs';
 import SortOptionModel from '../../core/sort-option.model';
-import { SensorTypesQueryService } from '../core/sensor-types-query.service';
-import SensorTypeModel from '../core/sensor-type.model';
 import { EmptyPlaceholderPipe } from '../../shared/empty-placeholder.pipe';
-import { EditSensorTypeDialogComponent } from '../edit-sensor-type-dialog/edit-sensor-type-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import DialogResultModel from '../../core/dialog-result.model';
+import { SensorsQueryService } from '../core/sensor-query.service';
+import SensorModel from '../core/sensor.model';
+import { EditSensorDialogComponent } from '../edit-sensor-dialog/edit-sensor-dialog.component';
 
 @Component({
-    selector: 'sensor-types-table',
-    templateUrl: 'sensor-types-table.component.html',
+    selector: 'sensor-table',
+    templateUrl: 'sensor-table.component.html',
     imports: [
         MatCardModule,
         EmptyPlaceholderPipe,
@@ -37,17 +37,17 @@ import DialogResultModel from '../../core/dialog-result.model';
         FormsModule
     ]
 })
-export class SensorTypesTableComponent {
+export class SensorsTableComponent {
     private snackBar = inject(MatSnackBar);
     private dialog = inject(MatDialog);
 
     private errorHandlingService = inject(ErrorHandlingService);
     private pagedRequestSubject = new BehaviorSubject<PagedRequestModel | null>(null);
-    private sensorTypesQueryService = inject(SensorTypesQueryService);
+    private sensorTypesQueryService = inject(SensorsQueryService);
 
     displayedColumns = ['icon', 'units', 'name'];
     isTableLoading = signal<boolean>(false);
-    dataSource = signal<SensorTypeModel[]>([]);
+    dataSource = signal<SensorModel[]>([]);
 
     totalSensorTypes = signal<number>(0);
     pageNumber = 0;
@@ -63,7 +63,7 @@ export class SensorTypesTableComponent {
                 switchMap(x => {
                     this.isTableLoading.set(true);
 
-                    return this.sensorTypesQueryService.getSensorTypes(x)
+                    return this.sensorTypesQueryService.getSensors(x)
                         .pipe(catchError(err => {
                             const error = this.errorHandlingService.convertError(err);
 
@@ -87,10 +87,10 @@ export class SensorTypesTableComponent {
                 this.totalSensorTypes.set(data.totalItemsCount);
             });
 
-        this.loadSensorTypes();
+        this.loadSensors();
     }
 
-    loadSensorTypes() {
+    loadSensors() {
         this.pagedRequestSubject.next(
             new PagedRequestModel(this.pageNumber + 1, this.pageSize, this.searchString, this.sortOptions));
     }
@@ -99,7 +99,7 @@ export class SensorTypesTableComponent {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
 
-        this.loadSensorTypes();
+        this.loadSensors();
     }
 
     sortData(sortOption: Sort) {
@@ -108,11 +108,11 @@ export class SensorTypesTableComponent {
         if (sortOption.direction !== '')
             this.sortOptions.push(new SortOptionModel(sortOption.direction === 'asc', sortOption.active));
 
-        this.loadSensorTypes();
+        this.loadSensors();
     }
 
-    onRowClicked(sensorType: SensorTypeModel) {
-        const dialogRef = this.dialog.open(EditSensorTypeDialogComponent, {
+    onRowClicked(sensorType: SensorModel) {
+        const dialogRef = this.dialog.open(EditSensorDialogComponent, {
             panelClass: 'w-2/5',
             data: sensorType,
             disableClose: true
@@ -125,12 +125,12 @@ export class SensorTypesTableComponent {
                 if (!result || result.action === 'cancel')
                     return;
 
-                this.loadSensorTypes();
+                this.loadSensors();
             });
     }
 
     onCreateType() {
-        const dialogRef = this.dialog.open(EditSensorTypeDialogComponent, {
+        const dialogRef = this.dialog.open(EditSensorDialogComponent, {
             panelClass: 'w-2/5',
             data: null,
             disableClose: true
@@ -143,7 +143,7 @@ export class SensorTypesTableComponent {
                 if (!result || result.action === 'cancel')
                     return;
 
-                this.loadSensorTypes();
+                this.loadSensors();
             });
     }
 }
