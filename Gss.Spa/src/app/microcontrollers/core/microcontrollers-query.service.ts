@@ -38,4 +38,18 @@ export class MicrocontrollersQueryService {
                 return x;
             }));
     }
+
+    getUserPublicMicrocontrollers(userId: guid, pagedRequest: PagedRequestModel) {
+        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>(`api/Microcontrollers/GetUserMicrocontrollers/${userId}`, pagedRequest)
+            .pipe(
+                map(response => {
+                    response.items.forEach(x => {
+                        if (x.lastResponseTime)
+                            x.lastResponseTime = new Date(x.lastResponseTime)
+                    });
+
+                    return response;
+                }
+            ));
+    }
 }

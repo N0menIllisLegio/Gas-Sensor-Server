@@ -5,11 +5,13 @@ import { MicrocontrollerDetailsComponent } from './microcontrollers/details/micr
 import { ConfigGeneratorComponent } from './config-generator/config-generator.component';
 import { SensorTypesTableComponent } from './sensor-types/sensor-types-table/sensor-types-table.component';
 import { SensorsTableComponent } from './sensors/sensors-table/sensor-table.component';
+import { UserMicrocontrollersComponent } from './microcontrollers/user-microcontrollers/user-microcontrollers.component';
 
 export const routes: Routes = [
     { path: 'map', component: MicrocontrollersMapComponent },
     { path: 'microcontrollers/:microcontrollerId', component: MicrocontrollerDetailsComponent },
     { path: 'configuration-generator', component: ConfigGeneratorComponent },
+    { path: 'user-microcontrollers/:userId', component: UserMicrocontrollersComponent },
     { path: 'sensors', component: SensorsTableComponent },
     { path: 'sensor-types', component: SensorTypesTableComponent },
 
