@@ -16,6 +16,9 @@ import { BoolYesNoPipe } from "../../shared/bool-yes-no.pipe";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { DataChartComponent } from "../shared/data-chart/data-chart.component";
 import { MatDivider } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import AuthService from "../../core/auth.service";
 
 @Component({
     selector: 'microcontroller-details',
@@ -30,12 +33,15 @@ import { MatDivider } from "@angular/material/divider";
         BoolYesNoPipe,
         MatExpansionModule,
         DataChartComponent,
-        MatDivider
+        MatDivider,
+        MatButtonModule,
+        MatIconModule
     ]
 })
 export class MicrocontrollerDetailsComponent {
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private router = inject(Router);
+    authService = inject(AuthService);
 
     loading = signal(true);
     microcontrollerId = input<guid>();
@@ -73,5 +79,14 @@ export class MicrocontrollerDetailsComponent {
                 this.addMicrocontroller.next(new DisplayableMicrocontrollerModel(data.latitude, data.longitude));
                 this.flyToTarget.next(new FlyToTargetModel(data.latitude, data.longitude, 8));
             });
+    }
+
+    onDelete() {
+        this.microcontrollerQueryService.deleteMicrocontroller(this.microcontrollerId()!)
+            .subscribe(() => this.router.navigateByUrl('/'));
+    }
+
+    onEdit() {
+        this.router.navigateByUrl(`/microcontrollers/${this.microcontrollerId()!}/edit`)
     }
 }

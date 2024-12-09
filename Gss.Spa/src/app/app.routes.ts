@@ -1,7 +1,7 @@
 import { NotFoundComponent } from './not-found-page/not-found.component';
 import { MicrocontrollersMapComponent } from './microcontrollers/microcontrollers-map/microcontrollers-map.component';
 import { Routes } from '@angular/router';
-import { MicrocontrollerDetailsComponent } from './microcontrollers/details/microcontroller-details.component';
+import { MicrocontrollerDetailsComponent } from './microcontrollers/microcontroller-details/microcontroller-details.component';
 import { ConfigGeneratorComponent } from './config-generator/config-generator.component';
 import { SensorTypesTableComponent } from './sensor-types/sensor-types-table/sensor-types-table.component';
 import { SensorsTableComponent } from './sensors/sensors-table/sensor-table.component';

@@ -52,4 +52,8 @@ export class MicrocontrollersQueryService {
                 }
             ));
     }
+
+    deleteMicrocontroller(id: guid) {
+        return this.httpClient.delete(`api/Microcontrollers/Delete/${id}`);
+    }
 }
