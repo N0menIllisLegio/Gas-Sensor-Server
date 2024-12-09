@@ -56,4 +56,18 @@ export class MicrocontrollersQueryService {
     deleteMicrocontroller(id: guid) {
         return this.httpClient.delete(`api/Microcontrollers/Delete/${id}`);
     }
+
+    requestSensorValue(microcontrollerId: guid, microcontrollerSensorId: guid) {
+        return this.httpClient.patch('api/Microcontrollers/RequestSensorValue', {
+            microcontrollerId,
+            microcontrollerSensorId
+        });
+    }
+
+    setTreshold(microcontrollerSensorId: guid, threshold: number) {
+        return this.httpClient.patch('api/Microcontrollers/SetSensorsCriticalValue', {
+            microcontrollerSensorId,
+            criticalValue: threshold
+        });
+    }
 }

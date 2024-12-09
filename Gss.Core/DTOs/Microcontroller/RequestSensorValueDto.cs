@@ -3,5 +3,5 @@
 public class RequestSensorValueDto
 {
   public Guid MicrocontrollerId { get; set; }
-  public Guid SensorId { get; set; }
+  public Guid MicrocontrollerSensorId { get; set; }
 }

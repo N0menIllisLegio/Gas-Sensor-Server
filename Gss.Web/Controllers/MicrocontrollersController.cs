@@ -144,7 +144,7 @@ public class MicrocontrollersController : ControllerBase
   public async Task<IActionResult> RequestSensorValue([FromBody] RequestSensorValueDto requestSensorValueDto, CancellationToken cancellationToken)
   {
     var response = await _microcontrollerService.RequestSensorValueAsync(
-      requestSensorValueDto.MicrocontrollerId, requestSensorValueDto.SensorId, cancellationToken);
+      requestSensorValueDto.MicrocontrollerId, requestSensorValueDto.MicrocontrollerSensorId, cancellationToken);
 
     return Ok(response);
   }
