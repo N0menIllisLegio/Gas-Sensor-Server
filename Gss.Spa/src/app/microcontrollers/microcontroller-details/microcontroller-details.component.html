@@ -44,6 +44,7 @@
                         <mat-expansion-panel-header>
                             <mat-panel-title>
                                 <button mat-mini-fab class="!shadow-none !bg-transparent mr-4"
+                                    matTooltip="Request this sensor\'s data from microcontroller"
                                     (click)="onSync($event, sensor.microcontrollerSensorId)"
                                     [disabled]="requestedSensorId() === sensor.microcontrollerSensorId">
                                     <mat-icon>sync</mat-icon>

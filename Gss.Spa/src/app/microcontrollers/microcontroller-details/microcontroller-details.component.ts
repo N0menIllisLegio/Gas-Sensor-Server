@@ -24,6 +24,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormsModule } from "@angular/forms";
 import MicrocontrollerSensorModel from "../core/microcontroller-sensor.model";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
     selector: 'microcontroller-details',
@@ -43,7 +44,8 @@ import MicrocontrollerSensorModel from "../core/microcontroller-sensor.model";
         MatIconModule,
         FormsModule,
         MatFormFieldModule,
-        MatInputModule
+        MatInputModule,
+        MatTooltipModule
     ]
 })
 export class MicrocontrollerDetailsComponent {
