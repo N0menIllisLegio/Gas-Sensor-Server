@@ -1,6 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { icon, Icon, latLng, latLngBounds, Layer, MapOptions, tileLayer, Map, LatLng, marker, tooltip } from 'leaflet';
+import { icon, Icon, latLng, latLngBounds, Layer, MapOptions, tileLayer, Map, LatLng, marker, tooltip, LeafletMouseEvent } from 'leaflet';
 import DisplayableMicrocontrollerModel from './displayable-microcontroller.model';
 import { Observable } from 'rxjs';
 import FlyToTargetModel from './fly-to-target.model';
@@ -29,6 +29,7 @@ export class MapComponent {
     centerChange = output<LatLng>();
     leafletMapMoveEnd = output<Map>();
     leafletMapReady = output<Map>();
+    leafletDoubleClick = output<LeafletMouseEvent>();
 
     microcontrollerAdded = input<Observable<DisplayableMicrocontrollerModel | null>>();
     microcontrollersAdded = input<Observable<DisplayableMicrocontrollerModel[] | null>>();

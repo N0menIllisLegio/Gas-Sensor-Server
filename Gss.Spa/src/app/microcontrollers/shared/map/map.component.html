@@ -1,6 +1,7 @@
 <div id="leaflet-map" class="h-full"
     leaflet
 
+    (leafletDoubleClick)="leafletDoubleClick.emit($event)"
     [leafletZoom]="zoom()"
     (leafletZoomChange)="zoomChange.emit($event)"
 

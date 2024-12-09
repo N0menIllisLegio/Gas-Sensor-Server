@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
@@ -20,6 +20,9 @@ import { SensorsQueryService } from '../core/sensor-query.service';
 import SensorModel from '../core/sensor.model';
 import { EditSensorDialogComponent } from '../edit-sensor-dialog/edit-sensor-dialog.component';
 import AuthService from '../../core/auth.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SelectionModel } from '@angular/cdk/collections';
+import { guid } from '../../core/guid';
 
 @Component({
     selector: 'sensor-table',
@@ -35,7 +38,8 @@ import AuthService from '../../core/auth.service';
         MatFormFieldModule,
         MatButtonModule,
         SpinnerComponent,
-        FormsModule
+        FormsModule,
+        MatCheckboxModule
     ]
 })
 export class SensorsTableComponent {
@@ -47,7 +51,7 @@ export class SensorsTableComponent {
     private pagedRequestSubject = new BehaviorSubject<PagedRequestModel | null>(null);
     private sensorTypesQueryService = inject(SensorsQueryService);
 
-    displayedColumns = ['icon', 'units', 'name'];
+    displayedColumns = ['select', 'icon', 'units', 'name'];
     isTableLoading = signal<boolean>(false);
     dataSource = signal<SensorModel[]>([]);
 
@@ -56,6 +60,9 @@ export class SensorsTableComponent {
     pageSize = 10;
     searchString = '';
     sortOptions: SortOptionModel[] = [];
+
+    isSelectionEnabled = input<boolean>(false);
+    selection = input<SelectionModel<guid>>(new SelectionModel<guid>(true, []));
 
     constructor() {
         this.pagedRequestSubject
@@ -92,6 +99,11 @@ export class SensorsTableComponent {
         this.loadSensors();
     }
 
+    ngOnInit() {
+        if (!this.isSelectionEnabled())
+            this.displayedColumns.shift();
+    }
+
     loadSensors() {
         this.pagedRequestSubject.next(
             new PagedRequestModel(this.pageNumber + 1, this.pageSize, this.searchString, this.sortOptions));
@@ -114,6 +126,11 @@ export class SensorsTableComponent {
     }
 
     onRowClicked(sensorType: SensorModel) {
+        if (this.isSelectionEnabled()) {
+            this.selection().toggle(sensorType.id);
+            return;
+        }
+
         if (!this.authService.isAdmin) {
             // TODO: handle gracefully
             console.log('Insuficient permissions!');

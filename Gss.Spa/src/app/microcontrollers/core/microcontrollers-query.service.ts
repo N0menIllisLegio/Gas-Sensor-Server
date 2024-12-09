@@ -6,6 +6,7 @@ import PagedResponseModel from "../../core/paged-response.model";
 import MicrocontrollerModel from "./microcontroller.model";
 import { map } from "rxjs";
 import { guid } from "../../core/guid";
+import EditMicrocontrollerModel from "../edit-microcontroller/edit-microcontroller.model";
 
 @Injectable({ providedIn: 'root' })
 export class MicrocontrollersQueryService {
@@ -68,6 +69,29 @@ export class MicrocontrollersQueryService {
         return this.httpClient.patch('api/Microcontrollers/SetSensorsCriticalValue', {
             microcontrollerSensorId,
             criticalValue: threshold
+        });
+    }
+
+    createMicrocontroller(newMicrocontroller: EditMicrocontrollerModel, newSensors: guid[]) {
+        return this.httpClient.post<{ id: guid }>('api/Microcontrollers/Create', {
+            name: newMicrocontroller.name,
+            public: newMicrocontroller.isPublic,
+            latitude: newMicrocontroller.latitude === '' ? null : newMicrocontroller.latitude,
+            longitude: newMicrocontroller.longitude === '' ? null : newMicrocontroller.longitude,
+            key: newMicrocontroller.key === '' ? null : newMicrocontroller.key,
+            sensorIDs: newSensors,
+        });
+    }
+
+    updateMicrocontroller(newMicrocontroller: EditMicrocontrollerModel, newSensors: guid[], originalMicrocontroller: MicrocontrollerModel) {
+        return this.httpClient.put(`api/Microcontrollers/Update/${originalMicrocontroller.id}`, {
+            name: newMicrocontroller.name,
+            public: newMicrocontroller.isPublic,
+            latitude: newMicrocontroller.latitude === '' ? null : newMicrocontroller.latitude,
+            longitude: newMicrocontroller.longitude === '' ? null : newMicrocontroller.longitude,
+            key: newMicrocontroller.key === '' ? null : newMicrocontroller.key,
+            addSensorIds: newSensors.filter(x => originalMicrocontroller.sensors.find(y => y.id === x) === undefined),
+            removeMicrocontrollerSensorIds: originalMicrocontroller.sensors.filter(x => !newSensors.includes(x.id)).map(x => x.microcontrollerSensorId)
         });
     }
 }

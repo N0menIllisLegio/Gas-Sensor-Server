@@ -1,3 +1,57 @@
-<div>
-    123
+<div class="p-4 flex flex-col gap-8">
+    <mat-card style="height: 300px;" class="overflow-hidden" appearance="outlined">
+        <mat-card-content class="h-full !p-0">
+            <map [(zoom)]="mapZoom"
+                [(center)]="mapCenter"
+                (leafletDoubleClick)="mapDoubleClick($event)"
+                [microcontrollerAdded]="addMicrocontroller.asObservable()"
+                [flyToTarget]="flyToTarget.asObservable()">
+            </map>
+        </mat-card-content>
+    </mat-card>
+
+    <div>
+        <mat-form-field class="w-full">
+            <mat-label>Name</mat-label>
+            <input matInput [(ngModel)]="editingMicrocontroller().name">
+        </mat-form-field>
+
+        <mat-slide-toggle [checked]="editingMicrocontroller()!.isPublic" class="mb-5">
+            Grant public access (people will be able to view data and location of this microcontroller)
+        </mat-slide-toggle>
+
+        <mat-form-field class="w-full">
+            <mat-label>Latitude</mat-label>
+            <input matInput [(ngModel)]="editingMicrocontroller().latitude" (change)="onLatLngChange()">
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>Longitude</mat-label>
+            <input matInput [(ngModel)]="editingMicrocontroller().longitude" (change)="onLatLngChange()">
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+            <mat-label>Key</mat-label>
+            <input matInput [(ngModel)]="editingMicrocontroller().key">
+            <mat-hint>Entring any value here and saving will overwrite old one or leave it empty to persist old value on update</mat-hint>
+        </mat-form-field>
+    </div>
+
+    <div class="flex-grow">
+        <sensor-table [isSelectionEnabled]="true" [selection]="selectedSensors" />
+        <mat-hint style="font-size: var(--mat-sys-body-small-size);" class="pl-4">Maximum 5 sensors per one microcontroller</mat-hint>
+    </div>
+
+
+
+    <button mat-flat-button size="large"
+        (click)="onSave()"
+        [disabled]="isSaving()">
+        <span class="flex items-center gap-4">
+            @if (isSaving()) {
+                <mat-spinner [diameter]="15" />
+            }
+            <span>Save</span>
+        </span>
+    </button>
 </div>

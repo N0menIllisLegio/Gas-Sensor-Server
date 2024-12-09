@@ -55,7 +55,7 @@ export class MicrocontrollerDetailsComponent {
     authService = inject(AuthService);
 
     loading = signal(true);
-    microcontrollerId = input<guid>();
+    microcontrollerId = input.required<guid>();
     microcontroller = signal<MicrocontrollerModel | undefined> (undefined);
     requestedSensorId = signal<guid | null> (null);
 
@@ -65,7 +65,7 @@ export class MicrocontrollerDetailsComponent {
     ngOnInit() {
         const guidCheckRegex = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 
-        if (!this.microcontrollerId() || !guidCheckRegex.test(this.microcontrollerId()!)) {
+        if (!guidCheckRegex.test(this.microcontrollerId()!)) {
             this.router.navigateByUrl('/not-found');
             return;
         }
