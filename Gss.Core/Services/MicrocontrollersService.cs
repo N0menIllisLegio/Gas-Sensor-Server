@@ -129,7 +129,12 @@ public class MicrocontrollersService : IMicrocontrollersService
       throw new UserInputException("Sensors can't be more than 5 per microcontroller");
 
     microcontroller.Name = updateMicrocontrollerDto.Name;
-    microcontroller.Key = updateMicrocontrollerDto.Key;
+
+    if (updateMicrocontrollerDto.Key is not null)
+    {
+      microcontroller.Key = updateMicrocontrollerDto.Key;
+    }
+
     microcontroller.Public = updateMicrocontrollerDto.Public;
     microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
     microcontroller.Latitude = updateMicrocontrollerDto.Latitude;
