@@ -43,20 +43,44 @@
                     <mat-expansion-panel [expanded]="sensor.id === microcontroller()!.sensors[0].id">
                         <mat-expansion-panel-header>
                             <mat-panel-title>
+                                <button mat-mini-fab class="!shadow-none !bg-transparent mr-4"
+                                    (click)="onSync($event, sensor.microcontrollerSensorId)"
+                                    [disabled]="requestedSensorId() === sensor.microcontrollerSensorId">
+                                    <mat-icon>sync</mat-icon>
+                                </button>
+
                                 @if (sensor.type.icon) {
                                     <img class="me-4" style="width: 24px; height: 24px;" [src]="sensor.type.icon">
                                 }
+
                                 <span>{{ sensor.name }}</span>
                             </mat-panel-title>
                             <mat-panel-description class="text-sm font-light">
                                 {{ sensor.microcontrollerSensorId }}
                             </mat-panel-description>
                         </mat-expansion-panel-header>
+                        <div>
+
+                        </div>
                         @if (sensor.description) {
                             <p>{{ sensor.description }}</p>
                         }
 
-                        @if (sensor.criticalValue) {
+                        @if (authService.isAdmin || authService.userId === microcontroller()!.ownerId) {
+                            <div class="pt-4">
+                                <mat-form-field>
+                                    <mat-label>Critical Value</mat-label>
+                                    <input matInput placeholder="Enter threshold" [(ngModel)]="sensor.enteredCriticalValue" maxlength="5">
+                                </mat-form-field>
+
+                                <button mat-mini-fab class="!shadow-none ml-4" (click)="onSetCriticalValue(sensor)"
+                                        style="background-color: var(--mat-sys-primary);
+                                                color: var(--mat-sys-on-primary)">
+                                    <mat-icon>save</mat-icon>
+                                </button>
+                            </div>
+                        }
+                        @else if (sensor.criticalValue) {
                             <p>
                                 Set critical value:
                                 <span class="font-medium" style="color: var(--mat-sys-error)">
@@ -86,7 +110,7 @@
         <div>Loading...</div>
     }
 
-    @if (authService.isAdmin || microcontroller() && authService.userId === microcontroller()!.ownerId) {
+    @if (microcontroller() && (authService.isAdmin || authService.userId === microcontroller()!.ownerId)) {
         <div class="absolute right-4 bottom-4">
             <button mat-fab class="mr-4" (click)="onDelete()"
                 style="background-color: var(--mat-sys-error);

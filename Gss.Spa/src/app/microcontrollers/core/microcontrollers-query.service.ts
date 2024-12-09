@@ -64,7 +64,7 @@ export class MicrocontrollersQueryService {
         });
     }
 
-    setTreshold(microcontrollerSensorId: guid, threshold: number) {
+    setTreshold(microcontrollerSensorId: guid, threshold: number | null) {
         return this.httpClient.patch('api/Microcontrollers/SetSensorsCriticalValue', {
             microcontrollerSensorId,
             criticalValue: threshold

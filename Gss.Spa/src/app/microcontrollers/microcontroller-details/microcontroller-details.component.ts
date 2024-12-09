@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 import { MicrocontrollersQueryService } from "../core/microcontrollers-query.service";
 import { guid } from "../../core/guid";
 import { Router } from "@angular/router";
@@ -19,6 +19,11 @@ import { MatDivider } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import AuthService from "../../core/auth.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { FormsModule } from "@angular/forms";
+import MicrocontrollerSensorModel from "../core/microcontroller-sensor.model";
 
 @Component({
     selector: 'microcontroller-details',
@@ -35,10 +40,14 @@ import AuthService from "../../core/auth.service";
         DataChartComponent,
         MatDivider,
         MatButtonModule,
-        MatIconModule
+        MatIconModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule
     ]
 })
 export class MicrocontrollerDetailsComponent {
+    private snackBar = inject(MatSnackBar);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private router = inject(Router);
     authService = inject(AuthService);
@@ -46,6 +55,7 @@ export class MicrocontrollerDetailsComponent {
     loading = signal(true);
     microcontrollerId = input<guid>();
     microcontroller = signal<MicrocontrollerModel | undefined> (undefined);
+    requestedSensorId = signal<guid | null> (null);
 
     addMicrocontroller = new BehaviorSubject<DisplayableMicrocontrollerModel | null>(null);
     flyToTarget = new BehaviorSubject<FlyToTargetModel | null>(null);
@@ -70,8 +80,11 @@ export class MicrocontrollerDetailsComponent {
                 if (!data)
                     return;
 
+                data.sensors.forEach(x => x.enteredCriticalValue = x.criticalValue?.toString());
+
                 this.loading.set(false);
                 this.microcontroller.set(data);
+                this.requestedSensorId.set(data.requestedSensorId);
 
                 if (data.latitude === null || data.longitude === null)
                     return;
@@ -88,5 +101,43 @@ export class MicrocontrollerDetailsComponent {
 
     onEdit() {
         this.router.navigateByUrl(`/microcontrollers/${this.microcontrollerId()!}/edit`)
+    }
+
+    onSync(event: Event, microcontrollerSensorId: guid) {
+        event.stopPropagation();
+
+        this.microcontrollerQueryService.requestSensorValue(this.microcontrollerId()!, microcontrollerSensorId)
+            .subscribe(() => {
+                this.requestedSensorId.set(microcontrollerSensorId);
+
+                this.snackBar.open('Sensor\'s data requested successfully!', undefined, {
+                    horizontalPosition: 'right',
+                    verticalPosition: 'bottom',
+                    duration: 5000,
+                });
+            });
+    }
+
+    onSetCriticalValue(sensor: MicrocontrollerSensorModel) {
+        const enteredValue = Number(sensor.enteredCriticalValue);
+
+        if (isNaN(enteredValue)) {
+            this.snackBar.open('Entered value is not a number!', undefined, {
+                horizontalPosition: 'right',
+                verticalPosition: 'bottom',
+                duration: 5000,
+            });
+
+            return;
+        }
+
+        this.microcontrollerQueryService.setTreshold(sensor.microcontrollerSensorId, sensor.enteredCriticalValue === '' ? null : enteredValue)
+            .subscribe(() => {
+                this.snackBar.open('Critical value updated successfuly!', undefined, {
+                    horizontalPosition: 'right',
+                    verticalPosition: 'bottom',
+                    duration: 5000,
+                });
+            });
     }
 }
