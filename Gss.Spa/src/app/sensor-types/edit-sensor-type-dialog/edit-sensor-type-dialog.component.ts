@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     MAT_DIALOG_DATA,
+    MatDialog,
     MatDialogModule,
     MatDialogRef,
   } from '@angular/material/dialog';
@@ -17,6 +18,7 @@ import { Observable } from 'rxjs';
 import ErrorHandlingService from '../../core/error-handling.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation.dialog';
 
 @Component({
     selector: 'edit-sensor-type-dialog',
@@ -36,6 +38,7 @@ export class EditSensorTypeDialogComponent {
     private errorHandlingService = inject(ErrorHandlingService);
     readonly dialogRef = inject(MatDialogRef<EditSensorTypeDialogComponent>);
     readonly data = inject<SensorTypeModel | null>(MAT_DIALOG_DATA);
+    readonly dialog = inject(MatDialog);
 
     readonly units = model(this.data?.units ?? '');
     readonly name = model(this.data?.name ?? '');
@@ -43,10 +46,25 @@ export class EditSensorTypeDialogComponent {
     readonly isBusy = signal<boolean>(false);
 
     onDelete(): void {
-        this.isBusy.set(true);
-        const request = this.sensorTypesQueryService.deleteSensorType(this.data!.id);
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+          panelClass: 'w-2/5',
+          disableClose: true,
+          data: {
+              title: 'Confirmation Dialog',
+              message: 'Are you sure you want to delete sensor type?',
+              okButtonText: 'Yes',
+              cancelButtonText: 'No'
+          },
+        });
 
-        this.showErrorOrCloseDialog(request);
+        dialogRef.afterClosed().subscribe((x) => {
+            if (x) {
+              this.isBusy.set(true);
+              const request = this.sensorTypesQueryService.deleteSensorType(this.data!.id);
+
+              this.showErrorOrCloseDialog(request);
+            }
+        });
     }
 
     onCancel(): void {

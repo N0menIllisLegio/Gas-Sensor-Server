@@ -1,0 +1,8 @@
+<div mat-dialog-title>{{ data.title }}</div>
+<mat-dialog-content>
+    <p class="text-lg">{{ data.message }}</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="false">{{ data.cancelButtonText ?? 'Cancel' }}</button>
+    <button mat-button cdkFocusInitial [mat-dialog-close]="true">{{ data.okButtonText ?? 'OK' }}</button>
+</mat-dialog-actions>

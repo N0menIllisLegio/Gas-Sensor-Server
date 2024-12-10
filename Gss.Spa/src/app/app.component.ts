@@ -8,6 +8,8 @@ import AuthService from './core/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from './shared/confirmation-dialog/confirmation.dialog';
 
 @Component({
   selector: 'app-root',
@@ -27,4 +29,24 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class AppComponent {
   authService = inject(AuthService);
+  readonly dialog = inject(MatDialog);
+
+  onLogout() {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      panelClass: 'w-2/5',
+      disableClose: true,
+      data: {
+          title: 'Confirmation Dialog',
+          message: 'Are you sure you want to logout?',
+          okButtonText: 'Yes',
+          cancelButtonText: 'No'
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((x) => {
+        if (x) {
+          this.authService.logout();
+        }
+    });
+  }
 }

@@ -28,6 +28,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { EditThresholdDialog } from "./edit-threshold-dialog/edit-threshold.dialog";
 import { MatDialog } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/confirmation.dialog";
 
 @Component({
     selector: 'microcontroller-details',
@@ -102,8 +103,23 @@ export class MicrocontrollerDetailsComponent {
     }
 
     onDelete() {
-        this.microcontrollerQueryService.deleteMicrocontroller(this.microcontrollerId()!)
-            .subscribe(() => this.router.navigateByUrl('/'));
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            panelClass: 'w-2/5',
+            disableClose: true,
+            data: {
+                title: 'Confirmation Dialog',
+                message: 'Are you sure you want to delete microcontroller?',
+                okButtonText: 'Yes',
+                cancelButtonText: 'No'
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((x) => {
+            if (x) {
+                this.microcontrollerQueryService.deleteMicrocontroller(this.microcontrollerId()!)
+                    .subscribe(() => this.router.navigateByUrl('/'));
+            }
+        });
     }
 
     onEdit() {
