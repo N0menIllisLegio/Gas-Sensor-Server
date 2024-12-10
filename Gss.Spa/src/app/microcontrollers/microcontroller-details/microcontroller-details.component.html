@@ -101,7 +101,9 @@
         <div>No sensors connected</div>
     }
     @else {
-        <div>Loading...</div>
+        <div class="col-span-2 h-80 flex items-center justify-center">
+            <mat-spinner diameter="50" />
+        </div>
     }
 
     @if (microcontroller() && (authService.isAdmin || authService.userId === microcontroller()!.ownerId)) {

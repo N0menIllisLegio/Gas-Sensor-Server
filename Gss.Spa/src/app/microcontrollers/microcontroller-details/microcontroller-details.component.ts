@@ -27,6 +27,7 @@ import MicrocontrollerSensorModel from "../core/microcontroller-sensor.model";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { EditThresholdDialog } from "./edit-threshold-dialog/edit-threshold.dialog";
 import { MatDialog } from "@angular/material/dialog";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
     selector: 'microcontroller-details',
@@ -47,7 +48,8 @@ import { MatDialog } from "@angular/material/dialog";
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatProgressSpinnerModule
     ]
 })
 export class MicrocontrollerDetailsComponent {
