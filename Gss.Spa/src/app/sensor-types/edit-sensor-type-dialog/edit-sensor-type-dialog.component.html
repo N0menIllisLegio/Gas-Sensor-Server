@@ -1,59 +1,76 @@
-<h2 mat-dialog-title>Edit Sensor Type</h2>
-<mat-dialog-content class="w-full">
-    <div class="flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-            <div>
-                <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
-                <input hidden (change)="encodeImageFileAsURL($event)" #fileInput type="file" id="file" accept="image/png, image/jpeg" >
-            </div>
+<form (ngSubmit)="onSave()">
+  <h2 mat-dialog-title>Edit Sensor Type</h2>
+  <mat-dialog-content class="w-full">
+      <div class="flex flex-col">
+          <div class="flex justify-between items-center mb-4">
+              <div>
+                  <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
+                  <input hidden (change)="encodeImageFileAsURL($event)" #fileInput type="file" id="file" accept="image/png, image/jpeg" >
+                  @if (errorMessage()['icon']?.message) {
+                    <div class="px-4 pt-2" style="color: var(--mat-sys-error); font-size: var(--mat-sys-body-small-size)">
+                      {{ errorMessage()['icon']!.message }}
+                    </div>
+                  }
+              </div>
 
-            <div class="border-2 p-4">
-                <img style="width: 32px; height: 32px;" [src]="icon()">
-            </div>
-        </div>
+              <div class="border-2 p-4">
+                  <img style="width: 32px; height: 32px;" [src]="icon.value">
+              </div>
+          </div>
 
-        <mat-form-field>
-          <mat-label>Name</mat-label>
-          <input matInput [(ngModel)]="name" />
-        </mat-form-field>
+          <mat-form-field>
+            <mat-label>Name</mat-label>
+            <input matInput
+              [formControl]="name"
+              (blur)="updateErrorMessage()" />
+            @if (errorMessage()['name']?.message) {
+                <mat-error>{{ errorMessage()['name']!.message }}</mat-error>
+            }
+          </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>Units</mat-label>
-          <input matInput [(ngModel)]="units" />
-        </mat-form-field>
-    </div>
-</mat-dialog-content>
-<mat-dialog-actions class="!justify-between">
-    @if (data) {
-        <button mat-stroked-button class="!text-red-700" (click)="onDelete()" [disabled]="isBusy()">
-            <span class="flex items-center gap-4">
-              @if (isBusy()) {
-                <mat-spinner [diameter]="15" />
-              }
-              <span>Delete</span>
-            </span>
-        </button>
-    }
-    @else {
-        <span></span>
-    }
-    <div>
-        <button mat-button (click)="onCancel()" [disabled]="isBusy()">
-            <span class="flex items-center gap-4">
-              @if (isBusy()) {
-                <mat-spinner [diameter]="15" />
-              }
-              <span>Cancel</span>
-            </span>
-        </button>
-        <button mat-button (click)="onSave()" cdkFocusInitial
-            [disabled]="isBusy()">
-            <span class="flex items-center gap-4">
-              @if (isBusy()) {
-                <mat-spinner [diameter]="15" />
-              }
-              <span>Save</span>
-            </span>
-        </button>
-    </div>
-</mat-dialog-actions>
+          <mat-form-field>
+            <mat-label>Units</mat-label>
+            <input matInput
+              [formControl]="units"
+              (blur)="updateErrorMessage()" />
+            @if (errorMessage()['units']?.message) {
+                <mat-error>{{ errorMessage()['units']!.message }}</mat-error>
+            }
+          </mat-form-field>
+      </div>
+  </mat-dialog-content>
+  <mat-dialog-actions class="!justify-between">
+      @if (data) {
+          <button mat-stroked-button type="button" class="!text-red-700" (click)="onDelete()" [disabled]="isBusy()">
+              <span class="flex items-center gap-4">
+                @if (isBusy()) {
+                  <mat-spinner [diameter]="15" />
+                }
+                <span>Delete</span>
+              </span>
+          </button>
+      }
+      @else {
+          <span></span>
+      }
+      <div>
+          <button mat-button type="button" (click)="onCancel()" [disabled]="isBusy()">
+              <span class="flex items-center gap-4">
+                @if (isBusy()) {
+                  <mat-spinner [diameter]="15" />
+                }
+                <span>Cancel</span>
+              </span>
+          </button>
+          <button mat-button type="submit" cdkFocusInitial
+              [disabled]="isBusy()">
+              <span class="flex items-center gap-4">
+                @if (isBusy()) {
+                  <mat-spinner [diameter]="15" />
+                }
+                <span>Save</span>
+              </span>
+          </button>
+      </div>
+  </mat-dialog-actions>
+</form>

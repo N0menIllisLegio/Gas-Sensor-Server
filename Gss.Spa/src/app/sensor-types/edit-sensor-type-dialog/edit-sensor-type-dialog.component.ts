@@ -1,6 +1,6 @@
 
 import { Component, inject, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,11 +14,13 @@ import SensorTypeModel from '../core/sensor-type.model';
 import EditSensorTypeModel from './edit-sensor-type.model';
 import DialogResultModel from '../../core/dialog-result.model';
 import { SensorTypesQueryService } from '../core/sensor-types-query.service';
-import { Observable } from 'rxjs';
+import { merge, Observable } from 'rxjs';
 import ErrorHandlingService from '../../core/error-handling.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation.dialog';
+import dictionary from '../../core/dictionary.type';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'edit-sensor-type-dialog',
@@ -29,7 +31,8 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
         FormsModule,
         MatButtonModule,
         MatDialogModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        ReactiveFormsModule
     ]
 })
 export class EditSensorTypeDialogComponent {
@@ -40,10 +43,62 @@ export class EditSensorTypeDialogComponent {
     readonly data = inject<SensorTypeModel | null>(MAT_DIALOG_DATA);
     readonly dialog = inject(MatDialog);
 
-    readonly units = model(this.data?.units ?? '');
-    readonly name = model(this.data?.name ?? '');
-    readonly icon = model(this.data?.icon ?? '');
+    readonly icon = new FormControl(this.data?.icon ?? '', [Validators.maxLength(8000)]);
+    readonly name = new FormControl(this.data?.name ?? '', [Validators.required, Validators.maxLength(200)]);
+    readonly units = new FormControl(this.data?.units ?? '', [Validators.maxLength(20)]);
+    readonly errorMessage = signal<dictionary<{ message: string } | undefined>>({});
+
     readonly isBusy = signal<boolean>(false);
+
+    constructor() {
+        merge(
+            this.icon.statusChanges, this.icon.valueChanges,
+            this.name.statusChanges, this.name.valueChanges,
+            this.units.statusChanges, this.units.valueChanges,
+        )
+            .pipe(takeUntilDestroyed())
+            .subscribe(() => this.updateErrorMessage());
+    }
+
+    updateErrorMessage() {
+        let isValid = true;
+        const errors: dictionary<{ message: string }> = {};
+
+        if (this.name.hasError('required')) {
+            errors['name'] = {
+                message: 'You must enter a value'
+            };
+
+            isValid = false;
+        }
+        else if (this.name.hasError('maxlength')) {
+            errors['name'] = {
+                message: `Max value length: ${this.name.errors!['maxlength'].requiredLength}`
+            };
+
+            isValid = false;
+        }
+
+        if (this.icon.hasError('maxlength')) {
+            errors['icon'] = {
+                message: 'Selected icon is too large'
+            };
+
+            isValid = false;
+        }
+
+        if (this.units.hasError('maxlength')) {
+            errors['units'] = {
+                message: `Max value length: ${this.units.errors!['maxlength'].requiredLength}`
+            };
+
+            isValid = false;
+        }
+
+        this.errorMessage.set(errors);
+
+        return isValid;
+    }
 
     onDelete(): void {
         const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -72,13 +127,16 @@ export class EditSensorTypeDialogComponent {
     }
 
     onSave(): void {
-        // TODO: detailed errors from backend and form validaiton.
+        if (!this.updateErrorMessage()) {
+            return;
+        }
+
         this.isBusy.set(true);
         const editSensorType = new EditSensorTypeModel(
             this.data?.id ?? null,
-            this.icon() === '' ? null : this.icon(),
-            this.name(),
-            this.units() === '' ? null : this.units(),
+            this.icon.value === '' ? null : this.icon.value,
+            this.name.value!,
+            this.units.value === '' ? null : this.units.value,
         );
 
         const request = this.data === null
@@ -118,9 +176,9 @@ export class EditSensorTypeDialogComponent {
                 const imageBase64 = reader.result as string;
 
                 if (imageBase64) {
-                    this.icon.set(imageBase64);
+                    this.icon.setValue(imageBase64);
                 } else {
-                    this.icon.set('');
+                    this.icon.setValue('');
                 }
             }
 
