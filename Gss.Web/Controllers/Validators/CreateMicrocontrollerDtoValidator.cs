@@ -18,7 +18,6 @@ public sealed class CreateMicrocontrollerDtoValidator: AbstractValidator<CreateM
             .NotEmpty().WithMessage("Key is required.");
 
         RuleFor(x => x.SensorIDs)
-            .NotEmpty().WithMessage("SensorIDs must not be empty.")
             .Must(list => list.All(id => id != Guid.Empty)).WithMessage("SensorIDs must contain valid non-empty GUIDs.")
             .Must(list => list.Count <= 5).WithMessage("Sensors can't be more than 5 per microcontroller");
 
