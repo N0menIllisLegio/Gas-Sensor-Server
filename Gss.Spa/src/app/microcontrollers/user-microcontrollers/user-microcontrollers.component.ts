@@ -79,6 +79,7 @@ export class UserMicrocontrollersComponent {
                                 horizontalPosition: 'right',
                                 verticalPosition: 'bottom',
                                 duration: 5000,
+                                panelClass: 'whitespace-pre'
                             });
 
                             return of(null);

@@ -129,7 +129,8 @@ export class DataChartComponent {
             this.snackBar.open('Please select watching date!', undefined, {
                 duration: 3000,
                 horizontalPosition: 'right',
-                verticalPosition: 'bottom'
+                verticalPosition: 'bottom',
+                panelClass: 'whitespace-pre'
             });
             return;
         }
@@ -138,7 +139,8 @@ export class DataChartComponent {
             this.snackBar.open('This date is already added!', undefined, {
                 duration: 3000,
                 horizontalPosition: 'right',
-                verticalPosition: 'bottom'
+                verticalPosition: 'bottom',
+                panelClass: 'whitespace-pre'
             });
             return;
         }
@@ -147,7 +149,8 @@ export class DataChartComponent {
             this.snackBar.open('You can watch only 5 series at the same time!', undefined, {
                 duration: 3000,
                 horizontalPosition: 'right',
-                verticalPosition: 'bottom'
+                verticalPosition: 'bottom',
+                panelClass: 'whitespace-pre'
             });
             return;
         }

@@ -116,6 +116,7 @@ export class MicrocontrollerDetailsComponent {
                     horizontalPosition: 'right',
                     verticalPosition: 'bottom',
                     duration: 5000,
+                    panelClass: 'whitespace-pre'
                 });
             });
     }
@@ -128,6 +129,7 @@ export class MicrocontrollerDetailsComponent {
                 horizontalPosition: 'right',
                 verticalPosition: 'bottom',
                 duration: 5000,
+                panelClass: 'whitespace-pre'
             });
 
             return;
@@ -139,6 +141,7 @@ export class MicrocontrollerDetailsComponent {
                     horizontalPosition: 'right',
                     verticalPosition: 'bottom',
                     duration: 5000,
+                    panelClass: 'whitespace-pre'
                 });
             });
     }

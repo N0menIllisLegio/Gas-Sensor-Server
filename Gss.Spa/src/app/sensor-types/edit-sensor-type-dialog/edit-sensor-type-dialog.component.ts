@@ -81,6 +81,7 @@ export class EditSensorTypeDialogComponent {
                     horizontalPosition: 'right',
                     verticalPosition: 'bottom',
                     duration: 5000,
+                    panelClass: 'whitespace-pre'
                 });
             },
             next: () => {

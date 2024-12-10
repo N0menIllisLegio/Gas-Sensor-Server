@@ -58,11 +58,13 @@ export class ConfigGeneratorComponent {
         navigator.clipboard.writeText(this.configTextElement()!.nativeElement.innerText).then(
             () => this.snackBar.open('Config copied to clipboard!', undefined, {
                 verticalPosition: 'bottom',
-                horizontalPosition: 'right'
+                horizontalPosition: 'right',
+                panelClass: 'whitespace-pre'
             }),
             () => this.snackBar.open('Failed to copy config!', undefined, {
                 verticalPosition: 'bottom',
-                horizontalPosition: 'right'
+                horizontalPosition: 'right',
+                panelClass: 'whitespace-pre'
             }));
     }
 
