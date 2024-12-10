@@ -1,4 +1,4 @@
-<div class="p-4 flex flex-col gap-8">
+<form class="p-4 flex flex-col gap-8" (ngSubmit)="onSave()">
     <mat-card style="height: 300px;" class="overflow-hidden" appearance="outlined">
         <mat-card-content class="h-full !p-0">
             <map [(zoom)]="mapZoom"
@@ -10,42 +10,67 @@
         </mat-card-content>
     </mat-card>
 
-    <div>
+    <div class="flex flex-col gap-2">
         <mat-form-field class="w-full">
             <mat-label>Name</mat-label>
-            <input matInput [(ngModel)]="editingMicrocontroller().name">
+            <input matInput
+                [formControl]="name"
+                (blur)="updateErrorMessage()">
+            @if (errorMessage()['name']?.message) {
+                <mat-error>{{ errorMessage()['name']!.message }}</mat-error>
+            }
         </mat-form-field>
 
-        <mat-slide-toggle [checked]="editingMicrocontroller()!.isPublic" class="mb-5">
+        <mat-slide-toggle class="mb-5"
+            [formControl]="isPublic"
+            (blur)="updateErrorMessage()">
             Grant public access (people will be able to view data and location of this microcontroller)
+            @if (errorMessage()['isPublic']?.message) {
+                <mat-error>{{ errorMessage()['isPublic']!.message }}</mat-error>
+            }
         </mat-slide-toggle>
 
         <mat-form-field class="w-full">
             <mat-label>Latitude</mat-label>
-            <input matInput [(ngModel)]="editingMicrocontroller().latitude" (change)="onLatLngChange()">
+            <input matInput (change)="onLatLngChange()"
+                [formControl]="lat"
+                (blur)="updateErrorMessage()">
+            @if (errorMessage()['lat']?.message) {
+                <mat-error>{{ errorMessage()['lat']!.message }}</mat-error>
+            }
         </mat-form-field>
 
         <mat-form-field class="w-full">
             <mat-label>Longitude</mat-label>
-            <input matInput [(ngModel)]="editingMicrocontroller().longitude" (change)="onLatLngChange()">
+            <input matInput (change)="onLatLngChange()"
+                [formControl]="lng"
+                (blur)="updateErrorMessage()">
+            @if (errorMessage()['lng']?.message) {
+                <mat-error>{{ errorMessage()['lng']!.message }}</mat-error>
+            }
         </mat-form-field>
 
         <mat-form-field class="w-full">
             <mat-label>Key</mat-label>
-            <input matInput [(ngModel)]="editingMicrocontroller().key">
+            <input matInput
+                [formControl]="key"
+                (blur)="updateErrorMessage()">
+            @if (errorMessage()['key']?.message) {
+                <mat-error>{{ errorMessage()['key']!.message }}</mat-error>
+            }
             <mat-hint>Entring any value here and saving will overwrite old one or leave it empty to persist old value on update</mat-hint>
         </mat-form-field>
     </div>
 
     <div class="flex-grow">
         <sensor-table [isSelectionEnabled]="true" [selection]="selectedSensors" />
-        <mat-hint style="font-size: var(--mat-sys-body-small-size);" class="pl-4">Maximum 5 sensors per one microcontroller</mat-hint>
+        @if (errorMessage()['sensors']?.message) {
+            <mat-hint style="font-size: var(--mat-sys-body-small-size);" class="pl-4 text-red-700">{{ errorMessage()['sensors']!.message }}</mat-hint>
+        }
     </div>
 
-
-
     <button mat-flat-button size="large"
-        (click)="onSave()"
+        type="submit"
         [disabled]="isSaving()">
         <span class="flex items-center gap-4">
             @if (isSaving()) {
@@ -54,4 +79,4 @@
             <span>Save</span>
         </span>
     </button>
-</div>
+</form>
