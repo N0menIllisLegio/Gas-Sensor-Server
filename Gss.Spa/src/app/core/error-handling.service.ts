@@ -12,6 +12,28 @@ export default class ErrorHandlingService {
         } else {
             console.error(`Backend returned code ${error.status}, body was: `, error.error);
 
+            if (error.status === 401) {
+                return new ErrorModel('Unauthorized access! Please login!');
+            }
+
+            if (error.status === 403) {
+                return new ErrorModel('Forbidden! You don\'t have permissions to access this action!');
+            }
+
+            if (error.status === 403) {
+                return new ErrorModel('Forbidden! You don\'t have permissions to access this action!');
+            }
+
+            if (error.status === 422) {
+                const validationError = error as unknown as { error: { errors: { [key: string]: string[] } } };
+
+                if (validationError) {
+                    return new ErrorModel(Object.values(validationError.error.errors).flatMap(x => x).join('\n'));
+                }
+
+                return new ErrorModel('Validation error occured please check data you entered!');
+            }
+
             return new ErrorModel('Backend returned: ' + error.status);
         }
     }
