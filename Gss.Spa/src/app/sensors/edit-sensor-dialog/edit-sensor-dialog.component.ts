@@ -1,6 +1,6 @@
 
-import { Component, inject, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +11,7 @@ import {
     MatDialogRef,
   } from '@angular/material/dialog';
 import DialogResultModel from '../../core/dialog-result.model';
-import { Observable } from 'rxjs';
+import { merge, Observable } from 'rxjs';
 import ErrorHandlingService from '../../core/error-handling.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,6 +23,8 @@ import SensorTypeModel from '../../sensor-types/core/sensor-type.model';
 import { SensorTypesQueryService } from '../../sensor-types/core/sensor-types-query.service';
 import PagedRequestModel from '../../core/paged-request.model';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation.dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import dictionary from '../../core/dictionary.type';
 
 @Component({
     selector: 'edit-sensor-dialog',
@@ -34,7 +36,8 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
         MatButtonModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        NgSelectModule
+        NgSelectModule,
+        ReactiveFormsModule
     ]
 })
 export class EditSensorDialogComponent {
@@ -46,19 +49,71 @@ export class EditSensorDialogComponent {
     readonly data = inject<SensorModel | null>(MAT_DIALOG_DATA);
     readonly dialog = inject(MatDialog);
 
-    readonly name = model(this.data?.name ?? '');
-    readonly description = model(this.data?.description ?? '');
-    readonly type = model(this.data?.type ?? null);
-    readonly isBusy = signal<boolean>(false);
-
     sensorTypes: SensorTypeModel[] = [];
     loading = signal<boolean>(false);
     page = 1;
     size = 20;
     fetchedAllSensorTypes = false;
 
+    readonly form = new FormGroup({
+        type: new FormControl(this.data?.type ?? null, [Validators.required]),
+        name: new FormControl(this.data?.name ?? '', [Validators.required, Validators.maxLength(200)]),
+        description: new FormControl(this.data?.description ?? '', [Validators.maxLength(1800)]),
+    });
+
+    readonly errorMessage = signal<dictionary<{ message: string } | undefined>>({});
+    readonly isBusy = signal<boolean>(false);
+
     constructor() {
+        merge(
+            this.form.controls.name.statusChanges, this.form.controls.name.valueChanges,
+            this.form.controls.description.statusChanges, this.form.controls.description.valueChanges,
+            this.form.controls.type.statusChanges, this.form.controls.type.valueChanges
+        )
+            .pipe(takeUntilDestroyed())
+            .subscribe(() => this.updateErrorMessage());
+
         this.loadItems();
+    }
+
+    updateErrorMessage() {
+        let isValid = true;
+        const errors: dictionary<{ message: string }> = {};
+
+        if (this.form.controls.name.hasError('required')) {
+            errors['name'] = {
+                message: 'You must enter a value'
+            };
+
+            isValid = false;
+        }
+        else if (this.form.controls.name.hasError('maxlength')) {
+            errors['name'] = {
+                message: `Max value length: ${this.form.controls.name.errors!['maxlength'].requiredLength}`
+            };
+
+            isValid = false;
+        }
+
+        if (this.form.controls.description.hasError('maxlength')) {
+            errors['description'] = {
+                message: `Max value length: ${this.form.controls.description.errors!['maxlength'].requiredLength}`
+            };
+
+            isValid = false;
+        }
+
+        if (this.form.controls.type.hasError('required')) {
+            errors['type'] = {
+                message: `You must enter a value`
+            };
+
+            isValid = false;
+        }
+
+        this.errorMessage.set(errors);
+
+        return isValid;
     }
 
     onScrollToEnd() {
@@ -107,13 +162,16 @@ export class EditSensorDialogComponent {
     }
 
     onSave(): void {
-        // TODO: detailed errors from backend and form validaiton.
+        if (!this.updateErrorMessage()) {
+            return;
+        }
+
         this.isBusy.set(true);
         const editSensorType = new EditSensorModel(
             this.data?.id ?? null,
-            this.name(),
-            this.description() === '' ? null : this.description(),
-            this.type()!.id
+            this.form.controls.name.value!,
+            this.form.controls.description.value === '' ? null : this.form.controls.description.value,
+            this.form.controls.type.value!.id
         );
 
         const request = this.data === null
