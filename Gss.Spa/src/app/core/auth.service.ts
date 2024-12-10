@@ -1,6 +1,6 @@
 import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, from, mergeMap } from 'rxjs';
+import { from, mergeMap } from 'rxjs';
 import Keycloak from 'keycloak-js';
 
 export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
@@ -85,18 +85,18 @@ export default class AuthService {
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
             pkceMethod: 'S256',
         }))
-        .pipe(catchError((err) => {
-            console.error('Failed initialize keycloak', err);
+        .subscribe({
+            next: x => {
+                this.isLoggedIn.set(x);
+                this.isAuthOperationInProgress.set(false);
 
-            this.resolveInitialization!(false);
+                this.resolveInitialization!(x);
+            },
+            error: (err) => {
+                console.error('Failed initialize keycloak', err);
 
-            throw err;
-        }))
-        .subscribe(x => {
-            this.isLoggedIn.set(x);
-            this.isAuthOperationInProgress.set(false);
-
-            this.resolveInitialization!(x);
+                this.resolveInitialization!(false);
+            }
         });
     }
 
