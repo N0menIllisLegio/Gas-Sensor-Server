@@ -25,6 +25,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormsModule } from "@angular/forms";
 import MicrocontrollerSensorModel from "../core/microcontroller-sensor.model";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { EditThresholdDialog } from "./edit-threshold-dialog/edit-threshold.dialog";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
     selector: 'microcontroller-details',
@@ -52,6 +54,7 @@ export class MicrocontrollerDetailsComponent {
     private snackBar = inject(MatSnackBar);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private router = inject(Router);
+    readonly dialog = inject(MatDialog);
     authService = inject(AuthService);
 
     loading = signal(true);
@@ -122,27 +125,18 @@ export class MicrocontrollerDetailsComponent {
     }
 
     onSetCriticalValue(sensor: MicrocontrollerSensorModel) {
-        const enteredValue = Number(sensor.enteredCriticalValue);
+        const dialogRef = this.dialog.open(EditThresholdDialog, {
+            panelClass: 'w-1/5',
+            data: {
+                microcontrollerSensorId: sensor.microcontrollerSensorId,
+                criticalValue: sensor.criticalValue
+            },
+        });
 
-        if (isNaN(enteredValue)) {
-            this.snackBar.open('Entered value is not a number!', undefined, {
-                horizontalPosition: 'right',
-                verticalPosition: 'bottom',
-                duration: 5000,
-                panelClass: 'whitespace-pre'
-            });
-
-            return;
-        }
-
-        this.microcontrollerQueryService.setTreshold(sensor.microcontrollerSensorId, sensor.enteredCriticalValue === '' ? null : enteredValue)
-            .subscribe(() => {
-                this.snackBar.open('Critical value updated successfuly!', undefined, {
-                    horizontalPosition: 'right',
-                    verticalPosition: 'bottom',
-                    duration: 5000,
-                    panelClass: 'whitespace-pre'
-                });
-            });
+        dialogRef.afterClosed().subscribe((changedValue) => {
+            if (changedValue) {
+                sensor.criticalValue = changedValue.criticalValue;
+            }
+        });
     }
 }

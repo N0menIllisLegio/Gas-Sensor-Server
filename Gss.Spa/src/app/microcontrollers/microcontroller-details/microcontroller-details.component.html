@@ -60,39 +60,32 @@
                                 {{ sensor.microcontrollerSensorId }}
                             </mat-panel-description>
                         </mat-expansion-panel-header>
-                        <div>
 
-                        </div>
-                        @if (sensor.description) {
-                            <p>{{ sensor.description }}</p>
-                        }
+                        <div class="flex justify-between items-center">
+                            <div>
+                                @if (sensor.description) {
+                                    <p>{{ sensor.description }}</p>
+                                }
 
-                        @if (authService.isAdmin || authService.userId === microcontroller()!.ownerId) {
-                            <div class="pt-4">
-                                <mat-form-field>
-                                    <mat-label>Critical Value</mat-label>
-                                    <input matInput placeholder="Enter threshold" [(ngModel)]="sensor.enteredCriticalValue" maxlength="5">
-                                </mat-form-field>
-
-                                <button mat-mini-fab class="!shadow-none ml-4" (click)="onSetCriticalValue(sensor)"
-                                        style="background-color: var(--mat-sys-primary);
-                                                color: var(--mat-sys-on-primary)">
-                                    <mat-icon>save</mat-icon>
-                                </button>
+                                @if (sensor.criticalValue) {
+                                    <p>
+                                        Critical value:
+                                        <span class="font-medium" style="color: var(--mat-sys-error)">
+                                            {{ sensor.criticalValue }} {{ sensor.type.units }}
+                                        </span>
+                                    </p>
+                                }
                             </div>
-                        }
-                        @else if (sensor.criticalValue) {
-                            <p>
-                                Set critical value:
-                                <span class="font-medium" style="color: var(--mat-sys-error)">
-                                    {{ sensor.criticalValue }} {{ sensor.type.units }}
-                                </span>
-                            </p>
-                        }
 
-                        @if(sensor.description || sensor.criticalValue) {
-                            <mat-divider class="!mt-4 !border-gray-200"></mat-divider>
-                        }
+                            <button mat-mini-fab class="!shadow-none ml-4" (click)="onSetCriticalValue(sensor)"
+                                    matTooltip="Update critical value"
+                                    style="background-color: var(--mat-sys-primary);
+                                            color: var(--mat-sys-on-primary)">
+                                <mat-icon>settings</mat-icon>
+                            </button>
+                        </div>
+
+                        <mat-divider class="!mt-4 !border-gray-200"></mat-divider>
 
                         <div class="mt-4">
                             <data-chart

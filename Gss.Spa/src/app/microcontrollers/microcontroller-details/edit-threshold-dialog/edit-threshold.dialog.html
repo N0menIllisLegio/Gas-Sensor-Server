@@ -1,0 +1,18 @@
+<form (ngSubmit)="save()">
+  <mat-dialog-content>
+    <p class="mb-4 text-justify">Set threshold for your sensor. You will receive email notification if threshold will be reached.</p>
+    <mat-form-field class="w-full">
+      <mat-label>Threshold</mat-label>
+      <input matInput
+        [formControl]="threshold"
+        (blur)="updateErrorMessage()">
+      @if (errorMessage()) {
+        <mat-error>{{ errorMessage() }}</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" type="button">Cancel</button>
+    <button mat-button cdkFocusInitial type="submit">OK</button>
+  </mat-dialog-actions>
+</form>
