@@ -91,6 +91,7 @@ app.UseSwaggerUI(o => o.OAuthClientId("public-client"));
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseDefaultFiles();
 app.UseRouting();
 
 app.UseAuthentication();
@@ -98,5 +99,6 @@ app.UseAuthorization();
 app.UseMiddleware<CurrentUserDataSetterMiddleware>();
 
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();
