@@ -38,8 +38,11 @@ internal sealed class CriticalValueReachedConsumer: IConsumer<CriticalValueReach
         var microcontrollerSensor =
             microcontroller.MicrocontrollerSensors.First(x => x.Id == context.Message.MicrocontrollerSensorId);
 
-        await _emailService.SendCriticalValueEmailAsync(context.Message.Value, microcontrollerSensor.CriticalValue ?? -1,
-            microcontroller, microcontrollerSensor.Sensor, context.CancellationToken);
+        // TODO: get email by OwnerId from Keycloak
+        if (microcontrollerSensor.CriticalValue.HasValue)
+            await _emailService.SendCriticalValueEmailAsync("test@test.com", context.Message.Value,
+                microcontrollerSensor.CriticalValue ?? -1, microcontroller, microcontrollerSensor.Sensor,
+                context.CancellationToken);
     }
 }
 
@@ -52,7 +55,7 @@ internal class CriticalValueReachedConsumerDefinition : ConsumerDefinition<Criti
 
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
         {
-            rmq.Bind<SensorDataReceived>(x =>
+            rmq.Bind<CriticalValueReached>(x =>
             {
                 x.RoutingKey = RoutingKeys.CriticalValueReachedKey;
             });

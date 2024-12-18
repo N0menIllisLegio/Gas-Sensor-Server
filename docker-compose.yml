@@ -69,3 +69,10 @@
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+
+  email:
+    image: changemakerstudiosus/papercut-smtp:latest
+    container_name: Gss.PapercutSMTP
+    ports:
+      - 5500:80
+      - 25:25
