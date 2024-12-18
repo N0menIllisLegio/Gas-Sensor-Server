@@ -15,8 +15,17 @@ COPY . .
 WORKDIR "/src/Gss.Web"
 RUN dotnet build "Gss.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+FROM node:alpine AS frontend
+WORKDIR /src
+RUN npm install -g @angular/cli
+COPY ["Gss.Spa/package*.json", "./"]
+RUN npm install
+COPY ["Gss.Spa", "."]
+RUN ng build
+
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
+COPY --from=frontend /src/dist/gss.spa/browser ./wwwroot
 RUN dotnet publish "Gss.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final

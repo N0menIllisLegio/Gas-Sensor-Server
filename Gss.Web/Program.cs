@@ -86,12 +86,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseProblemDetails();
 
-app.UseSwagger();
-app.UseSwaggerUI(o => o.OAuthClientId("public-client"));
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(o => o.OAuthClientId("public-client"));
+}
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
