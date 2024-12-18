@@ -12,6 +12,7 @@
     depends_on:
       - keycloak
       - postgres
+      - rabbitmq
 
   microcontroller-listener:
     image: gss.microcontroller-listener
@@ -22,6 +23,17 @@
     ports:
       - 5001:8080
       - 5002:5002
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - web
+
+  microcontroller-data-handler:
+    image: gss.microcontroller-data-handler
+    container_name: Gss.MicrocontrollerDataHandler
+    build:
+      context: .
+      dockerfile: Gss.MicrocontrollerDataHandler/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
@@ -51,3 +63,13 @@
       - POSTGRES_PASSWORD=admin
     volumes:
       - ./.containers/postgresql:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: Gss.RabbitMQ
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest

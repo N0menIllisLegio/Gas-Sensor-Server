@@ -1,4 +1,4 @@
-﻿namespace Gss.MicrocontrollerListener.Email;
+﻿namespace Gss.MicrocontrollerDataHandler.Email;
 
 internal sealed class EmailOptions
 {

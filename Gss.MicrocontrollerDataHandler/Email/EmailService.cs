@@ -3,7 +3,7 @@ using Gss.Core.Entities;
 using Gss.Core.Resources;
 using Microsoft.Extensions.Options;
 
-namespace Gss.MicrocontrollerListener.Email;
+namespace Gss.MicrocontrollerDataHandler.Email;
 
 internal class EmailService : IEmailService
 {

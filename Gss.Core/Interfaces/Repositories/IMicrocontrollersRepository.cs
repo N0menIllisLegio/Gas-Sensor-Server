@@ -14,4 +14,9 @@ public interface IMicrocontrollersRepository: IRepositoryBase<Microcontroller>
 
   Task<List<MapMicrocontrollerDto>> GetVisibleMicrocontrollersAsync(double southWestLatitude, double southWestLongitude, double northEastLatitude, double northEastLongitude, CancellationToken cancellationToken = default);
   Task<int> SetSensorValueThresholdAsync(ICurrentUser currentUser, Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default);
+
+  Task<Microcontroller?> FindMicrocontrollerByMicrocontrollerSensorIdAsync(Guid microcontrollerSensorId,
+    CancellationToken cancellationToken = default);
+
+  Task ResetMicrocontrollerRequestSensorValueAsync(Guid microcontrollerId, CancellationToken cancellationToken = default);
 }
