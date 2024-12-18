@@ -95,7 +95,7 @@ internal sealed class MicrocontrollerConnectionManager : IDisposable
         await _socket.SendAsync(responseBytes, SocketFlags.None, cancellationToken);
     }
 
-    protected void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposedValue)
         {
