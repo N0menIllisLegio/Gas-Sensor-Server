@@ -1,7 +1,8 @@
 ﻿using System.Net.Sockets;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
-namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
+namespace Gss.MicrocontrollerListener;
 
 internal sealed class MicrocontrollerConnectionManager: IDisposable
 {

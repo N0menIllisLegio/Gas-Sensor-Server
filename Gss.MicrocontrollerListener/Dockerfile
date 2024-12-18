@@ -1,8 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 5002
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -10,6 +9,7 @@ WORKDIR /src
 COPY ["Gss.MicrocontrollerListener/Gss.MicrocontrollerListener.csproj", "Gss.MicrocontrollerListener/"]
 COPY ["Gss.Core/Gss.Core.csproj", "Gss.Core/"]
 COPY ["Gss.Infrastructure/Gss.Infrastructure.csproj", "Gss.Infrastructure/"]
+COPY ["Gss.Queue/Gss.Queue.csproj", "Gss.Queue/"]
 RUN dotnet restore "Gss.MicrocontrollerListener/Gss.MicrocontrollerListener.csproj"
 COPY . .
 WORKDIR "/src/Gss.MicrocontrollerListener"

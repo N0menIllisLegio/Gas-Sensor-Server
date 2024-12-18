@@ -1,6 +1,5 @@
 ﻿services:
   web:
-    image: gss.web
     container_name: Gss.Web
     build:
       context: .
@@ -15,13 +14,11 @@
       - rabbitmq
 
   microcontroller-listener:
-    image: gss.microcontroller-listener
     container_name: Gss.MicrocontrollerListener
     build:
       context: .
       dockerfile: Gss.MicrocontrollerListener/Dockerfile
     ports:
-      - 5001:8080
       - 5002:5002
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -29,7 +26,6 @@
       - web
 
   microcontroller-data-handler:
-    image: gss.microcontroller-data-handler
     container_name: Gss.MicrocontrollerDataHandler
     build:
       context: .

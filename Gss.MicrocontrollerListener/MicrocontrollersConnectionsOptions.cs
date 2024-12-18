@@ -1,4 +1,4 @@
-﻿namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
+﻿namespace Gss.MicrocontrollerListener;
 
 internal sealed class MicrocontrollersConnectionsOptions
 {

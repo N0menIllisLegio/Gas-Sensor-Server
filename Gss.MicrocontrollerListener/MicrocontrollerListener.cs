@@ -1,12 +1,16 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Gss.Core.Entities;
-using Gss.MicrocontrollerListener.Data;
+using Gss.Infrastructure;
 using Gss.Queue.Events;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
+namespace Gss.MicrocontrollerListener;
 
 internal sealed class MicrocontrollerListener: BackgroundService
 {
@@ -81,10 +85,14 @@ internal sealed class MicrocontrollerListener: BackgroundService
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var listenerRepository = scope.ServiceProvider.GetRequiredService<IListenerRepository>();
+                var listenerRepository = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                var connectedMicrocontroller =
-                    await listenerRepository.GetMicrocontrollerAsync(authRequest.MicrocontrollerId, cancellationToken);
+                var connectedMicrocontroller = await listenerRepository.Microcontrollers
+                    .Include(x => x.MicrocontrollerSensors)
+                        .ThenInclude(x => x.Sensor)
+                            .ThenInclude(x => x.Type)
+                    .FirstOrDefaultAsync(x => x.Id == authRequest.MicrocontrollerId,
+                        cancellationToken: cancellationToken);
 
                 if (connectedMicrocontroller is not null)
                 {
@@ -167,6 +175,7 @@ internal sealed class MicrocontrollerListener: BackgroundService
                     break;
 
                 case MicrocontrollerRequest.DateSyncCommand:
+                    _logger.LogDebug("OBSOLETE MC REQUEST - RequestSensorValueCommand");
                     await connectionManager.SendDateTimeAsync(cancellationToken);
                     break;
 

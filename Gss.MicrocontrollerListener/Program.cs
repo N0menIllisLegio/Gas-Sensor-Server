@@ -1,11 +1,13 @@
 using Gss.Infrastructure;
-using Gss.MicrocontrollerListener.Data;
-using Gss.MicrocontrollerListener.MicrocontrollerHandlers;
+using Gss.MicrocontrollerListener;
 using Gss.Queue;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.Configure<MicrocontrollersConnectionsOptions>(
     builder.Configuration.GetSection(MicrocontrollersConnectionsOptions.SectionName));
@@ -26,7 +28,6 @@ builder.Services.AddMassTransit(x => x.UsingRabbitMq((_, configurator) =>
 }));
 
 builder.Services.AddHostedService<MicrocontrollerListener>();
-builder.Services.AddScoped<IListenerRepository, ListenerRepository>();
 
 var app = builder.Build();
 

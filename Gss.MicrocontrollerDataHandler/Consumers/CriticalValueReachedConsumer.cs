@@ -3,6 +3,7 @@ using Gss.MicrocontrollerDataHandler.Email;
 using Gss.Queue;
 using Gss.Queue.Events;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 
 namespace Gss.MicrocontrollerDataHandler.Consumers;
 

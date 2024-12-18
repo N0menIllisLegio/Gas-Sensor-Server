@@ -3,6 +3,7 @@ using Gss.Infrastructure;
 using Gss.Queue;
 using Gss.Queue.Events;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace Gss.MicrocontrollerDataHandler.Consumers;
