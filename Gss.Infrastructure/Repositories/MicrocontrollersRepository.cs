@@ -97,12 +97,4 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
       .FirstOrDefaultAsync(x => x.MicrocontrollerSensors.Count(y => y.Id == microcontrollerSensorId) == 1,
         cancellationToken: cancellationToken);
   }
-
-  public async Task ResetMicrocontrollerRequestSensorValueAsync(Guid microcontrollerId,
-    CancellationToken cancellationToken = default)
-  {
-    await _appDbContext.Microcontrollers.Where(x => x.Id == microcontrollerId)
-      .ExecuteUpdateAsync(x => x.SetProperty(p => p.RequestedMicrocontrollerSensorId, (Guid?)null),
-        cancellationToken: cancellationToken);
-  }
 }

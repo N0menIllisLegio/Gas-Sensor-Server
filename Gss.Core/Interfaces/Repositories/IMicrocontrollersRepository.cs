@@ -17,6 +17,4 @@ public interface IMicrocontrollersRepository: IRepositoryBase<Microcontroller>
 
   Task<Microcontroller?> FindMicrocontrollerByMicrocontrollerSensorIdAsync(Guid microcontrollerSensorId,
     CancellationToken cancellationToken = default);
-
-  Task ResetMicrocontrollerRequestSensorValueAsync(Guid microcontrollerId, CancellationToken cancellationToken = default);
 }

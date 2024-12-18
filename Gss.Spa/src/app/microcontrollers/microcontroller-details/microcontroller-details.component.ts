@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from "@angular/core";
+import { Component, inject, input, signal } from "@angular/core";
 import { MicrocontrollersQueryService } from "../core/microcontrollers-query.service";
 import { guid } from "../../core/guid";
 import { Router } from "@angular/router";
@@ -19,7 +19,6 @@ import { MatDivider } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import AuthService from "../../core/auth.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormsModule } from "@angular/forms";
@@ -38,7 +37,6 @@ import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/co
         MatCardModule,
         CoordinatesPipe,
         EmptyPlaceholderPipe,
-        DateTimePipe,
         SpinnerComponent,
         BoolYesNoPipe,
         MatExpansionModule,
@@ -54,7 +52,6 @@ import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/co
     ]
 })
 export class MicrocontrollerDetailsComponent {
-    private snackBar = inject(MatSnackBar);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private router = inject(Router);
     readonly dialog = inject(MatDialog);
@@ -124,22 +121,6 @@ export class MicrocontrollerDetailsComponent {
 
     onEdit() {
         this.router.navigateByUrl(`/microcontrollers/${this.microcontrollerId()!}/edit`)
-    }
-
-    onSync(event: Event, microcontrollerSensorId: guid) {
-        event.stopPropagation();
-
-        this.microcontrollerQueryService.requestSensorValue(this.microcontrollerId()!, microcontrollerSensorId)
-            .subscribe(() => {
-                this.requestedSensorId.set(microcontrollerSensorId);
-
-                this.snackBar.open('Sensor\'s data requested successfully!', undefined, {
-                    horizontalPosition: 'right',
-                    verticalPosition: 'bottom',
-                    duration: 5000,
-                    panelClass: 'whitespace-pre'
-                });
-            });
     }
 
     onSetCriticalValue(sensor: MicrocontrollerSensorModel) {

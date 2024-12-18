@@ -12,9 +12,6 @@ public sealed class Microcontroller : IEntity
   public required string Name { get; set; }
 
   [AllowOrdering]
-  public DateTimeOffset? LastResponseTime { get; set; }
-
-  [AllowOrdering]
   public bool Public { get; set; }
 
   [AllowOrdering]
@@ -24,8 +21,6 @@ public sealed class Microcontroller : IEntity
   public double? Longitude { get; set; }
 
   public required string Key { get; set; }
-
-  public Guid? RequestedMicrocontrollerSensorId { get; set; }
 
   public Guid? OwnerId { get; set; }
   public IList<MicrocontrollerSensors> MicrocontrollerSensors { get; set; } = null!;

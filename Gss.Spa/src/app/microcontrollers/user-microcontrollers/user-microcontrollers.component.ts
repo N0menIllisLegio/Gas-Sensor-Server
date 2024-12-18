@@ -19,7 +19,6 @@ import { MicrocontrollersQueryService } from '../core/microcontrollers-query.ser
 import MicrocontrollerModel from '../core/microcontroller.model';
 import { guid } from '../../core/guid';
 import { CoordinatesPipe } from "../../shared/coordinates.pipe";
-import { DateTimePipe } from "../../shared/date-time.pipe";
 import { Router } from '@angular/router';
 
 @Component({
@@ -37,8 +36,7 @@ import { Router } from '@angular/router';
         MatButtonModule,
         SpinnerComponent,
         FormsModule,
-        CoordinatesPipe,
-        DateTimePipe
+        CoordinatesPipe
     ]
 })
 export class UserMicrocontrollersComponent {
@@ -50,7 +48,7 @@ export class UserMicrocontrollersComponent {
     private pagedRequestSubject = new BehaviorSubject<PagedRequestModel | null>(null);
     private microcontrollersQueryService = inject(MicrocontrollersQueryService);
 
-    displayedColumns = ['name', 'coordinates', 'lastResponseTime', 'sensorsCount'];
+    displayedColumns = ['name', 'coordinates', 'sensorsCount'];
     isTableLoading = signal<boolean>(false);
     dataSource = signal<MicrocontrollerModel[]>([]);
     userId = input<guid>();

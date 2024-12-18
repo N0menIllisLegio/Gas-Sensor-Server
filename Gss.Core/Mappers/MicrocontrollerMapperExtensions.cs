@@ -14,8 +14,6 @@ public static class MicrocontrollerMapperExtensions
             Latitude = microcontroller.Latitude,
             Longitude = microcontroller.Longitude,
             Public = microcontroller.Public,
-            LastResponseTime = microcontroller.LastResponseTime,
-            RequestedSensorId = microcontroller.RequestedMicrocontrollerSensorId,
             OwnerId = microcontroller.OwnerId,
             Sensors = microcontroller.MicrocontrollerSensors.Select(x => x.MapToDto())
         };

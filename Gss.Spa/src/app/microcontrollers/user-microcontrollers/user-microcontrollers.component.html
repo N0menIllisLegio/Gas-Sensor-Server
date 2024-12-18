@@ -27,11 +27,6 @@
                         </td>
                     </ng-container>
 
-                    <ng-container matColumnDef="lastResponseTime">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header="LastResponseTime">Last Response Time</th>
-                        <td mat-cell *matCellDef="let element">{{ element.lastResponseTime | dateTime | emptyPlaceholder }}</td>
-                    </ng-container>
-
                     <ng-container matColumnDef="sensorsCount">
                         <th mat-header-cell *matHeaderCellDef>Sensors Connected</th>
                         <td mat-cell *matCellDef="let element">{{ element.sensors.length }}</td>

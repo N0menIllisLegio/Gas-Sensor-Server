@@ -138,7 +138,6 @@ public class MicrocontrollersService : IMicrocontrollersService
     microcontroller.Public = updateMicrocontrollerDto.Public;
     microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
     microcontroller.Latitude = updateMicrocontrollerDto.Latitude;
-    microcontroller.RequestedMicrocontrollerSensorId = null;
 
     foreach (var currentSensor in microcontroller.MicrocontrollerSensors.ToArray())
     {
@@ -170,39 +169,6 @@ public class MicrocontrollersService : IMicrocontrollersService
   public async Task DeleteMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
   {
     await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId, cancellationToken);
-  }
-
-  public async Task<RequestSensorValueResponseDto> RequestSensorValueAsync(
-    Guid microcontrollerId, Guid microcontrollerSensorId, CancellationToken cancellationToken = default)
-  {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
-
-    if (microcontroller.RequestedMicrocontrollerSensorId == microcontrollerSensorId)
-    {
-      return new RequestSensorValueResponseDto
-      {
-        PreviousRequestedSensorId = microcontrollerSensorId,
-        CurrentRequestedSensorId = microcontrollerSensorId
-      };
-    }
-
-    _ = microcontroller.MicrocontrollerSensors.FirstOrDefault(ms => ms.Id == microcontrollerSensorId)
-      ?? throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Sensor));
-
-    var result = new RequestSensorValueResponseDto
-    {
-      PreviousRequestedSensorId = microcontroller.RequestedMicrocontrollerSensorId,
-      CurrentRequestedSensorId = microcontrollerSensorId
-    };
-
-    microcontroller.RequestedMicrocontrollerSensorId = microcontrollerSensorId;
-
-    bool success = await _unitOfWork.SaveAsync(cancellationToken);
-
-    if (!success)
-      throw new AppException(string.Format(Messages.ChangeReuqestedSensorIDFailedErrorString));
-
-    return result;
   }
 
   public async Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default)

@@ -21,11 +21,4 @@ internal sealed class ListenerRepository : IListenerRepository
                     .ThenInclude(x => x.Type)
             .FirstOrDefaultAsync(x => x.Id == microcontrollerId, cancellationToken: cancellationToken);
     }
-
-    public async Task UpdateLastResponseTimeAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
-    {
-        // TODO: move to handler
-        await _appDbContext.Microcontrollers.Where(x => x.Id == microcontrollerId)
-            .ExecuteUpdateAsync(x => x.SetProperty(p => p.LastResponseTime, DateTimeOffset.UtcNow), cancellationToken: cancellationToken);
-    }
 }

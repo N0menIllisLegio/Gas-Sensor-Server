@@ -16,8 +16,8 @@ public class MicrocontrollersController : ControllerBase
 
   public MicrocontrollersController(IMicrocontrollersService microcontrollerService)
   {
-      _microcontrollerService = microcontrollerService;
-    }
+    _microcontrollerService = microcontrollerService;
+  }
 
   [Authorize(Roles = "Administrator")]
   [HttpPost]
@@ -131,22 +131,6 @@ public class MicrocontrollersController : ControllerBase
     await _microcontrollerService.DeleteMicrocontrollerAsync(id, cancellationToken);
 
     return Ok();
-  }
-
-  [Authorize]
-  [HttpPatch]
-  [SwaggerOperation("Authorized", "Requests sensor's value from microcontroller.")]
-  [SwaggerResponse(200, type: typeof(RequestSensorValueResponseDto))]
-  [SwaggerResponse(400, type: typeof(ProblemDetails))]
-  [SwaggerResponse(401, type: typeof(ProblemDetails))]
-  [SwaggerResponse(404, type: typeof(ProblemDetails))]
-  [SwaggerResponse(422, type: typeof(ProblemDetails))]
-  public async Task<IActionResult> RequestSensorValue([FromBody] RequestSensorValueDto requestSensorValueDto, CancellationToken cancellationToken)
-  {
-    var response = await _microcontrollerService.RequestSensorValueAsync(
-      requestSensorValueDto.MicrocontrollerId, requestSensorValueDto.MicrocontrollerSensorId, cancellationToken);
-
-    return Ok(response);
   }
 
   [Authorize]

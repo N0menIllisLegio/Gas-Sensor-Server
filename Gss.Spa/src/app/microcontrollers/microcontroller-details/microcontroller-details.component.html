@@ -17,8 +17,6 @@
                         <div class="col-span-2">{{ microcontroller()!.public | boolYesNo }}</div>
                         <div class="font-bold">Coordinates:</div>
                         <div class="col-span-2">{{ { latitude: microcontroller()!.latitude, longitude: microcontroller()!.longitude } | coordinates | emptyPlaceholder }}</div>
-                        <div class="font-bold">Last Response Time:</div>
-                        <div class="col-span-2">{{ microcontroller()!.lastResponseTime | dateTime | emptyPlaceholder }}</div>
                     </div>
                 }
                 @else {
@@ -43,13 +41,6 @@
                     <mat-expansion-panel [expanded]="sensor.id === microcontroller()!.sensors[0].id">
                         <mat-expansion-panel-header>
                             <mat-panel-title>
-                                <button mat-mini-fab class="!shadow-none !bg-transparent mr-4"
-                                    matTooltip="Request this sensor\'s data from microcontroller"
-                                    (click)="onSync($event, sensor.microcontrollerSensorId)"
-                                    [disabled]="requestedSensorId() === sensor.microcontrollerSensorId">
-                                    <mat-icon>sync</mat-icon>
-                                </button>
-
                                 @if (sensor.type.icon) {
                                     <img class="me-4" style="width: 24px; height: 24px;" [src]="sensor.type.icon">
                                 }

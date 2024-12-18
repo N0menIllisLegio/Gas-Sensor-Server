@@ -17,52 +17,19 @@ export class MicrocontrollersQueryService {
     }
 
     getPublicMicrocontrollers(pagedRequest: PagedRequestModel) {
-        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>('api/Microcontrollers/GetPublicMicrocontrollers', pagedRequest)
-            .pipe(
-                map(response => {
-                    response.items.forEach(x => {
-                        if (x.lastResponseTime)
-                            x.lastResponseTime = new Date(x.lastResponseTime)
-                    });
-
-                    return response;
-                }
-            ));
+        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>('api/Microcontrollers/GetPublicMicrocontrollers', pagedRequest);
     }
 
     getMicrocontroller(id: guid) {
-        return this.httpClient.get<MicrocontrollerModel>(`/api/Microcontrollers/GetMicrocontroller/${id}`)
-            .pipe(map(x => {
-                if (x.lastResponseTime)
-                    x.lastResponseTime = new Date(x.lastResponseTime);
-
-                return x;
-            }));
+        return this.httpClient.get<MicrocontrollerModel>(`/api/Microcontrollers/GetMicrocontroller/${id}`);
     }
 
     getUserPublicMicrocontrollers(userId: guid, pagedRequest: PagedRequestModel) {
-        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>(`api/Microcontrollers/GetUserMicrocontrollers/${userId}`, pagedRequest)
-            .pipe(
-                map(response => {
-                    response.items.forEach(x => {
-                        if (x.lastResponseTime)
-                            x.lastResponseTime = new Date(x.lastResponseTime)
-                    });
-
-                    return response;
-                }
-            ));
+        return this.httpClient.post<PagedResponseModel<MicrocontrollerModel>>(`api/Microcontrollers/GetUserMicrocontrollers/${userId}`, pagedRequest);
     }
 
     deleteMicrocontroller(id: guid) {
         return this.httpClient.delete(`api/Microcontrollers/Delete/${id}`);
-    }
-
-    requestSensorValue(microcontrollerId: guid, microcontrollerSensorId: guid) {
-        return this.httpClient.patch('api/Microcontrollers/RequestSensorValue', {
-            microcontrollerId,
-            microcontrollerSensorId
-        });
     }
 
     setTreshold(microcontrollerSensorId: guid, threshold: number | null) {

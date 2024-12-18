@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSortModule, Sort } from "@angular/material/sort";
 import { MicrocontrollersQueryService } from "../core/microcontrollers-query.service";
 import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from "rxjs";
-import { DateTimePipe } from "../../shared/date-time.pipe";
 import { EmptyPlaceholderPipe } from "../../shared/empty-placeholder.pipe";
 import { CoordinatesPipe } from "../../shared/coordinates.pipe";
 import { FormsModule } from '@angular/forms';
@@ -30,7 +29,6 @@ import { Router } from "@angular/router";
     templateUrl: './microcontrollers-map.component.html',
     styleUrl: './microcontrollers-map.component.scss',
     imports: [
-        DateTimePipe,
         EmptyPlaceholderPipe,
         CoordinatesPipe,
         MatTableModule,
@@ -59,7 +57,7 @@ export class MicrocontrollersMapComponent {
     mapZoom = 4;
     mapCenter = latLng(54.5260, 15.2551);
 
-    displayedColumns = ['name', 'coordinates', 'lastResponseTime', 'sensorsCount', 'action'];
+    displayedColumns = ['name', 'coordinates', 'sensorsCount', 'action'];
     isTableLoading = signal<boolean>(false);
     dataSource = signal<MicrocontrollerModel[]>([]);
     totalMicrocontrollers = signal<number>(0);

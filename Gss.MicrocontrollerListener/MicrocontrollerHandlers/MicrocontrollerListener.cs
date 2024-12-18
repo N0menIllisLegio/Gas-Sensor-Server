@@ -91,9 +91,6 @@ internal sealed class MicrocontrollerListener: BackgroundService
                     // TODO: HMAC. API-Key or hash
                     if (connectedMicrocontroller.Key == authRequest.Password)
                     {
-                        await listenerRepository.UpdateLastResponseTimeAsync(connectedMicrocontroller.Id,
-                            cancellationToken);
-
                         microcontroller = connectedMicrocontroller;
                     }
 

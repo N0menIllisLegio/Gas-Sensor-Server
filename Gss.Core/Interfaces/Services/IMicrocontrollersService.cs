@@ -16,7 +16,5 @@ public interface IMicrocontrollersService
   Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto, CancellationToken cancellationToken = default);
   Task UpdateMicrocontrollerAsync(Guid microcontrollerId, UpdateMicrocontrollerDto updateMicrocontrollerDto, CancellationToken cancellationToken = default);
   Task DeleteMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default);
-
-  Task<RequestSensorValueResponseDto> RequestSensorValueAsync(Guid microcontrollerId, Guid microcontrollerSensorId, CancellationToken cancellationToken = default);
   Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default);
 }
