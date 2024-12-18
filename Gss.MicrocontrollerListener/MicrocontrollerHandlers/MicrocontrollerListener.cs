@@ -2,29 +2,28 @@
 using System.Net.Sockets;
 using Gss.Core.Entities;
 using Gss.MicrocontrollerListener.Data;
+using Gss.Queue.Events;
+using MassTransit;
 using Microsoft.Extensions.Options;
 
 namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 
 internal sealed class MicrocontrollerListener: BackgroundService
 {
-    private const int ReceivedSensorsDataMaxSize = 5;
-
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<MicrocontrollerListener> _logger;
+    private readonly IBus _bus;
     private readonly MicrocontrollersConnectionsOptions _options;
-
-    private readonly object _locker = new ();
-    private readonly List<SensorData> _receivedSensorsData = new ();
-    private int _runInsertReceivedSensorsData;
 
     public MicrocontrollerListener(
         IServiceScopeFactory serviceScopeFactory,
         ILogger<MicrocontrollerListener> logger,
+        IBus bus,
         IOptions<MicrocontrollersConnectionsOptions> microcontrollersConnectionsOptions)
     {
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
+        _bus = bus;
         _options = microcontrollersConnectionsOptions.Value;
     }
 
@@ -59,19 +58,9 @@ internal sealed class MicrocontrollerListener: BackgroundService
         }
     }
 
-    public override async Task StopAsync(CancellationToken cancellationToken)
-    {
-        await BulkInsertReceivedCachedDataAsync();
-
-        await base.StopAsync(cancellationToken);
-    }
-
     private async void HandleConnection(Socket socket, CancellationToken cancellationToken = default)
     {
         using var connectionManager = new MicrocontrollerConnectionManager(socket, _options, _logger);
-        using var scope = _serviceScopeFactory.CreateScope();
-
-        var requestsHandler = scope.ServiceProvider.GetRequiredService<IMicrocontrollerRequestsHandler>();
 
         try
         {
@@ -88,7 +77,33 @@ internal sealed class MicrocontrollerListener: BackgroundService
                 return;
             }
 
-            var microcontroller = await requestsHandler.HandleRequestAsync(authRequest, cancellationToken);
+            Microcontroller? microcontroller = null;
+
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var listenerRepository = scope.ServiceProvider.GetRequiredService<IListenerRepository>();
+
+                var connectedMicrocontroller =
+                    await listenerRepository.GetMicrocontrollerAsync(authRequest.MicrocontrollerId, cancellationToken);
+
+                if (connectedMicrocontroller is not null)
+                {
+                    // TODO: HMAC. API-Key or hash
+                    if (connectedMicrocontroller.Key == authRequest.Password)
+                    {
+                        await listenerRepository.UpdateLastResponseTimeAsync(connectedMicrocontroller.Id,
+                            cancellationToken);
+
+                        microcontroller = connectedMicrocontroller;
+                    }
+
+                    _logger.LogWarning("Failed to authenticate. {MicrocontrollerId}", authRequest.MicrocontrollerId);
+                }
+                else
+                {
+                    _logger.LogWarning("Microcontroller not found. {MicrocontrollerId}", authRequest.MicrocontrollerId);
+                }
+            }
 
             if (microcontroller is null)
                 return;
@@ -120,45 +135,38 @@ internal sealed class MicrocontrollerListener: BackgroundService
 
                     await connectionManager.SendOkAsync(cancellationToken);
 
-                    var sensorData = requestsHandler.HandleRequest(dataRequest, microcontroller);
+                    var microcontrollerSensor = microcontroller.MicrocontrollerSensors
+                        .FirstOrDefault(ms => ms.Id == dataRequest.MicrocontrollerSensorId);
 
-                    if (sensorData is null)
+                    if (microcontrollerSensor is null)
+                    {
+                        _logger.LogWarning("Sensor ({Id}) doesn't connected to microcontroller ({MicrocontrollerId})",
+                            dataRequest.MicrocontrollerSensorId, microcontroller.Id);
+
                         return;
+                    }
 
-                    AddSensorDataToConcurrentList(sensorData);
+                    if (microcontrollerSensor.CriticalValue <= dataRequest.SensorValue)
+                    {
+                        await _bus.Publish(new CriticalValueReached
+                        {
+                            MicrocontrollerSensorId = microcontrollerSensor.Id,
+                            Value = dataRequest.SensorValue,
+                        }, cancellationToken);
+                    }
+
+                    await _bus.Publish(new SensorDataReceived
+                    {
+                        MicrocontrollerSensorId = microcontrollerSensor.Id,
+                        ReadTime = DateTime.SpecifyKind(dataRequest.SensorValueReadTime, DateTimeKind.Utc),
+                        Value = dataRequest.SensorValue,
+                        ReceivedTime = DateTime.UtcNow
+                    }, cancellationToken);
                     break;
 
                 case MicrocontrollerRequest.RequestSensorValueCommand:
-                    if (!microcontroller.RequestedMicrocontrollerSensorId.HasValue)
-                    {
-                        await connectionManager.SendAttentionAsync(cancellationToken);
-                        return;
-                    }
-
-                    await connectionManager.SendRequestSensorValueAsync(microcontroller
-                        .RequestedMicrocontrollerSensorId.Value, cancellationToken);
-
-                    request = await connectionManager.ReceiveRequestAsync(cancellationToken);
-
-                    if (request is null)
-                        return;
-
-                    dataRequest = request.ParseDataRequest();
-
-                    if (dataRequest is null)
-                    {
-                        _logger.LogWarning("Failed to parse data. {Endpoint} --- {MicrocontrollerId} --- {Request}",
-                            socket.RemoteEndPoint, microcontroller.Id, dataRequest);
-
-                        return;
-                    }
-
-                    await connectionManager.SendOkAsync(cancellationToken);
-
-                    var newDataEntry = await requestsHandler.HandleRequestGetSensorDataAsync(
-                        dataRequest, microcontroller, cancellationToken);
-
-                    AddSensorDataToConcurrentList(newDataEntry);
+                    _logger.LogDebug("OBSOLETE MC REQUEST - RequestSensorValueCommand");
+                    await connectionManager.SendAttentionAsync(cancellationToken);
                     break;
 
                 case MicrocontrollerRequest.DateSyncCommand:
@@ -179,51 +187,6 @@ internal sealed class MicrocontrollerListener: BackgroundService
         {
             _logger.LogError(exception, "Failed to handle microcontroller connection. {Endpoint}",
                 socket.RemoteEndPoint);
-        }
-    }
-
-    private void AddSensorDataToConcurrentList(SensorData sensorData)
-    {
-        bool runBulkInsert;
-
-        lock (_locker)
-        {
-            _receivedSensorsData.Add(sensorData);
-
-            runBulkInsert = _receivedSensorsData.Count > ReceivedSensorsDataMaxSize;
-        }
-
-        if (runBulkInsert)
-            _ = Task.Run(BulkInsertReceivedCachedDataAsync);
-    }
-
-    private async Task BulkInsertReceivedCachedDataAsync()
-    {
-        if (Interlocked.CompareExchange(ref _runInsertReceivedSensorsData, 0, 1) == 0)
-        {
-            List<SensorData> receivedData;
-
-            lock (_locker)
-            {
-                receivedData = _receivedSensorsData.ToList();
-                _receivedSensorsData.Clear();
-            }
-
-            using var scope = _serviceScopeFactory.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IListenerRepository>();
-
-            try
-            {
-                await repository.BulkInsertIfNotExistsAsync(receivedData);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _runInsertReceivedSensorsData, 1);
-            }
         }
     }
 }

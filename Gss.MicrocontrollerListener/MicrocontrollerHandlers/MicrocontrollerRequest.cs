@@ -5,17 +5,6 @@ namespace Gss.MicrocontrollerListener.MicrocontrollerHandlers;
 record AuthRequest(Guid UserId, Guid MicrocontrollerId, string Password);
 record DataRequest(Guid MicrocontrollerSensorId, DateTime SensorValueReadTime, int SensorValue);
 
-/*
-a) Server_OK – server's OK;
-b) Server_AT – server's echo response;
-c) Server_SV|{id} – server's answer to STM's request if there pending sensor read requests;
-d) Server_DT|Date={day};Month={month};Year={year:yy};WeekDay={dayOfWeek};Hours={hours};Minutes={minutes};Seconds={seconds}; - server's answer to sync time;
-e) STM_AUTH|{userID};{microcontrollerID};{password} – MC request to auth;
-f) STM_DATA|{sensorID};{sensorValueReadDateTime};{sensorValue} – MC request to write data to the DB;
-g) STM_DT| – time sync request;
-h) STM_RQ – sensor data request (checks if user requested unscheduled data read from sensor);
-*/
-
 internal sealed class MicrocontrollerRequest
 {
     private const char CommandSeparator = '|';
