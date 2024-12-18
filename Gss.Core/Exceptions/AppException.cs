@@ -10,11 +10,11 @@ public class AppException : Exception
         ErrorCode = HttpStatusCode.InternalServerError;
     }
 
-  public AppException(string message, HttpStatusCode errorCode)
-    : base(message)
-  {
-      ErrorCode = errorCode;
-  }
+    public AppException(string message, HttpStatusCode errorCode)
+        : base(message)
+    {
+        ErrorCode = errorCode;
+    }
 
-  public HttpStatusCode ErrorCode { get; set; }
+    public HttpStatusCode ErrorCode { get; set; }
 }

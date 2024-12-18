@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Gss.Infrastructure.TypeConfigurations;
 
-internal sealed class SensorDataConfiguration: IEntityTypeConfiguration<SensorData>
+internal sealed class SensorDataConfiguration : IEntityTypeConfiguration<SensorData>
 {
     public void Configure(EntityTypeBuilder<SensorData> builder)
     {

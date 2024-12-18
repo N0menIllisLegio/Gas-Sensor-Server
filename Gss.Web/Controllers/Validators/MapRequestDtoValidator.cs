@@ -3,7 +3,7 @@ using Gss.Core.DTOs.Microcontroller;
 
 namespace Gss.Web.Controllers.Validators;
 
-public sealed class MapRequestDtoValidator: AbstractValidator<MapRequestDto>
+public sealed class MapRequestDtoValidator : AbstractValidator<MapRequestDto>
 {
     public MapRequestDtoValidator()
     {

@@ -6,6 +6,9 @@ namespace Gss.Core.Interfaces.Repositories;
 
 public interface ISensorsTypesRepository : IRepositoryBase<SensorType>
 {
-    Task<PagedResultDto<SensorType>> GetPagedResultAsync(PagedInfoDto pagedInfoDto, CancellationToken cancellationToken = default);
-    Task<int> UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto, CancellationToken cancellationToken = default);
+    Task<PagedResultDto<SensorType>> GetPagedResultAsync(PagedInfoDto pagedInfoDto,
+        CancellationToken cancellationToken = default);
+
+    Task<int> UpdateSensorTypeAsync(Guid sensorTypeId, UpdateSensorTypeDto updateSensorTypeDto,
+        CancellationToken cancellationToken = default);
 }

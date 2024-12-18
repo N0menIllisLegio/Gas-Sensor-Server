@@ -7,12 +7,12 @@ public static class SensorMapperExtensions
 {
     public static SensorDto MapToDto(this Sensor sensor)
     {
-        return new SensorDto()
+        return new SensorDto
         {
             Id = sensor.Id,
             Name = sensor.Name,
             Description = sensor.Description,
-            Type = sensor.Type.MapToDto(),
+            Type = sensor.Type.MapToDto()
         };
     }
 }

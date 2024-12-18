@@ -8,7 +8,7 @@ using RabbitMQ.Client;
 
 namespace Gss.MicrocontrollerDataHandler.Consumers;
 
-internal sealed class SensorDataReceivedConsumer: IConsumer<Batch<SensorDataReceived>>
+internal sealed class SensorDataReceivedConsumer : IConsumer<Batch<SensorDataReceived>>
 {
     private readonly AppDbContext _appDbContext;
     private readonly ILogger<SensorDataReceivedConsumer> _logger;
@@ -27,10 +27,10 @@ internal sealed class SensorDataReceivedConsumer: IConsumer<Batch<SensorDataRece
         var dataForInsertion = new List<SensorData>();
 
         foreach (var group in context.Message.GroupBy(data => new
-                     {
-                         data.Message.MicrocontrollerSensorId,
-                         data.Message.ReadTime
-                     }))
+                 {
+                     data.Message.MicrocontrollerSensorId,
+                     data.Message.ReadTime
+                 }))
         {
             var insertingValue = group.First().Message;
 
@@ -68,12 +68,10 @@ internal class SensorDataReceivedConsumerDefinition : ConsumerDefinition<SensorD
         });
 
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
-        {
             rmq.Bind<SensorDataReceived>(x =>
             {
                 x.RoutingKey = RoutingKeys.SensorDataReceivedKey;
                 x.ExchangeType = ExchangeType.Direct;
             });
-        }
     }
 }

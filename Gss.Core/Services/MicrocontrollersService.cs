@@ -13,183 +13,185 @@ namespace Gss.Core.Services;
 
 public class MicrocontrollersService : IMicrocontrollersService
 {
-  private const string Microcontroller = "Microcontroller";
-  private const string Sensor = "Sensor";
+    private const string Microcontroller = "Microcontroller";
+    private const string Sensor = "Sensor";
+    private readonly ICurrentUser _currentUser;
 
-  private readonly IUnitOfWork _unitOfWork;
-  private readonly ICurrentUser _currentUser;
+    private readonly IUnitOfWork _unitOfWork;
 
-  public MicrocontrollersService(IUnitOfWork unitOfWork, ICurrentUser currentUser)
-  {
-    _unitOfWork = unitOfWork;
-    _currentUser = currentUser;
-  }
-
-  public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
-  {
-    var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
-      pagedInfo, search => search.Name.Contains(pagedInfo.SearchString), cancellationToken);
-
-    return pagedResultDto.Convert(x => x.MapToDto());
-  }
-
-  public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
-  {
-    var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
-      pagedInfo, search => search.Public && search.Name.Contains(pagedInfo.SearchString), cancellationToken);
-
-    return pagedResultDto.Convert(x => x.MapToDto());
-  }
-
-  public async Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
-  {
-    var result = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
-
-    if (result is null)
-      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
-
-    return result.MicrocontrollerSensors.Select(x => x.Sensor.MapToDto()).ToList();
-  }
-
-  public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
-  {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
-
-    return microcontroller.MapToDto();
-  }
-
-  public async Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto, CancellationToken cancellationToken = default)
-  {
-    var visibleMicrocontrollers = await _unitOfWork.Microcontrollers.GetVisibleMicrocontrollersAsync(
-      mapRequestDto.SouthWestLatitude, mapRequestDto.SouthWestLongitude, mapRequestDto.NorthEastLatitude,
-      mapRequestDto.NorthEastLongitude, cancellationToken);
-
-    return visibleMicrocontrollers;
-  }
-
-  public async Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(Guid userId,
-    PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
-  {
-    Expression<Func<Microcontroller, bool>> searchCriteria =
-      userId == _currentUser.Id || _currentUser.IsAdministrator
-        ? mc => mc.OwnerId == userId && mc.Name.Contains(pagedInfo.SearchString)
-        : mc => mc.OwnerId == userId && mc.Name.Contains(pagedInfo.SearchString) && mc.Public;
-
-    var pagedResultDto =
-      await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, searchCriteria, cancellationToken);
-
-    return pagedResultDto.Convert(x => x.MapToDto());
-  }
-
-  public async Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto, CancellationToken cancellationToken = default)
-  {
-    var microcontrollerId = Guid.NewGuid();
-
-    _unitOfWork.Microcontrollers.Add(new Microcontroller
+    public MicrocontrollersService(IUnitOfWork unitOfWork, ICurrentUser currentUser)
     {
-      Id = microcontrollerId,
-      OwnerId = _currentUser.Id,
-      Name = createMicrocontrollerDto.Name,
-      Key = createMicrocontrollerDto.Key,
-      Public = createMicrocontrollerDto.Public,
-      Longitude = createMicrocontrollerDto.Longitude,
-      Latitude = createMicrocontrollerDto.Latitude,
-      MicrocontrollerSensors = createMicrocontrollerDto
-        .SensorIDs
-        .Select(sensor =>
-          new MicrocontrollerSensors
-          {
-            MicrocontrollerId = microcontrollerId,
-            SensorId = sensor
-          })
-        .ToList()
-    });
-
-    bool success = await _unitOfWork.SaveAsync(cancellationToken);
-
-    if (!success)
-      throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
-
-    var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
-
-    if (microcontroller is null)
-      throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
-
-    return microcontroller.MapToDto();
-  }
-
-  public async Task UpdateMicrocontrollerAsync(
-    Guid microcontrollerId, UpdateMicrocontrollerDto updateMicrocontrollerDto, CancellationToken cancellationToken = default)
-  {
-    var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
-
-    if (microcontroller.MicrocontrollerSensors.Count -
-        updateMicrocontrollerDto.RemoveMicrocontrollerSensorIds.Count +
-        updateMicrocontrollerDto.AddSensorIds.Count > 5)
-      throw new UserInputException("Sensors can't be more than 5 per microcontroller");
-
-    microcontroller.Name = updateMicrocontrollerDto.Name;
-
-    if (updateMicrocontrollerDto.Key is not null)
-    {
-      microcontroller.Key = updateMicrocontrollerDto.Key;
+        _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
-    microcontroller.Public = updateMicrocontrollerDto.Public;
-    microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
-    microcontroller.Latitude = updateMicrocontrollerDto.Latitude;
-
-    foreach (var currentSensor in microcontroller.MicrocontrollerSensors.ToArray())
+    public async Task<PagedResultDto<MicrocontrollerDto>> GetAllMicrocontrollersAsync(PagedInfoDto pagedInfo,
+        CancellationToken cancellationToken = default)
     {
-      var sensorToRemove = updateMicrocontrollerDto.RemoveMicrocontrollerSensorIds
-        .FirstOrDefault(x => x == currentSensor.Id);
+        var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
+            pagedInfo, search => search.Name.Contains(pagedInfo.SearchString), cancellationToken);
 
-      if (sensorToRemove != default)
-        microcontroller.MicrocontrollerSensors.Remove(currentSensor);
+        return pagedResultDto.Convert(x => x.MapToDto());
     }
 
-    foreach (var newSensorId in updateMicrocontrollerDto.AddSensorIds)
+    public async Task<PagedResultDto<MicrocontrollerDto>> GetPublicMicrocontrollersAsync(PagedInfoDto pagedInfo,
+        CancellationToken cancellationToken = default)
     {
-      microcontroller.MicrocontrollerSensors.Add(new MicrocontrollerSensors
-      {
-        MicrocontrollerId = microcontrollerId,
-        SensorId = newSensorId
-      });
+        var pagedResultDto = await _unitOfWork.Microcontrollers.GetPagedResultAsync(
+            pagedInfo, search => search.Public && search.Name.Contains(pagedInfo.SearchString), cancellationToken);
+
+        return pagedResultDto.Convert(x => x.MapToDto());
     }
 
-    if (microcontroller.MicrocontrollerSensors.Count > 5)
-      throw new UserInputException("Sensors can't be more than 5 per microcontroller");
-
-    bool success = await _unitOfWork.SaveAsync(cancellationToken);
-
-    if (!success)
-      throw new AppException(string.Format(Messages.UpdateFailedErrorString, Microcontroller));
-  }
-
-  public async Task DeleteMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
-  {
-    await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId, cancellationToken);
-  }
-
-  public async Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue, CancellationToken cancellationToken = default)
-  {
-    var updatedEntries = await _unitOfWork.Microcontrollers.SetSensorValueThresholdAsync(
-      _currentUser, microcontrollerSensorId, criticalValue, cancellationToken);
-
-    if (updatedEntries == 0)
-      throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Microcontroller));
-  }
-
-  private async Task<Microcontroller> TryGetMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken)
-  {
-    var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
-
-    if (microcontroller is not null)
+    public async Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId,
+        CancellationToken cancellationToken = default)
     {
-      if (microcontroller.Public || _currentUser.IsAdministrator || microcontroller.OwnerId == _currentUser.Id)
-        return microcontroller;
+        var result = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
+
+        if (result is null)
+            throw new NotFoundException(string.Format(Messages.NotFoundErrorString, "Microcontroller"));
+
+        return result.MicrocontrollerSensors.Select(x => x.Sensor.MapToDto()).ToList();
     }
 
-    throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Microcontroller));
-  }
+    public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId,
+        CancellationToken cancellationToken = default)
+    {
+        var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
+
+        return microcontroller.MapToDto();
+    }
+
+    public async Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto,
+        CancellationToken cancellationToken = default)
+    {
+        var visibleMicrocontrollers = await _unitOfWork.Microcontrollers.GetVisibleMicrocontrollersAsync(
+            mapRequestDto.SouthWestLatitude, mapRequestDto.SouthWestLongitude, mapRequestDto.NorthEastLatitude,
+            mapRequestDto.NorthEastLongitude, cancellationToken);
+
+        return visibleMicrocontrollers;
+    }
+
+    public async Task<PagedResultDto<MicrocontrollerDto>> GetUserMicrocontrollersAsync(Guid userId,
+        PagedInfoDto pagedInfo, CancellationToken cancellationToken = default)
+    {
+        Expression<Func<Microcontroller, bool>> searchCriteria =
+            userId == _currentUser.Id || _currentUser.IsAdministrator
+                ? mc => mc.OwnerId == userId && mc.Name.Contains(pagedInfo.SearchString)
+                : mc => mc.OwnerId == userId && mc.Name.Contains(pagedInfo.SearchString) && mc.Public;
+
+        var pagedResultDto =
+            await _unitOfWork.Microcontrollers.GetPagedResultAsync(pagedInfo, searchCriteria, cancellationToken);
+
+        return pagedResultDto.Convert(x => x.MapToDto());
+    }
+
+    public async Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto,
+        CancellationToken cancellationToken = default)
+    {
+        var microcontrollerId = Guid.NewGuid();
+
+        _unitOfWork.Microcontrollers.Add(new Microcontroller
+        {
+            Id = microcontrollerId,
+            OwnerId = _currentUser.Id,
+            Name = createMicrocontrollerDto.Name,
+            Key = createMicrocontrollerDto.Key,
+            Public = createMicrocontrollerDto.Public,
+            Longitude = createMicrocontrollerDto.Longitude,
+            Latitude = createMicrocontrollerDto.Latitude,
+            MicrocontrollerSensors = createMicrocontrollerDto
+                .SensorIDs
+                .Select(sensor =>
+                    new MicrocontrollerSensors
+                    {
+                        MicrocontrollerId = microcontrollerId,
+                        SensorId = sensor
+                    })
+                .ToList()
+        });
+
+        var success = await _unitOfWork.SaveAsync(cancellationToken);
+
+        if (!success)
+            throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
+
+        var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
+
+        if (microcontroller is null)
+            throw new AppException(string.Format(Messages.CreationFailedErrorString, Microcontroller));
+
+        return microcontroller.MapToDto();
+    }
+
+    public async Task UpdateMicrocontrollerAsync(
+        Guid microcontrollerId, UpdateMicrocontrollerDto updateMicrocontrollerDto,
+        CancellationToken cancellationToken = default)
+    {
+        var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
+
+        if (microcontroller.MicrocontrollerSensors.Count -
+            updateMicrocontrollerDto.RemoveMicrocontrollerSensorIds.Count +
+            updateMicrocontrollerDto.AddSensorIds.Count > 5)
+            throw new UserInputException("Sensors can't be more than 5 per microcontroller");
+
+        microcontroller.Name = updateMicrocontrollerDto.Name;
+
+        if (updateMicrocontrollerDto.Key is not null) microcontroller.Key = updateMicrocontrollerDto.Key;
+
+        microcontroller.Public = updateMicrocontrollerDto.Public;
+        microcontroller.Longitude = updateMicrocontrollerDto.Longitude;
+        microcontroller.Latitude = updateMicrocontrollerDto.Latitude;
+
+        foreach (var currentSensor in microcontroller.MicrocontrollerSensors.ToArray())
+        {
+            var sensorToRemove = updateMicrocontrollerDto.RemoveMicrocontrollerSensorIds
+                .FirstOrDefault(x => x == currentSensor.Id);
+
+            if (sensorToRemove != default)
+                microcontroller.MicrocontrollerSensors.Remove(currentSensor);
+        }
+
+        foreach (var newSensorId in updateMicrocontrollerDto.AddSensorIds)
+            microcontroller.MicrocontrollerSensors.Add(new MicrocontrollerSensors
+            {
+                MicrocontrollerId = microcontrollerId,
+                SensorId = newSensorId
+            });
+
+        if (microcontroller.MicrocontrollerSensors.Count > 5)
+            throw new UserInputException("Sensors can't be more than 5 per microcontroller");
+
+        var success = await _unitOfWork.SaveAsync(cancellationToken);
+
+        if (!success)
+            throw new AppException(string.Format(Messages.UpdateFailedErrorString, Microcontroller));
+    }
+
+    public async Task DeleteMicrocontrollerAsync(Guid microcontrollerId, CancellationToken cancellationToken = default)
+    {
+        await _unitOfWork.Microcontrollers.RemoveAsync(microcontrollerId, cancellationToken);
+    }
+
+    public async Task SetSensorValueThresholdAsync(Guid microcontrollerSensorId, int? criticalValue,
+        CancellationToken cancellationToken = default)
+    {
+        var updatedEntries = await _unitOfWork.Microcontrollers.SetSensorValueThresholdAsync(
+            _currentUser, microcontrollerSensorId, criticalValue, cancellationToken);
+
+        if (updatedEntries == 0)
+            throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Microcontroller));
+    }
+
+    private async Task<Microcontroller> TryGetMicrocontrollerAsync(Guid microcontrollerId,
+        CancellationToken cancellationToken)
+    {
+        var microcontroller = await _unitOfWork.Microcontrollers.FindAsync(microcontrollerId, cancellationToken);
+
+        if (microcontroller is not null)
+            if (microcontroller.Public || _currentUser.IsAdministrator || microcontroller.OwnerId == _currentUser.Id)
+                return microcontroller;
+
+        throw new NotFoundException(string.Format(Messages.NotFoundErrorString, Microcontroller));
+    }
 }

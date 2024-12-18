@@ -13,19 +13,13 @@ public static class ConfigurationExtensions
             x.UseRoutingKeyFormatter(_ => RoutingKeys.SensorDataReceivedKey);
         });
 
-        configurator.Publish<SensorDataReceived>(x =>
-        {
-            x.ExchangeType = ExchangeType.Direct;
-        });
+        configurator.Publish<SensorDataReceived>(x => { x.ExchangeType = ExchangeType.Direct; });
 
         configurator.Send<CriticalValueReached>(x =>
         {
             x.UseRoutingKeyFormatter(_ => RoutingKeys.CriticalValueReachedKey);
         });
 
-        configurator.Publish<CriticalValueReached>(x =>
-        {
-            x.ExchangeType = ExchangeType.Direct;
-        });
+        configurator.Publish<CriticalValueReached>(x => { x.ExchangeType = ExchangeType.Direct; });
     }
 }

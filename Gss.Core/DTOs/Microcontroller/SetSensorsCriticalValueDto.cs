@@ -2,6 +2,6 @@
 
 public class SetSensorsCriticalValueDto
 {
-  public Guid MicrocontrollerSensorId { get; set; }
-  public int? CriticalValue { get; set; }
+    public Guid MicrocontrollerSensorId { get; set; }
+    public int? CriticalValue { get; set; }
 }

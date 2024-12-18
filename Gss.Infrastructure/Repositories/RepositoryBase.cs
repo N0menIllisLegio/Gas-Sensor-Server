@@ -8,69 +8,63 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace Gss.Infrastructure.Repositories;
 
-public abstract class RepositoryBase<TEntity>: IRepositoryBase<TEntity>
-  where TEntity : class, IEntity
+public abstract class RepositoryBase<TEntity> : IRepositoryBase<TEntity>
+    where TEntity : class, IEntity
 {
-  protected RepositoryBase(AppDbContext context)
-  {
-    DbSet = context.Set<TEntity>();
-  }
-
-  protected DbSet<TEntity> DbSet { get; }
-
-  public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(
-    PagedInfoDto pagedInfoDto,
-    Expression<Func<TEntity, bool>>? search = null,
-    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-    CancellationToken cancellationToken = default)
-  {
-    var query = search == null
-      ? DbSet
-      : DbSet.Where(search);
-
-    query = query.AsNoTracking();
-
-    query = pagedInfoDto.SortOptions is null || pagedInfoDto.SortOptions.Count == 0
-      ? query.OrderBy(entity => entity.Id)
-      : query.OrderBy(pagedInfoDto.SortOptions);
-
-    if (include is not null)
+    protected RepositoryBase(AppDbContext context)
     {
-      query = include(query);
+        DbSet = context.Set<TEntity>();
     }
 
-    var totalItemsCount = await query.CountAsync(cancellationToken: cancellationToken);
+    protected DbSet<TEntity> DbSet { get; }
 
-    var items = await query
-      .Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize)
-      .Take(pagedInfoDto.PageSize)
-      .ToListAsync(cancellationToken: cancellationToken);
-
-    return new PagedResultDto<TEntity>
+    public virtual async Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
-      Items = items,
-      TotalItemsCount = totalItemsCount,
-      PagedInfo = pagedInfoDto
-    };
-  }
-
-  public virtual async Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default)
-  {
-    return await DbSet.FindAsync(id, cancellationToken);
-  }
-
-  public virtual Guid Add(TEntity entity)
-  {
-    if (entity.Id == Guid.Empty)
-    {
-      entity.Id = Guid.NewGuid();
+        return await DbSet.FindAsync(id, cancellationToken);
     }
 
-    return DbSet.Add(entity).Entity.Id;
-  }
+    public virtual Guid Add(TEntity entity)
+    {
+        if (entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
 
-  public virtual async Task<int> RemoveAsync(Guid entityId, CancellationToken cancellationToken = default)
-  {
-    return await DbSet.Where(x => x.Id == entityId).ExecuteDeleteAsync(cancellationToken: cancellationToken);
-  }
+        return DbSet.Add(entity).Entity.Id;
+    }
+
+    public virtual async Task<int> RemoveAsync(Guid entityId, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.Where(x => x.Id == entityId).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<PagedResultDto<TEntity>> GetPagedResultAsync(
+        PagedInfoDto pagedInfoDto,
+        Expression<Func<TEntity, bool>>? search = null,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = search == null
+            ? DbSet
+            : DbSet.Where(search);
+
+        query = query.AsNoTracking();
+
+        query = pagedInfoDto.SortOptions is null || pagedInfoDto.SortOptions.Count == 0
+            ? query.OrderBy(entity => entity.Id)
+            : query.OrderBy(pagedInfoDto.SortOptions);
+
+        if (include is not null) query = include(query);
+
+        var totalItemsCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip((pagedInfoDto.PageNumber - 1) * pagedInfoDto.PageSize)
+            .Take(pagedInfoDto.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResultDto<TEntity>
+        {
+            Items = items,
+            TotalItemsCount = totalItemsCount,
+            PagedInfo = pagedInfoDto
+        };
+    }
 }

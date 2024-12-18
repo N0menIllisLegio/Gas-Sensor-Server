@@ -4,8 +4,8 @@ namespace Gss.Core.DTOs.Microcontroller;
 
 public class MapMicrocontrollerDto
 {
-  public Guid MicrocontrollerId { get; set; }
-  public double Latitude { get; set; }
-  public double Longitude { get; set; }
-  public required List<SensorTypeDto> SensorTypes { get; set; }
+    public Guid MicrocontrollerId { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public required List<SensorTypeDto> SensorTypes { get; set; }
 }

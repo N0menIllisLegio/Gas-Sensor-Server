@@ -3,7 +3,7 @@ using Gss.Core.DTOs.SensorType;
 
 namespace Gss.Web.Controllers.Validators;
 
-public sealed class UpdateSensorTypeDtoValidator: AbstractValidator<UpdateSensorTypeDto>
+public sealed class UpdateSensorTypeDtoValidator : AbstractValidator<UpdateSensorTypeDto>
 {
     public UpdateSensorTypeDtoValidator()
     {

@@ -21,14 +21,14 @@ public static class MicrocontrollerMapperExtensions
 
     public static MicrocontrollerSensorDto MapToDto(this MicrocontrollerSensors microcontroller)
     {
-        return new MicrocontrollerSensorDto()
+        return new MicrocontrollerSensorDto
         {
             Id = microcontroller.SensorId,
             MicrocontrollerSensorId = microcontroller.Id,
             CriticalValue = microcontroller.CriticalValue,
             Name = microcontroller.Sensor.Name,
             Description = microcontroller.Sensor.Description,
-            Type = microcontroller.Sensor.Type.MapToDto(),
+            Type = microcontroller.Sensor.Type.MapToDto()
         };
     }
 }

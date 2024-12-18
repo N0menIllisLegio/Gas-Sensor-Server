@@ -2,7 +2,7 @@
 
 public enum SensorDataPeriod
 {
-  Day,
-  Month,
-  Year
+    Day,
+    Month,
+    Year
 }

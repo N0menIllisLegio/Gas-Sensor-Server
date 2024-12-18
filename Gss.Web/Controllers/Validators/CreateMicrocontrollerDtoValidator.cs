@@ -3,7 +3,7 @@ using Gss.Core.DTOs.Microcontroller;
 
 namespace Gss.Web.Controllers.Validators;
 
-public sealed class CreateMicrocontrollerDtoValidator: AbstractValidator<CreateMicrocontrollerDto>
+public sealed class CreateMicrocontrollerDtoValidator : AbstractValidator<CreateMicrocontrollerDto>
 {
     public CreateMicrocontrollerDtoValidator()
     {

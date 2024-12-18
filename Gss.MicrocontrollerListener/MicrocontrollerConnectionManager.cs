@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Gss.MicrocontrollerListener;
 
-internal sealed class MicrocontrollerConnectionManager: IDisposable
+internal sealed class MicrocontrollerConnectionManager : IDisposable
 {
     private const string OkResponse = "Server_OK";
     private const string AttentionResponse = "Server_AT";
@@ -21,6 +21,12 @@ internal sealed class MicrocontrollerConnectionManager: IDisposable
         _socket = socket;
         _options = options;
         _logger = logger;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     public async Task<MicrocontrollerRequest?> ReceiveRequestAsync(CancellationToken cancellationToken = default)
@@ -74,8 +80,7 @@ internal sealed class MicrocontrollerConnectionManager: IDisposable
                 await _socket.ReceiveAsync(receivedData, SocketFlags.None, cancellationTokenSource.Token);
 
             receivedMessageBuilder.Append(Encoding.ASCII.GetString(receivedData, 0, bytesReceived));
-        }
-        while (_socket.Available > 0);
+        } while (_socket.Available > 0);
 
         _logger.LogDebug("Received Data: {Endpoint} --- {Message}", _socket.RemoteEndPoint, receivedMessageBuilder);
 
@@ -88,12 +93,6 @@ internal sealed class MicrocontrollerConnectionManager: IDisposable
 
         var responseBytes = Encoding.ASCII.GetBytes(response);
         await _socket.SendAsync(responseBytes, SocketFlags.None, cancellationToken);
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     protected void Dispose(bool disposing)

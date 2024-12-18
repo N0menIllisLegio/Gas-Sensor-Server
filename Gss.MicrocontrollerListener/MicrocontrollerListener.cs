@@ -12,12 +12,12 @@ using Microsoft.Extensions.Options;
 
 namespace Gss.MicrocontrollerListener;
 
-internal sealed class MicrocontrollerListener: BackgroundService
+internal sealed class MicrocontrollerListener : BackgroundService
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ILogger<MicrocontrollerListener> _logger;
     private readonly IBus _bus;
+    private readonly ILogger<MicrocontrollerListener> _logger;
     private readonly MicrocontrollersConnectionsOptions _options;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public MicrocontrollerListener(
         IServiceScopeFactory serviceScopeFactory,
@@ -89,18 +89,16 @@ internal sealed class MicrocontrollerListener: BackgroundService
 
                 var connectedMicrocontroller = await listenerRepository.Microcontrollers
                     .Include(x => x.MicrocontrollerSensors)
-                        .ThenInclude(x => x.Sensor)
-                            .ThenInclude(x => x.Type)
+                    .ThenInclude(x => x.Sensor)
+                    .ThenInclude(x => x.Type)
                     .FirstOrDefaultAsync(x => x.Id == authRequest.MicrocontrollerId,
-                        cancellationToken: cancellationToken);
+                        cancellationToken);
 
                 if (connectedMicrocontroller is not null)
                 {
                     // TODO: HMAC. API-Key or hash
                     if (connectedMicrocontroller.Key == authRequest.Password)
-                    {
                         microcontroller = connectedMicrocontroller;
-                    }
 
                     _logger.LogWarning("Failed to authenticate. {MicrocontrollerId}", authRequest.MicrocontrollerId);
                 }
@@ -113,7 +111,7 @@ internal sealed class MicrocontrollerListener: BackgroundService
             if (microcontroller is null)
                 return;
 
-            using var logScope = _logger.BeginScope(new Dictionary<string, string>()
+            using var logScope = _logger.BeginScope(new Dictionary<string, string>
             {
                 { "MicrocontrollerId", microcontroller.Id.ToString() }
             });
@@ -152,13 +150,11 @@ internal sealed class MicrocontrollerListener: BackgroundService
                     }
 
                     if (microcontrollerSensor.CriticalValue <= dataRequest.SensorValue)
-                    {
                         await _bus.Publish(new CriticalValueReached
                         {
                             MicrocontrollerSensorId = microcontrollerSensor.Id,
-                            Value = dataRequest.SensorValue,
+                            Value = dataRequest.SensorValue
                         }, cancellationToken);
-                    }
 
                     await _bus.Publish(new SensorDataReceived
                     {

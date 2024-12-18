@@ -2,8 +2,9 @@
 
 namespace Gss.MicrocontrollerListener;
 
-record AuthRequest(Guid UserId, Guid MicrocontrollerId, string Password);
-record DataRequest(Guid MicrocontrollerSensorId, DateTime SensorValueReadTime, int SensorValue);
+internal record AuthRequest(Guid UserId, Guid MicrocontrollerId, string Password);
+
+internal record DataRequest(Guid MicrocontrollerSensorId, DateTime SensorValueReadTime, int SensorValue);
 
 internal sealed class MicrocontrollerRequest
 {
@@ -17,21 +18,20 @@ internal sealed class MicrocontrollerRequest
     private readonly string[] _availableCommands =
         [AuthCommand, DataCommand, DateSyncCommand, RequestSensorValueCommand];
 
-    private readonly string _command;
     private readonly string[] _commandParams;
 
     public MicrocontrollerRequest(string response)
     {
-        (_command, _commandParams) = ParseRequest(response);
+        (Command, _commandParams) = ParseRequest(response);
     }
 
-    public string Command => _command;
+    public string Command { get; }
 
     public bool ValidateCommand(string? expectedCommand = null)
     {
         return string.IsNullOrEmpty(expectedCommand)
-            ? _availableCommands.Contains(_command)
-            : expectedCommand == _command;
+            ? _availableCommands.Contains(Command)
+            : expectedCommand == Command;
     }
 
     public AuthRequest? ParseAuthRequest()
@@ -41,9 +41,7 @@ internal sealed class MicrocontrollerRequest
             || !Guid.TryParse(_commandParams[0], out var userId)
             || !Guid.TryParse(_commandParams[1], out var microcontrollerId)
             || string.IsNullOrEmpty(_commandParams[2]))
-        {
             return null;
-        }
 
         return new AuthRequest(userId, microcontrollerId, _commandParams[2]);
     }
@@ -56,9 +54,7 @@ internal sealed class MicrocontrollerRequest
             || !DateTime.TryParse(_commandParams[1], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal,
                 out var sensorValueReadDateTime)
             || !int.TryParse(_commandParams[2], out var sensorValue))
-        {
             return null;
-        }
 
         return new DataRequest(microcontrollerSensorId, sensorValueReadDateTime, sensorValue);
     }

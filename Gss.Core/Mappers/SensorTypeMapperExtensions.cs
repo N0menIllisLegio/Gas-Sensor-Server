@@ -12,7 +12,7 @@ public static class SensorTypeMapperExtensions
             Id = sensorType.Id,
             Name = sensorType.Name,
             Units = sensorType.Units,
-            Icon = sensorType.Icon,
+            Icon = sensorType.Icon
         };
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Gss.Infrastructure.TypeConfigurations;
 
-internal sealed class MicrocontrollerConfiguration: IEntityTypeConfiguration<Microcontroller>
+internal sealed class MicrocontrollerConfiguration : IEntityTypeConfiguration<Microcontroller>
 {
     public void Configure(EntityTypeBuilder<Microcontroller> builder)
     {

@@ -5,13 +5,11 @@ namespace Gss.Core.Entities;
 
 public sealed class SensorType : IEntity
 {
-  [AllowOrdering]
-  public Guid Id { get; set; }
+    [AllowOrdering] public required string Name { get; set; }
 
-  [AllowOrdering]
-  public required string Name { get; set; }
-  public string? Icon { get; set; }
+    public string? Icon { get; set; }
 
-  [AllowOrdering]
-  public string? Units { get; set; }
+    [AllowOrdering] public string? Units { get; set; }
+
+    [AllowOrdering] public Guid Id { get; set; }
 }

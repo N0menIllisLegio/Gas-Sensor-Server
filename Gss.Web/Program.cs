@@ -13,6 +13,7 @@ using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,10 +56,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         o.RequireHttpsMetadata = false;
         o.Audience = builder.Configuration["Authentication:Audience"];
         o.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]!;
-        o.TokenValidationParameters = new()
+        o.TokenValidationParameters = new TokenValidationParameters
         {
             ValidIssuer = builder.Configuration["Authentication:Issuer"],
-            ClockSkew = TimeSpan.Zero,
+            ClockSkew = TimeSpan.Zero
         };
     });
 

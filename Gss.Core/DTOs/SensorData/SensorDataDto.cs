@@ -2,7 +2,7 @@
 
 public class SensorDataDto
 {
-  public DateTimeOffset WatchingDate { get; set; }
-  public DateTime ReadTime { get; set; }
-  public double AverageValue { get; set; }
+    public DateTimeOffset WatchingDate { get; set; }
+    public DateTime ReadTime { get; set; }
+    public double AverageValue { get; set; }
 }

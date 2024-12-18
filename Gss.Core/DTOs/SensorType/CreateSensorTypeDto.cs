@@ -2,7 +2,7 @@
 
 public class CreateSensorTypeDto
 {
-  public required string Name { get; set; }
-  public string? Icon { get; set; }
-  public string? Units { get; set; }
+    public required string Name { get; set; }
+    public string? Icon { get; set; }
+    public string? Units { get; set; }
 }

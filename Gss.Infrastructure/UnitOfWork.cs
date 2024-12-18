@@ -4,63 +4,60 @@ using Gss.Infrastructure.Repositories;
 
 namespace Gss.Infrastructure;
 
-public class UnitOfWork: IUnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
-  private readonly AppDbContext _context;
+    private readonly AppDbContext _context;
 
-  private IMicrocontrollersRepository? _microcontrollers;
-  private ISensorsRepository? _sensors;
-  private ISensorsTypesRepository? _sensorsTypes;
-  private ISensorsDataRepository? _sensorsData;
+    private bool _disposedValue;
 
-  private bool _disposedValue;
+    private IMicrocontrollersRepository? _microcontrollers;
+    private ISensorsRepository? _sensors;
+    private ISensorsDataRepository? _sensorsData;
+    private ISensorsTypesRepository? _sensorsTypes;
 
-  public UnitOfWork(AppDbContext context)
-  {
-    _context = context;
-  }
-
-  public IMicrocontrollersRepository Microcontrollers =>
-    _microcontrollers ??= new MicrocontrollersRepository(_context);
-
-  public ISensorsRepository Sensors => _sensors ??= new SensorsRepository(_context);
-  public ISensorsTypesRepository SensorsTypes => _sensorsTypes ??= new SensorsTypesRepository(_context);
-  public ISensorsDataRepository SensorsData => _sensorsData ??= new SensorsDataRepository(_context);
-
-  public async Task<bool> SaveAsync(CancellationToken cancellationToken = default)
-  {
-    try
+    public UnitOfWork(AppDbContext context)
     {
-      await _context.SaveChangesAsync(cancellationToken);
-      return true;
+        _context = context;
     }
-    catch
+
+    public IMicrocontrollersRepository Microcontrollers =>
+        _microcontrollers ??= new MicrocontrollersRepository(_context);
+
+    public ISensorsRepository Sensors => _sensors ??= new SensorsRepository(_context);
+    public ISensorsTypesRepository SensorsTypes => _sensorsTypes ??= new SensorsTypesRepository(_context);
+    public ISensorsDataRepository SensorsData => _sensorsData ??= new SensorsDataRepository(_context);
+
+    public async Task<bool> SaveAsync(CancellationToken cancellationToken = default)
     {
-      return false;
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
-  }
 
-  protected virtual void Dispose(bool disposing)
-  {
-    if (!_disposedValue)
+    public void Dispose()
     {
-      if (disposing)
-      {
-        _context.Dispose();
-      }
-
-      _disposedValue = true;
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
-  }
 
-  ~UnitOfWork()
-  {
-    Dispose(false);
-  }
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing) _context.Dispose();
 
-  public void Dispose()
-  {
-    Dispose(true);
-    GC.SuppressFinalize(this);
-  }
+            _disposedValue = true;
+        }
+    }
+
+    ~UnitOfWork()
+    {
+        Dispose(false);
+    }
 }

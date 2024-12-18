@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Gss.MicrocontrollerDataHandler.Consumers;
 
-internal sealed class CriticalValueReachedConsumer: IConsumer<CriticalValueReached>
+internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReached>
 {
-    private readonly IMicrocontrollersRepository _microcontrollersRepository;
     private readonly IEmailService _emailService;
     private readonly ILogger<CriticalValueReached> _logger;
+    private readonly IMicrocontrollersRepository _microcontrollersRepository;
 
     public CriticalValueReachedConsumer(IMicrocontrollersRepository microcontrollersRepository,
         IEmailService emailService, ILogger<CriticalValueReached> logger)
@@ -54,11 +54,6 @@ internal class CriticalValueReachedConsumerDefinition : ConsumerDefinition<Criti
         endpointConfigurator.UseMessageRetry(x => x.Interval(5, 1000));
 
         if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
-        {
-            rmq.Bind<CriticalValueReached>(x =>
-            {
-                x.RoutingKey = RoutingKeys.CriticalValueReachedKey;
-            });
-        }
+            rmq.Bind<CriticalValueReached>(x => { x.RoutingKey = RoutingKeys.CriticalValueReachedKey; });
     }
 }
