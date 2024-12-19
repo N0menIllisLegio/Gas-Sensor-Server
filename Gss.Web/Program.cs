@@ -14,8 +14,47 @@ using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+
+builder.Services
+    .AddOpenTelemetry()
+    .ConfigureResource(c => c.AddService("Gss.Web"))
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddAspNetCoreInstrumentation();
+    })
+    .WithTracing(tracing =>
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            tracing.SetSampler<AlwaysOnSampler>();
+        }
+
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation();
+    });
+
+var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+if (useOtlpExporter)
+{
+    builder.Services.AddOpenTelemetry().UseOtlpExporter();
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options

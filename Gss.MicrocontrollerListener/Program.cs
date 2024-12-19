@@ -6,8 +6,46 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+
+builder.Services
+    .AddOpenTelemetry()
+    .ConfigureResource(c => c.AddService("Gss.MicrocontrollerListener"))
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation();
+    })
+    .WithTracing(tracing =>
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            tracing.SetSampler<AlwaysOnSampler>();
+        }
+
+        tracing
+            .AddHttpClientInstrumentation();
+    });
+
+var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+if (useOtlpExporter)
+{
+    builder.Services.AddOpenTelemetry().UseOtlpExporter();
+}
 
 builder.Services.Configure<MicrocontrollersConnectionsOptions>(
     builder.Configuration.GetSection(MicrocontrollersConnectionsOptions.SectionName));

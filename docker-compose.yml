@@ -8,10 +8,12 @@
       - 5000:8080
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
       - keycloak
       - postgres
       - rabbitmq
+      - telemetry-dashboard
 
   microcontroller-listener:
     container_name: Gss.MicrocontrollerListener
@@ -22,6 +24,7 @@
       - 5002:5002
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
       - web
 
@@ -32,8 +35,10 @@
       dockerfile: Gss.MicrocontrollerDataHandler/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
       - web
+      - email
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -76,3 +81,10 @@
     ports:
       - 5500:80
       - 25:25
+
+  telemetry-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:9.0
+    container_name: Gss.AspireDashboard
+    ports:
+      - 18888:18888
+      - 18889:18889
