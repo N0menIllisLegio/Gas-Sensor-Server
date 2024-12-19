@@ -97,4 +97,16 @@ public class SensorsDataRepository : ISensorsDataRepository
                     0, 0)
             });
     }
+
+    public async Task<DateTimeOffset?> GetLatestResponseTimeAsync(List<Guid> microcontrollerSensorIds,
+        CancellationToken cancellationToken)
+    {
+        var result = await _dbSet
+            .Where(x => microcontrollerSensorIds.Contains(x.MicrocontrollerSensorId))
+            .Select(x => x.ReceivedTime)
+            .DefaultIfEmpty()
+            .MaxAsync(cancellationToken);
+
+        return result == default ? null : result;
+    }
 }

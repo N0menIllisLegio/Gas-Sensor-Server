@@ -54,12 +54,16 @@ public class MicrocontrollersService : IMicrocontrollersService
         return result.MicrocontrollerSensors.Select(x => x.Sensor.MapToDto()).ToList();
     }
 
-    public async Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId,
+    public async Task<ExtendedMicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId,
         CancellationToken cancellationToken = default)
     {
         var microcontroller = await TryGetMicrocontrollerAsync(microcontrollerId, cancellationToken);
 
-        return microcontroller.MapToDto();
+        var latestResponse = await _unitOfWork.SensorsData.GetLatestResponseTimeAsync(
+            microcontroller.MicrocontrollerSensors.Select(x => x.Id).ToList(),
+            cancellationToken);
+
+        return microcontroller.MapToExtendedDto(latestResponse);
     }
 
     public async Task<List<MapMicrocontrollerDto>> GetPublicMicrocontrollersMapAsync(MapRequestDto mapRequestDto,

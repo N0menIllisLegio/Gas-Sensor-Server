@@ -7,4 +7,7 @@ public interface ISensorsDataRepository
 {
     Task<List<SensorDataDto>> GetSensorDataByPeriodAsync(Guid microcontrollerSensorId, DateOnly watchingDate,
         SensorDataPeriod period, CancellationToken cancellationToken = default);
+
+    Task<DateTimeOffset?> GetLatestResponseTimeAsync(List<Guid> microcontrollerSensorIds,
+        CancellationToken cancellationToken);
 }

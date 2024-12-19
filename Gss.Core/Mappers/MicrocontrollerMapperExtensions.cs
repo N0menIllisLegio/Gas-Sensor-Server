@@ -19,6 +19,22 @@ public static class MicrocontrollerMapperExtensions
         };
     }
 
+    public static ExtendedMicrocontrollerDto MapToExtendedDto(
+        this Microcontroller microcontroller, DateTimeOffset? latestResponse)
+    {
+        return new ExtendedMicrocontrollerDto
+        {
+            Id = microcontroller.Id,
+            Name = microcontroller.Name,
+            Latitude = microcontroller.Latitude,
+            Longitude = microcontroller.Longitude,
+            Public = microcontroller.Public,
+            OwnerId = microcontroller.OwnerId,
+            LatestResponse = latestResponse,
+            Sensors = microcontroller.MicrocontrollerSensors.Select(x => x.MapToDto())
+        };
+    }
+
     public static MicrocontrollerSensorDto MapToDto(this MicrocontrollerSensors microcontroller)
     {
         return new MicrocontrollerSensorDto

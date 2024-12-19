@@ -17,6 +17,8 @@
                         <div class="col-span-2">{{ microcontroller()!.public | boolYesNo }}</div>
                         <div class="font-bold">Coordinates:</div>
                         <div class="col-span-2">{{ { latitude: microcontroller()!.latitude, longitude: microcontroller()!.longitude } | coordinates | emptyPlaceholder }}</div>
+                        <div class="font-bold">Last Response Time:</div>
+                        <div class="col-span-2">{{ microcontroller()!.latestResponse | dateTime | emptyPlaceholder }}</div>
                     </div>
                 }
                 @else {

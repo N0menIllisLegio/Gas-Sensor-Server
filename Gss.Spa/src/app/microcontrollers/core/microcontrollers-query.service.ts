@@ -7,6 +7,7 @@ import MicrocontrollerModel from "./microcontroller.model";
 import { map } from "rxjs";
 import { guid } from "../../core/guid";
 import EditMicrocontrollerModel from "../edit-microcontroller/edit-microcontroller.model";
+import ExtendedMicrocontrollerModel from "./extended-microcontroller.model";
 
 @Injectable({ providedIn: 'root' })
 export class MicrocontrollersQueryService {
@@ -21,7 +22,13 @@ export class MicrocontrollersQueryService {
     }
 
     getMicrocontroller(id: guid) {
-        return this.httpClient.get<MicrocontrollerModel>(`/api/Microcontrollers/GetMicrocontroller/${id}`);
+        return this.httpClient.get<ExtendedMicrocontrollerModel>(`/api/Microcontrollers/GetMicrocontroller/${id}`)
+            .pipe(map(x => {
+                if (x.latestResponse)
+                    x.latestResponse = new Date(x.latestResponse);
+
+                return x;
+            }));
     }
 
     getUserPublicMicrocontrollers(userId: guid, pagedRequest: PagedRequestModel) {

@@ -89,7 +89,7 @@ public class MicrocontrollersController : ControllerBase
 
     [HttpGet("{id}")]
     [SwaggerOperation(description: "Gets microcontroller by id.")]
-    [SwaggerResponse(200, type: typeof(MicrocontrollerDto))]
+    [SwaggerResponse(200, type: typeof(ExtendedMicrocontrollerDto))]
     [SwaggerResponse(404, type: typeof(ProblemDetails))]
     public async Task<IActionResult> GetMicrocontroller([FromRoute] Guid id, CancellationToken cancellationToken)
     {

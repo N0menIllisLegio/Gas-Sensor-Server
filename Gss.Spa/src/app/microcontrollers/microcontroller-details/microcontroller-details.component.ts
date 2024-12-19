@@ -3,7 +3,6 @@ import { MicrocontrollersQueryService } from "../core/microcontrollers-query.ser
 import { guid } from "../../core/guid";
 import { Router } from "@angular/router";
 import { BehaviorSubject, catchError, of } from "rxjs";
-import MicrocontrollerModel from "../core/microcontroller.model";
 import { MapComponent } from "../shared/map/map.component";
 import DisplayableMicrocontrollerModel from "../shared/map/displayable-microcontroller.model";
 import FlyToTargetModel from "../shared/map/fly-to-target.model";
@@ -28,6 +27,7 @@ import { EditThresholdDialog } from "./edit-threshold-dialog/edit-threshold.dial
 import { MatDialog } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/confirmation.dialog";
+import ExtendedMicrocontrollerModel from "../core/extended-microcontroller.model";
 
 @Component({
     selector: 'microcontroller-details',
@@ -48,7 +48,8 @@ import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/co
         MatFormFieldModule,
         MatInputModule,
         MatTooltipModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        DateTimePipe
     ]
 })
 export class MicrocontrollerDetailsComponent {
@@ -59,7 +60,7 @@ export class MicrocontrollerDetailsComponent {
 
     loading = signal(true);
     microcontrollerId = input.required<guid>();
-    microcontroller = signal<MicrocontrollerModel | undefined> (undefined);
+    microcontroller = signal<ExtendedMicrocontrollerModel | undefined> (undefined);
     requestedSensorId = signal<guid | null> (null);
 
     addMicrocontroller = new BehaviorSubject<DisplayableMicrocontrollerModel | null>(null);
@@ -87,6 +88,7 @@ export class MicrocontrollerDetailsComponent {
 
                 data.sensors.forEach(x => x.enteredCriticalValue = x.criticalValue?.toString());
 
+                console.log(data);
                 this.loading.set(false);
                 this.microcontroller.set(data);
                 this.requestedSensorId.set(data.requestedSensorId);

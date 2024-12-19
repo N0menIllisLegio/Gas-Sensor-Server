@@ -21,7 +21,7 @@ public interface IMicrocontrollersService
     Task<List<SensorDto>> GetMicrocontrollerSensorsAsync(Guid microcontrollerId,
         CancellationToken cancellationToken = default);
 
-    Task<MicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId,
+    Task<ExtendedMicrocontrollerDto> GetMicrocontrollerAsync(Guid microcontrollerId,
         CancellationToken cancellationToken = default);
 
     Task<MicrocontrollerDto> AddMicrocontrollerAsync(CreateMicrocontrollerDto createMicrocontrollerDto,
