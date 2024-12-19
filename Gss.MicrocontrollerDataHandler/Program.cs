@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -31,6 +32,7 @@ builder.Services
     .WithMetrics(metrics =>
     {
         metrics
+            .AddMeter("Npgsql")
             .AddMeter(InstrumentationOptions.MeterName)
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation();
@@ -43,6 +45,7 @@ builder.Services
         }
 
         tracing
+            .AddNpgsql()
             .AddSource(DiagnosticHeaders.DefaultListenerName)
             .AddHttpClientInstrumentation();
     });
