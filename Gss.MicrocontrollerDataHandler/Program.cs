@@ -5,6 +5,8 @@ using Gss.MicrocontrollerDataHandler.Consumers;
 using Gss.MicrocontrollerDataHandler.Email;
 using Gss.Queue;
 using MassTransit;
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +31,7 @@ builder.Services
     .WithMetrics(metrics =>
     {
         metrics
+            .AddMeter(InstrumentationOptions.MeterName)
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation();
     })
@@ -40,6 +43,7 @@ builder.Services
         }
 
         tracing
+            .AddSource(DiagnosticHeaders.DefaultListenerName)
             .AddHttpClientInstrumentation();
     });
 
