@@ -136,10 +136,7 @@ internal sealed class UdpListener: BackgroundService
             if (microcontroller.MicrocontrollerSensors
                 .Any(x => x.Id == data.MicrocontrollerSensorId && x.CriticalValue <= data.Value))
             {
-                // TODO: event?
-                // Handle bad inserts into DB (catch and log)
-                activity?.SetTag(data.MicrocontrollerSensorId.ToString(), "Critical value reached");
-
+                activity?.AddEvent(new ActivityEvent($"Critical value reached: {data.MicrocontrollerSensorId}"));
 
                 await _bus.Publish(new CriticalValueReached
                 {
@@ -168,7 +165,7 @@ internal sealed class UdpListener: BackgroundService
 
             if (!Guid.TryParse(values[0], out var microcontrollerSensorId))
             {
-                _logger.LogWarning("Corrupted data: {MicrocontrollerSensorId}. MicrocontrollerId: {Id}.",
+                _logger.LogWarning("Corrupted data (MicrocontrollerSensorId): {MicrocontrollerSensorId}. MicrocontrollerId: {Id}.",
                     values[0], microcontrollerId);
 
                 yield break;
@@ -177,7 +174,7 @@ internal sealed class UdpListener: BackgroundService
             if (!DateTime.TryParseExact(values[1], DateTimeFormat, CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal, out var readTime))
             {
-                _logger.LogWarning("Corrupted data: {readTime}. MicrocontrollerId: {Id}.",
+                _logger.LogWarning("Corrupted data (ReadTime): {ReadTime}. MicrocontrollerId: {Id}.",
                     values[1], microcontrollerId);
 
                 yield break;
@@ -185,7 +182,7 @@ internal sealed class UdpListener: BackgroundService
 
             if (!double.TryParse(values[2], CultureInfo.InvariantCulture, out var value))
             {
-                _logger.LogWarning("Corrupted data: {readTime}. MicrocontrollerId: {Id}.",
+                _logger.LogWarning("Corrupted data (Value): {Value}. MicrocontrollerId: {Id}.",
                     values[2], microcontrollerId);
 
                 yield break;
