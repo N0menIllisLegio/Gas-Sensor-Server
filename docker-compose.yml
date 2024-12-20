@@ -1,5 +1,6 @@
 ﻿services:
   web:
+    image: gss.web
     container_name: Gss.Web
     build:
       context: .
@@ -10,16 +11,17 @@
       - ASPNETCORE_ENVIRONMENT=Production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
-      keycloak:
+      identity-provider:
         condition: service_healthy
-      postgres:
+      db:
         condition: service_healthy
-      rabbitmq:
+      message-broker:
         condition: service_healthy
       telemetry-dashboard:
         condition: service_started
 
   microcontroller-listener:
+    image: gss.microcontroller-listener
     container_name: Gss.MicrocontrollerListener
     build:
       context: .
@@ -33,6 +35,7 @@
       - web
 
   microcontroller-data-handler:
+    image: gss.microcontroller-data-handler
     container_name: Gss.MicrocontrollerDataHandler
     build:
       context: .
@@ -44,7 +47,7 @@
       - web
       - email
 
-  keycloak:
+  identity-provider:
     image: quay.io/keycloak/keycloak:latest
     container_name: Gss.KeyCloak
     command: start-dev --import-realm
@@ -63,7 +66,7 @@
       retries: 3
       timeout: 5s
 
-  postgres:
+  db:
     image: postgres:latest
     container_name: Gss.PostgreSQL
     ports:
@@ -80,7 +83,7 @@
       timeout: 5s
       retries: 5
 
-  rabbitmq:
+  message-broker:
     image: rabbitmq:4-management
     container_name: Gss.RabbitMQ
     ports:
@@ -103,7 +106,7 @@
       - 25:25
 
   telemetry-dashboard:
-    image: mcr.microsoft.com/dotnet/aspire-dashboard:9.0
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
     container_name: Gss.AspireDashboard
     ports:
       - 18888:18888
