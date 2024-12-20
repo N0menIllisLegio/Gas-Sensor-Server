@@ -88,7 +88,6 @@ export class MicrocontrollerDetailsComponent {
 
                 data.sensors.forEach(x => x.enteredCriticalValue = x.criticalValue?.toString());
 
-                console.log(data);
                 this.loading.set(false);
                 this.microcontroller.set(data);
                 this.requestedSensorId.set(data.requestedSensorId);
