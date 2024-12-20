@@ -4,6 +4,7 @@ using Gss.Infrastructure;
 using Gss.Queue;
 using Gss.Queue.Events;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 
 namespace Gss.MicrocontrollerDataHandler.Consumers;
@@ -25,13 +26,19 @@ internal sealed class SensorDataReceivedConsumer : IConsumer<Batch<SensorDataRec
         using Activity? activity = ActivitySource.StartActivity();
         activity?.SetTag("BatchSize", context.Message.Length);
 
+        var foreignKeysToCheck = context.Message.Select(d => d.Message.MicrocontrollerSensorId).Distinct().ToList();
+
+        var existingKeys = await _appDbContext.MicrocontrollerSensors
+            .Where(e => foreignKeysToCheck.Contains(e.Id))
+            .Select(e => e.Id)
+            .ToListAsync();
+
         var dataForInsertion = new List<SensorData>();
 
-        foreach (var group in context.Message.GroupBy(data => new
-                 {
-                     data.Message.MicrocontrollerSensorId,
-                     data.Message.ReadTime
-                 }))
+        foreach (var group in context.Message
+                     .Where(x => existingKeys
+                         .Contains(x.Message.MicrocontrollerSensorId))
+                     .GroupBy(data => new { data.Message.MicrocontrollerSensorId, data.Message.ReadTime }))
         {
             var insertingValue = group.First().Message;
 
@@ -44,13 +51,15 @@ internal sealed class SensorDataReceivedConsumer : IConsumer<Batch<SensorDataRec
             });
         }
 
-        activity?.SetTag("GroupedBatchSize", dataForInsertion.Count);
+        activity?.SetTag("GroupedAndFkCheckedBatchSize", dataForInsertion.Count);
 
-        await _appDbContext.SensorsData.BulkInsertAsync(dataForInsertion, options =>
-        {
-            options.AutoMapOutputDirection = false;
-            options.InsertIfNotExists = true;
-        }, context.CancellationToken);
+        if (dataForInsertion.Count > 0)
+            await _appDbContext.SensorsData.BulkInsertOptimizedAsync(dataForInsertion,
+                options =>
+                {
+                    options.AutoMapOutputDirection = false;
+                    options.InsertIfNotExists = true;
+                }, context.CancellationToken);
 
         activity?.SetStatus(ActivityStatusCode.Ok);
     }

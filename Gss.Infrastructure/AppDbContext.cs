@@ -18,6 +18,7 @@ public class AppDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<Microcontroller> Microcontrollers { get; private set; }
     public DbSet<SensorType> SensorsTypes { get; private set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; private set; }
+    public DbSet<MicrocontrollerSensors> MicrocontrollerSensors { get; private set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
