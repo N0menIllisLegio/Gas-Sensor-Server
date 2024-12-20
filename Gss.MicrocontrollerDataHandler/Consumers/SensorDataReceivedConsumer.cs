@@ -1,28 +1,29 @@
-﻿using Gss.Core.Entities;
+﻿using System.Diagnostics;
+using Gss.Core.Entities;
 using Gss.Infrastructure;
 using Gss.Queue;
 using Gss.Queue.Events;
 using MassTransit;
-using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace Gss.MicrocontrollerDataHandler.Consumers;
 
 internal sealed class SensorDataReceivedConsumer : IConsumer<Batch<SensorDataReceived>>
 {
-    private readonly AppDbContext _appDbContext;
-    private readonly ILogger<SensorDataReceivedConsumer> _logger;
+    public static readonly ActivitySource ActivitySource =
+        new("Gss.MicrocontrollerDataHandler.Consumers.SensorDataReceivedConsumer", "1.0.0");
 
-    public SensorDataReceivedConsumer(AppDbContext appDbContext, ILogger<SensorDataReceivedConsumer> logger)
+    private readonly AppDbContext _appDbContext;
+
+    public SensorDataReceivedConsumer(AppDbContext appDbContext)
     {
         _appDbContext = appDbContext;
-        _logger = logger;
     }
 
     public async Task Consume(ConsumeContext<Batch<SensorDataReceived>> context)
     {
-        _logger.LogTrace("Consumed sensor data batch: {MessageId}. Length = {Length}",
-            context.MessageId, context.Message.Length);
+        using Activity? activity = ActivitySource.StartActivity();
+        activity?.SetTag("BatchSize", context.Message.Length);
 
         var dataForInsertion = new List<SensorData>();
 
@@ -43,13 +44,15 @@ internal sealed class SensorDataReceivedConsumer : IConsumer<Batch<SensorDataRec
             });
         }
 
+        activity?.SetTag("GroupedBatchSize", dataForInsertion.Count);
+
         await _appDbContext.SensorsData.BulkInsertAsync(dataForInsertion, options =>
         {
             options.AutoMapOutputDirection = false;
             options.InsertIfNotExists = true;
         }, context.CancellationToken);
 
-        _logger.LogTrace("Processed sensor data batch: {MessageId}", context.MessageId);
+        activity?.SetStatus(ActivityStatusCode.Ok);
     }
 }
 

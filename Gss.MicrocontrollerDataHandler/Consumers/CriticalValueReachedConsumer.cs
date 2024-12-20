@@ -1,4 +1,5 @@
-﻿using Gss.Core.Interfaces.Repositories;
+﻿using System.Diagnostics;
+using Gss.Core.Interfaces.Repositories;
 using Gss.MicrocontrollerDataHandler.Email;
 using Gss.Queue;
 using Gss.Queue.Events;
@@ -9,6 +10,9 @@ namespace Gss.MicrocontrollerDataHandler.Consumers;
 
 internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReached>
 {
+    public static readonly ActivitySource ActivitySource =
+        new("Gss.MicrocontrollerDataHandler.Consumers.CriticalValueReachedConsumer", "1.0.0");
+
     private readonly IEmailService _emailService;
     private readonly ILogger<CriticalValueReached> _logger;
     private readonly IMicrocontrollersRepository _microcontrollersRepository;
@@ -23,14 +27,19 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
 
     public async Task Consume(ConsumeContext<CriticalValueReached> context)
     {
+        using Activity? activity = ActivitySource.StartActivity();
+        activity?.SetTag("MicrocontrollerSensorId", context.Message.MicrocontrollerSensorId);
+
         var microcontroller =
             await _microcontrollersRepository.FindMicrocontrollerByMicrocontrollerSensorIdAsync(
                 context.Message.MicrocontrollerSensorId, context.CancellationToken);
 
         if (microcontroller == null)
         {
-            _logger.LogError("Failed to send Critical Value notification for MicrocontrollerSensorId == {Id}, " +
-                             "because entity wasn't found", context.Message.MicrocontrollerSensorId);
+            _logger.LogError(
+                "Failed to send Critical Value notification for MicrocontrollerSensorId, because entity wasn't found");
+
+            activity?.SetStatus(ActivityStatusCode.Error);
 
             return;
         }
@@ -39,10 +48,20 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
             microcontroller.MicrocontrollerSensors.First(x => x.Id == context.Message.MicrocontrollerSensorId);
 
         // TODO: get email by OwnerId from Keycloak
-        if (microcontrollerSensor.CriticalValue.HasValue)
+        if (microcontrollerSensor.CriticalValue.HasValue && microcontrollerSensor.CriticalValue < context.Message.Value)
+        {
             await _emailService.SendCriticalValueEmailAsync("test@test.com", context.Message.Value,
                 microcontrollerSensor.CriticalValue ?? -1, microcontroller, microcontrollerSensor.Sensor,
                 context.CancellationToken);
+        }
+        else
+        {
+            _logger.LogWarning("Critical value was changed before email was sent. " +
+                               "Value = {ReportedValue}, Current Critical Value = {CriticalValue}",
+                context.Message.Value, microcontrollerSensor.CriticalValue);
+
+            activity?.SetStatus(ActivityStatusCode.Error);
+        }
     }
 }
 

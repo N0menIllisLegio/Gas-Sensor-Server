@@ -44,6 +44,7 @@ builder.Services
         tracing
             .AddNpgsql()
             .AddSource(DiagnosticHeaders.DefaultListenerName)
+            .AddSource(UdpListener.ActivitySource.Name)
             .AddHttpClientInstrumentation();
     });
 
@@ -72,7 +73,7 @@ builder.Services.AddMassTransit(x => x.UsingRabbitMq((_, configurator) =>
     configurator.ConfigureMessageTopology();
 }));
 
-builder.Services.AddHostedService<MicrocontrollerListener>();
+builder.Services.AddHostedService<UdpListener>();
 
 var app = builder.Build();
 

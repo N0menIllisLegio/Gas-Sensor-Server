@@ -47,6 +47,8 @@ builder.Services
         tracing
             .AddNpgsql()
             .AddSource(DiagnosticHeaders.DefaultListenerName)
+            .AddSource(SensorDataReceivedConsumer.ActivitySource.Name)
+            .AddSource(CriticalValueReachedConsumer.ActivitySource.Name)
             .AddHttpClientInstrumentation();
     });
 
