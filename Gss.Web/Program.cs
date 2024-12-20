@@ -12,6 +12,7 @@ using Gss.Web.CurrentUser;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry;
@@ -60,6 +61,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options
         .UseNpgsql(builder.Configuration.GetConnectionString("Database"),
             npgsqlOptionsBuilder => npgsqlOptionsBuilder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)));
+
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<AppDbContext>();
 
 builder.Services
     .AddControllers()
