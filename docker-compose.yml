@@ -25,7 +25,7 @@
       context: .
       dockerfile: Gss.MicrocontrollerListener/Dockerfile
     ports:
-      - 5002:5002
+      - 5002:5002/udp
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
