@@ -10,10 +10,14 @@
       - ASPNETCORE_ENVIRONMENT=Production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
-      - keycloak
-      - postgres
-      - rabbitmq
-      - telemetry-dashboard
+      keycloak:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      telemetry-dashboard:
+        condition: service_started
 
   microcontroller-listener:
     container_name: Gss.MicrocontrollerListener
@@ -52,6 +56,12 @@
       - KC_HEALTH_ENABLED=true
     volumes:
       - ./.containers/keycloak:/opt/keycloak/data
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;" ]
+      start_period: 10s
+      interval: 30s
+      retries: 3
+      timeout: 5s
 
   postgres:
     image: postgres:latest
@@ -65,8 +75,8 @@
     volumes:
       - ./.containers/postgresql:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user"]
-      interval: 10s
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
@@ -80,7 +90,7 @@
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -98,3 +108,5 @@
     ports:
       - 18888:18888
       - 18889:18889
+    environment:
+      - DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
