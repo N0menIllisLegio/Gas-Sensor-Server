@@ -32,6 +32,7 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
     {
         using Activity? activity = ActivitySource.StartActivity();
         activity?.SetTag("MicrocontrollerSensorId", context.Message.MicrocontrollerSensorId);
+        activity?.SetTag("CriticalValue", context.Message.Value);
 
         var microcontroller =
             await _microcontrollersRepository.FindMicrocontrollerByMicrocontrollerSensorIdAsync(
@@ -47,15 +48,16 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
             return;
         }
 
+        activity?.SetTag("MicrocontrollerId", microcontroller.Id);
+
         var microcontrollerSensor =
             microcontroller.MicrocontrollerSensors.First(x => x.Id == context.Message.MicrocontrollerSensorId);
 
         if (!microcontrollerSensor.CriticalValue.HasValue ||
             microcontrollerSensor.CriticalValue > context.Message.Value)
         {
-            _logger.LogWarning("Critical value was changed before email was sent. " +
-                               "Value = {ReportedValue}, Current Critical Value = {CriticalValue}",
-                context.Message.Value, microcontrollerSensor.CriticalValue);
+            _logger.LogWarning("Critical value was changed before email was sent. Value = {ReportedValue}",
+                context.Message.Value);
 
             activity?.SetStatus(ActivityStatusCode.Error);
 
@@ -64,13 +66,25 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
 
         if (!microcontroller.OwnerId.HasValue)
         {
-            _logger.LogWarning("Critical Value ({CriticalValue}) wasn't sent because Microcontroller " +
-                               "({MicrocontrollerId}) is without OwnerId", context.Message.Value, microcontroller.Id);
+            _logger.LogWarning("Critical Value wasn't sent because Microcontroller is without OwnerId");
+
+            activity?.SetStatus(ActivityStatusCode.Error);
 
             return;
         }
 
+        activity?.SetTag("OwnerId", microcontroller.OwnerId);
+
         var owner = await _keycloakHttpClient.GetUserAsync(microcontroller.OwnerId.Value, context.CancellationToken);
+
+        if (!owner.EmailVerified)
+        {
+            _logger.LogWarning("Critical Value wasn't sent because Owner isn't verified email.");
+
+            activity?.SetStatus(ActivityStatusCode.Error);
+
+            return;
+        }
 
         await _emailService.SendCriticalValueEmailAsync(owner.Email, context.Message.Value,
             microcontrollerSensor.CriticalValue.Value, microcontroller, microcontrollerSensor.Sensor,
