@@ -48,6 +48,15 @@
   "roles": {
     "realm": [
       {
+        "id": "a9182b99-57c2-4b22-ba99-508570be59b2",
+        "name": "Administrator",
+        "description": "",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "2cec4377-9cb4-4db5-8575-14eadf97dfb2",
+        "attributes": {}
+      },
+      {
         "id": "fb899b8e-28fd-4b15-93f5-d17973af32cb",
         "name": "default-roles-gas-sensor-server",
         "description": "${role_default-roles}",
@@ -300,17 +309,7 @@
           "attributes": {}
         }
       ],
-      "public-client": [
-        {
-          "id": "1c72ef3d-eed2-43cf-b8df-c63cbb57141f",
-          "name": "Administrator",
-          "description": "",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "cd1ba8db-3768-4717-a364-cfcdd4c5c9c8",
-          "attributes": {}
-        }
-      ],
+      "public-client": [],
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
@@ -423,17 +422,7 @@
           "attributes": {}
         }
       ],
-      "spa-client": [
-        {
-          "id": "91eea44c-3465-4526-bcea-9d77ec85eca1",
-          "name": "Administrator",
-          "description": "",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "618ac6b4-2992-4de9-a34e-f27cfd17ce91",
-          "attributes": {}
-        }
-      ]
+      "spa-client": []
     }
   },
   "groups": [],
@@ -876,8 +865,8 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
-        "asp.net_roles",
         "web-origins",
+        "asp.net_roles",
         "acr",
         "profile",
         "basic",
@@ -1200,21 +1189,10 @@
       },
       "protocolMappers": [
         {
-          "id": "4b70fa9a-fb11-4bef-8219-390a13da74cd",
-          "name": "audience resolve",
+          "id": "30571101-74a4-423f-91a8-8ffcca1fac3f",
+          "name": "realm roles",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-audience-resolve-mapper",
-          "consentRequired": false,
-          "config": {
-            "introspection.token.claim": "true",
-            "access.token.claim": "true"
-          }
-        },
-        {
-          "id": "d1e3e290-2791-4dab-85a9-5948ddb0b7d8",
-          "name": "client roles",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
           "consentRequired": false,
           "config": {
             "introspection.token.claim": "true",
@@ -1226,6 +1204,17 @@
             "access.token.claim": "true",
             "claim.name": "roles",
             "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "4b70fa9a-fb11-4bef-8219-390a13da74cd",
+          "name": "audience resolve",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-resolve-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
           }
         }
       ]
