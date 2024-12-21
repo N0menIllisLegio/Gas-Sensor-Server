@@ -60,7 +60,9 @@
       </div>
       <div class="p-2">
         @if (authService.isLoggedIn()) {
-          <button mat-stroked-button class="w-full" (click)="onLogout()">Log out</button>
+          <div class="font-semibold text-lg mb-2 mx-2">Hi, {{ authService.firstName }}</div>
+          <mat-divider class="!border-stone-400" />
+          <button mat-stroked-button class="w-full mt-4" (click)="onLogout()">Log out</button>
         }
         @else {
           <button mat-stroked-button class="w-full flex items-center gap-2"

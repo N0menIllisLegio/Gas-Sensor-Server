@@ -42,6 +42,10 @@ export default class AuthService {
         return this.keycloak.subject;
     }
 
+    public get firstName() : string | undefined {
+        return this.keycloak.tokenParsed?.['given_name'];
+    }
+
     public get isAdmin() : boolean | undefined {
         return (this.keycloak.tokenParsed as { roles: string[] })?.roles.includes('Administrator');
     }
@@ -87,6 +91,7 @@ export default class AuthService {
         }))
         .subscribe({
             next: x => {
+                console.log(this.keycloak);
                 this.isLoggedIn.set(x);
                 this.isAuthOperationInProgress.set(false);
 
