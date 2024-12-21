@@ -1,19 +1,19 @@
 <div class="p-4 grid grid-cols-3 gap-4">
-    <div class="relative">
+    <div class="relative col-span-3 xl:col-span-1">
         @if (loadingMicrocontroller()) {
             <spinner />
         }
 
         <div class="flex gap-2 justify-between">
             <mat-form-field>
-                <mat-label>Microcontroller initial date</mat-label>
+                <mat-label>Initial date</mat-label>
                 <input matInput [matDatepicker]="datepicker" [(ngModel)]="config.initDateTime">
                 <mat-datepicker #datepicker/>
                 <mat-datepicker-toggle [for]="datepicker" matSuffix/>
             </mat-form-field>
 
             <mat-form-field>
-                <mat-label>Microcontroller initial time</mat-label>
+                <mat-label>Initial time</mat-label>
                 <input matInput
                     [matTimepicker]="timepicker"
                     [(ngModel)]="config.initDateTime"
@@ -115,7 +115,7 @@
             }
         </mat-list>
     </div>
-    <div class="col-span-2">
+    <div class="col-span-3 xl:col-span-2">
         <mat-card id="public-microcontrollers-table-card" appearance="outlined">
             <mat-card-content class="h-full">
                 <div #configurationText>
