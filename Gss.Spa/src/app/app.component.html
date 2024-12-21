@@ -1,24 +1,9 @@
 <mat-sidenav-container class="h-full">
-  <mat-sidenav mode="side" opened>
+  <mat-sidenav mode="side" [opened]="!screenSizeWatcher.isSmallScreen()">
     <nav class="h-full flex flex-col justify-between">
       <div>
         <div class="flex justify-center mt-6">
-          <a id="title" routerLink="/">
-            <span>S</span>
-            <span>E</span>
-            <span>N</span>
-            <span>S</span>
-            <span>O</span>
-            <span>R</span>
-            <span>S</span>
-            <span>_</span>
-            <span>S</span>
-            <span>Y</span>
-            <span>S</span>
-            <span>T</span>
-            <span>E</span>
-            <span>M</span>
-          </a>
+          <gss-title />
         </div>
         <mat-nav-list class="!p-2 !pt-4 !mt-2">
           <a mat-list-item
@@ -80,7 +65,64 @@
     </nav>
   </mat-sidenav>
   <mat-sidenav-content>
-    <main class="h-full">
+    @if (screenSizeWatcher.isSmallScreen()) {
+      <nav class="top-nav-bar drop-shadow-md">
+        <div class="pb-1">
+          <gss-title />
+        </div>
+
+        <div>
+          <button mat-icon-button [matMenuTriggerFor]="menu" class="!flex">
+            <mat-icon>menu</mat-icon>
+          </button>
+
+          <mat-menu #menu="matMenu" class="app-menu">
+            @if (authService.isLoggedIn()) {
+              <div mat-menu-item disabled class="!opacity-100" style="background-color: var(--mat-sys-surface-bright);">
+                <span class="text-lg">Hi, {{ authService.firstName }}</span>
+              </div>
+            }
+
+            <a mat-menu-item routerLink="/map">
+              <span>Map</span>
+            </a>
+            <a mat-menu-item routerLink="/configuration-generator">
+              <span>Config Generator</span>
+            </a>
+
+            @if (authService.isLoggedIn()) {
+              <a mat-menu-item [routerLink]="'user-microcontrollers/' + authService.userId">
+                <span>My Microcontrollers</span>
+              </a>
+              <a mat-menu-item routerLink="/sensors">
+                <span>Sensors</span>
+              </a>
+
+              @if (authService.isAdmin) {
+                <a mat-menu-item routerLink="/sensor-types">
+                  <span>Sensor Types</span>
+                </a>
+              }
+
+              <button mat-menu-item (click)="onLogout()">Log out</button>
+            }
+            @else {
+              <button mat-menu-item (click)="authService.login()"
+                [disabled]="authService.isAuthOperationInProgress()">
+                <span class="flex items-center gap-4">
+                  @if (authService.isAuthOperationInProgress()) {
+                    <mat-spinner [diameter]="15" />
+                  }
+                  <span>Log in / Register</span>
+                </span>
+              </button>
+            }
+          </mat-menu>
+        </div>
+      </nav>
+    }
+
+    <main class="h-full relative z-0">
       <router-outlet />
     </main>
   </mat-sidenav-content>
