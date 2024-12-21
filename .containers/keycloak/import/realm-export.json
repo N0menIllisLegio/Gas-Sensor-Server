@@ -314,6 +314,16 @@
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
+      "backend-client": [
+        {
+          "id": "96dc75b8-6503-4868-bb9f-32ba6f4e4d9d",
+          "name": "uma_protection",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "bccda4b6-9592-4dd8-93bc-f9c218850bec",
+          "attributes": {}
+        }
+      ],
       "broker": [
         {
           "id": "6b93533b-7e8d-44d0-ad56-24c43ca1d22e",
@@ -479,6 +489,33 @@
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
   "webAuthnPolicyPasswordlessExtraOrigins": [],
+  "users": [
+    {
+      "id": "bd1fb8ed-8bce-4b07-a3d5-4c293803d1b9",
+      "username": "service-account-backend-client",
+      "emailVerified": false,
+      "createdTimestamp": 1734738882102,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "backend-client",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-gas-sensor-server"
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "view-users",
+          "query-users"
+        ],
+        "backend-client": [
+          "uma_protection"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    }
+  ],
   "scopeMappings": [
     {
       "clientScope": "offline_access",
@@ -649,6 +686,111 @@
       ]
     },
     {
+      "id": "bccda4b6-9592-4dd8-93bc-f9c218850bec",
+      "clientId": "backend-client",
+      "name": "",
+      "description": "",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "dxQ6vRXDgs53V0hjZLPtRbCYz8rWSXVQ",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1734738882",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "use.jwks.url": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "5a9a05d5-4ac8-448c-8dc0-173109c14142",
+          "name": "Client Host",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientHost",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientHost",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "80153689-e355-4287-900c-db4650dea948",
+          "name": "Client IP Address",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientAddress",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientAddress",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "3b8b00e1-e499-48de-9cae-f7f15c24bd91",
+          "name": "Client ID",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "client_id",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "client_id",
+            "jsonType.label": "String"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "organization",
+        "microprofile-jwt"
+      ]
+    },
+    {
       "id": "08e9f159-59e5-4616-82d0-7474c4bffbdd",
       "clientId": "broker",
       "name": "${client_broker}",
@@ -704,7 +846,6 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:5001/*",
         "https://localhost:5000/*",
         "http://localhost:5000/*"
       ],
@@ -735,9 +876,9 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
+        "asp.net_roles",
         "web-origins",
         "acr",
-        "roles",
         "profile",
         "basic",
         "email"
@@ -905,9 +1046,9 @@
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
+        "asp.net_roles",
         "web-origins",
         "acr",
-        "roles",
         "profile",
         "basic",
         "email"
@@ -957,7 +1098,7 @@
             "id.token.claim": "false",
             "lightweight.claim": "false",
             "access.token.claim": "true",
-            "claim.name": "roles",
+            "claim.name": "resource_access.${client_id}.roles",
             "jsonType.label": "String"
           }
         },
@@ -1042,6 +1183,49 @@
             "user.attribute.region": "region",
             "access.token.claim": "true",
             "user.attribute.locality": "locality"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c63fcfc4-bafc-44c5-9746-f6bf84fce0b4",
+      "name": "asp.net_roles",
+      "description": "",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "id": "4b70fa9a-fb11-4bef-8219-390a13da74cd",
+          "name": "audience resolve",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-resolve-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "id": "d1e3e290-2791-4dab-85a9-5948ddb0b7d8",
+          "name": "client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "multivalued": "true",
+            "userinfo.token.claim": "false",
+            "user.attribute": "foo",
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
           }
         }
       ]

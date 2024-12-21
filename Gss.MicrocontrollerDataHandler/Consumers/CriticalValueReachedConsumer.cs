@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Gss.Core.Interfaces.Repositories;
 using Gss.MicrocontrollerDataHandler.Email;
+using Gss.MicrocontrollerDataHandler.Keycloak;
 using Gss.Queue;
 using Gss.Queue.Events;
 using MassTransit;
@@ -15,12 +16,14 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
 
     private readonly IEmailService _emailService;
     private readonly ILogger<CriticalValueReached> _logger;
+    private readonly KeycloakHttpClient _keycloakHttpClient;
     private readonly IMicrocontrollersRepository _microcontrollersRepository;
 
     public CriticalValueReachedConsumer(IMicrocontrollersRepository microcontrollersRepository,
-        IEmailService emailService, ILogger<CriticalValueReached> logger)
+        IEmailService emailService, ILogger<CriticalValueReached> logger, KeycloakHttpClient keycloakHttpClient)
     {
         _microcontrollersRepository = microcontrollersRepository;
+        _keycloakHttpClient = keycloakHttpClient;
         _emailService = emailService;
         _logger = logger;
     }
@@ -47,21 +50,33 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
         var microcontrollerSensor =
             microcontroller.MicrocontrollerSensors.First(x => x.Id == context.Message.MicrocontrollerSensorId);
 
-        // TODO: get email by OwnerId from Keycloak
-        if (microcontrollerSensor.CriticalValue.HasValue && microcontrollerSensor.CriticalValue < context.Message.Value)
-        {
-            await _emailService.SendCriticalValueEmailAsync("test@test.com", context.Message.Value,
-                microcontrollerSensor.CriticalValue ?? -1, microcontroller, microcontrollerSensor.Sensor,
-                context.CancellationToken);
-        }
-        else
+        if (!microcontrollerSensor.CriticalValue.HasValue ||
+            microcontrollerSensor.CriticalValue > context.Message.Value)
         {
             _logger.LogWarning("Critical value was changed before email was sent. " +
                                "Value = {ReportedValue}, Current Critical Value = {CriticalValue}",
                 context.Message.Value, microcontrollerSensor.CriticalValue);
 
             activity?.SetStatus(ActivityStatusCode.Error);
+
+            return;
         }
+
+        if (!microcontroller.OwnerId.HasValue)
+        {
+            _logger.LogWarning("Critical Value ({CriticalValue}) wasn't sent because Microcontroller " +
+                               "({MicrocontrollerId}) is without OwnerId", context.Message.Value, microcontroller.Id);
+
+            return;
+        }
+
+        var owner = await _keycloakHttpClient.GetUserAsync(microcontroller.OwnerId.Value, context.CancellationToken);
+
+        await _emailService.SendCriticalValueEmailAsync(owner.Email, context.Message.Value,
+            microcontrollerSensor.CriticalValue.Value, microcontroller, microcontrollerSensor.Sensor,
+            context.CancellationToken);
+
+        activity?.SetStatus(ActivityStatusCode.Ok);
     }
 }
 

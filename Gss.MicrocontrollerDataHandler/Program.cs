@@ -3,6 +3,7 @@ using Gss.Infrastructure;
 using Gss.Infrastructure.Repositories;
 using Gss.MicrocontrollerDataHandler.Consumers;
 using Gss.MicrocontrollerDataHandler.Email;
+using Gss.MicrocontrollerDataHandler.Keycloak;
 using Gss.Queue;
 using MassTransit;
 using MassTransit.Logging;
@@ -17,8 +18,12 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Polly;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.Configure<KeycloakConfiguration>(
+    builder.Configuration.GetSection("KeyCloak"));
 
 builder.Logging.AddOpenTelemetry(logging =>
 {
@@ -49,6 +54,7 @@ builder.Services
             .AddSource(DiagnosticHeaders.DefaultListenerName)
             .AddSource(SensorDataReceivedConsumer.ActivitySource.Name)
             .AddSource(CriticalValueReachedConsumer.ActivitySource.Name)
+            .AddSource(KeycloakHttpClient.ActivitySource.Name)
             .AddHttpClientInstrumentation();
     });
 
@@ -86,6 +92,9 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IMicrocontrollersRepository, MicrocontrollersRepository>();
+builder.Services.AddHttpClient<KeycloakHttpClient>()
+    .AddTransientHttpErrorPolicy(x => x
+        .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
 var app = builder.Build();
 
