@@ -1,5 +1,9 @@
 <div class="p-4 grid grid-cols-3 gap-4">
-    <div>
+    <div class="relative">
+        @if (loadingMicrocontroller()) {
+            <spinner />
+        }
+
         <div class="flex gap-2 justify-between">
             <mat-form-field>
                 <mat-label>Microcontroller initial date</mat-label>
@@ -44,13 +48,6 @@
             <mat-label>Server Port</mat-label>
             <input matInput placeholder="5000" [(ngModel)]="config.serverPort">
         </mat-form-field>
-        <mat-form-field class="w-full">
-            <mat-label>Server Communication Protocol</mat-label>
-            <mat-select [(value)]="config.serverCommunicationProtocol">
-                <mat-option value="t">TCP</mat-option>
-                <mat-option value="u" disabled>UDP (not supported)</mat-option>
-            </mat-select>
-        </mat-form-field>
 
         <mat-form-field class="w-full">
             <mat-label>SD card write period (seconds)</mat-label>
@@ -59,10 +56,6 @@
         <mat-form-field class="w-full">
             <mat-label>Send data to server every (seconds)</mat-label>
             <input matInput [(ngModel)]="config.transmitPeriodSeconds">
-        </mat-form-field>
-        <mat-form-field class="w-full">
-            <mat-label>Check if sensor data was requested every (seconds)</mat-label>
-            <input matInput [(ngModel)]="config.dataRequestSeconds">
         </mat-form-field>
 
         <mat-form-field class="w-full">
@@ -73,10 +66,54 @@
             <mat-label>Microcontroller's Key</mat-label>
             <input matInput [(ngModel)]="config.microcontrollerKey">
         </mat-form-field>
-        <mat-form-field class="w-full">
-            <mat-label>Microcontroller's sensor ID</mat-label>
-            <input matInput placeholder="97944fd1-0dd5-481b-bcfd-5039ff376584" [(ngModel)]="config.microcontrollerSensorId">
-        </mat-form-field>
+        <div class="flex gap-4">
+            <mat-form-field class="w-full">
+                <mat-label>Microcontroller's sensor ID</mat-label>
+                @if (avialableMicrocontrollerSensors().length > 0) {
+                    <input
+                        #inputSensorId
+                        type="text"
+                        matInput
+                        placeholder="97944fd1-0dd5-481b-bcfd-5039ff376584"
+                        [(ngModel)]="selectedMicrocontrollerSensorId"
+                        [matAutocomplete]="auto"
+                        (input)="filter()"
+                        (focus)="filter()">
+                    <mat-autocomplete requireSelection #auto="matAutocomplete" [displayWith]="displayFn">
+                        @for (option of filteredOptions; track option.id) {
+                            <mat-option [value]="option">{{ option.name }}</mat-option>
+                        }
+                    </mat-autocomplete>
+                }
+                @else {
+                    <input matInput
+                        placeholder="97944fd1-0dd5-481b-bcfd-5039ff376584"
+                        [(ngModel)]="selectedMicrocontrollerSensorId">
+                }
+            </mat-form-field>
+            <button mat-mini-fab class="!shadow-none mt-2" (click)="onAddSensor()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <mat-list>
+            @for (microcontrollerSensorId of config.microcontrollerSensors; track microcontrollerSensorId) {
+                <mat-list-item>
+                    <div matListItemTitle>{{ microcontrollerSensorId }}</div>
+
+                    @let microcontrollerSensor = getAvialableMicrocontrollerSensor(microcontrollerSensorId);
+
+                    @if (microcontrollerSensor) {
+                        <div matListItemLine>{{ microcontrollerSensor!.name }}</div>
+                    }
+
+                    <div matListItemMeta>
+                        <button mat-icon-button class="!shadow-none" (click)="onDeleteSensor(microcontrollerSensorId)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </mat-list-item>
+            }
+        </mat-list>
     </div>
     <div class="col-span-2">
         <mat-card id="public-microcontrollers-table-card" appearance="outlined">
@@ -90,25 +127,20 @@
                     <div>Minutes={{ config.initDateTime.getMinutes() }};</div>
                     <div>Seconds={{ config.initDateTime.getSeconds() }};</div>
                     <br />
-                    <div>SSID={{ config.ssid }};</div>
+                    <div>Ssid={{ config.ssid }};</div>
                     <div>SecurityKey={{ config.wifiPassword }};</div>
                     <div>PrivateMode={{ config.wifiPrivacyMode }};</div>
                     <br />
                     <div>writeSDIntervalSeconds={{ config.sdWritePeriodSeconds }};</div>
                     <div>transmitIntervalSeconds={{ config.transmitPeriodSeconds }};</div>
-                    <div>requestIntervalSeconds={{ config.dataRequestSeconds }};</div>
                     <br />
-                    <div>IP={{ config.serverAddress }};</div>
+                    <div>Ip={{ config.serverAddress }};</div>
                     <div>Port={{ config.serverPort }};</div>
                     <div>Protocol={{ config.serverCommunicationProtocol }};</div>
                     <br />
-                    <!-- Remove -->
-                    <div>OwnerID={{ config.ownerId }};</div>
-                    <div>MicrocontrollerID={{ config.microcontrollerId }};</div>
-                    <!-- Change naming in the protocol -->
-                    <div>MicrocontrollerPassword={{ config.microcontrollerKey }};</div>
-                    <!-- Change naming in the protocol -->
-                    <div>SensorID={{ config.microcontrollerSensorId }};</div>
+                    <div>MicrocontrollerId={{ config.microcontrollerId }};</div>
+                    <div>MicrocontrollerKey={{ config.microcontrollerKey }};</div>
+                    <div>MicrocontrollerSensorIds={{ config.microcontrollerSensors.join(',') }};</div>
                 </div>
                 <div class="absolute bottom-4 right-4 flex gap-2">
                     <button mat-mini-fab class="!shadow-none" (click)="onCopy()">

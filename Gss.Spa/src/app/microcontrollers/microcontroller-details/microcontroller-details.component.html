@@ -99,18 +99,26 @@
         </div>
     }
 
+    <div class="absolute right-4 bottom-4">
     @if (microcontroller() && (authService.isAdmin || authService.userId === microcontroller()!.ownerId)) {
-        <div class="absolute right-4 bottom-4">
-            <button mat-fab class="mr-4" (click)="onDelete()"
-                style="background-color: var(--mat-sys-error);
-                        color: var(--mat-sys-on-error)">
-              <mat-icon>delete</mat-icon>
-            </button>
-            <button mat-fab (click)="onEdit()"
-                style="background-color: var(--mat-sys-primary);
-                        color: var(--mat-sys-on-primary)">
-              <mat-icon>edit</mat-icon>
-            </button>
-        </div>
-    }
+        <button mat-fab class="mr-4" (click)="onDelete()"
+            matTooltip="Delete this microcontroller"
+            style="background-color: var(--mat-sys-error);
+                    color: var(--mat-sys-on-error)">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-fab class="mr-4" (click)="onEdit()"
+            matTooltip="Edit this microcontroller"
+            style="background-color: var(--mat-sys-primary);
+                    color: var(--mat-sys-on-primary)">
+            <mat-icon>edit</mat-icon>
+        </button>
+        }
+        <button mat-fab (click)="toConfigGenerator()"
+            matTooltip="Open configuration page with this microcontroller's data"
+            style="background-color: var(--mat-sys-primary);
+                    color: var(--mat-sys-on-primary)">
+            <mat-icon>description</mat-icon>
+        </button>
+    </div>
 </div>

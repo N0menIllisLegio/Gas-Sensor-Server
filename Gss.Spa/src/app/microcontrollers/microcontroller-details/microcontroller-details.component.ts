@@ -1,6 +1,6 @@
 import { Component, inject, input, signal } from "@angular/core";
 import { MicrocontrollersQueryService } from "../core/microcontrollers-query.service";
-import { guid } from "../../core/guid";
+import { checkGuid, guid } from "../../core/guid";
 import { Router } from "@angular/router";
 import { BehaviorSubject, catchError, of } from "rxjs";
 import { MapComponent } from "../shared/map/map.component";
@@ -67,9 +67,7 @@ export class MicrocontrollerDetailsComponent {
     flyToTarget = new BehaviorSubject<FlyToTargetModel | null>(null);
 
     ngOnInit() {
-        const guidCheckRegex = new RegExp(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-
-        if (!guidCheckRegex.test(this.microcontrollerId()!)) {
+        if (!checkGuid(this.microcontrollerId()!)) {
             this.router.navigateByUrl('/not-found');
             return;
         }
@@ -138,5 +136,9 @@ export class MicrocontrollerDetailsComponent {
                 sensor.criticalValue = changedValue.criticalValue;
             }
         });
+    }
+
+    toConfigGenerator() {
+        this.router.navigateByUrl(`/configuration-generator/${this.microcontrollerId()}`);
     }
 }

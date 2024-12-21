@@ -14,6 +14,7 @@ export const routes: Routes = [
     { path: 'microcontrollers/:microcontrollerId', component: MicrocontrollerDetailsComponent },
     { path: 'microcontrollers/:microcontrollerId/edit', component: EditMicrocontrollerComponent },
     { path: 'configuration-generator', component: ConfigGeneratorComponent },
+    { path: 'configuration-generator/:microcontrollerId', component: ConfigGeneratorComponent },
     { path: 'user-microcontrollers/:userId', component: UserMicrocontrollersComponent },
     { path: 'sensors', component: SensorsTableComponent },
     { path: 'sensor-types', component: SensorTypesTableComponent },
