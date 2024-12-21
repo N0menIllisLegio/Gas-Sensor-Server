@@ -29,7 +29,7 @@ import { ScreenSizeWatcherService } from './core/screen-size-watcher.service';
     GssTitleComponent,
     GssTitleComponent,
     MatMenuModule
-],
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
