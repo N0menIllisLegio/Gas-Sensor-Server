@@ -50,16 +50,19 @@
             }
         </mat-form-field>
 
-        <mat-form-field class="w-full">
-            <mat-label>Key</mat-label>
-            <input matInput
-                [formControl]="key"
-                (blur)="updateErrorMessage()">
-            @if (errorMessage()['key']?.message) {
-                <mat-error>{{ errorMessage()['key']!.message }}</mat-error>
-            }
-            <mat-hint>Entring any value here and saving will overwrite old one or leave it empty to persist old value on update</mat-hint>
-        </mat-form-field>
+        <div class="w-full flex gap-4 justify-between">
+            <mat-form-field class="flex-grow">
+                <mat-label>Key</mat-label>
+                <input matInput
+                    [formControl]="key"
+                    (blur)="updateErrorMessage()">
+                @if (errorMessage()['key']?.message) {
+                    <mat-error>{{ errorMessage()['key']!.message }}</mat-error>
+                }
+                <mat-hint>Entring any value here and saving will overwrite old one or leave it empty to persist old value on update</mat-hint>
+            </mat-form-field>
+            <button mat-flat-button class="mt-2" type="button" (click)="onGenerate()">Generate</button>
+        </div>
     </div>
 
     <div class="flex-grow">
