@@ -15,10 +15,6 @@
         condition: service_healthy
       db:
         condition: service_healthy
-      message-broker:
-        condition: service_healthy
-      telemetry-dashboard:
-        condition: service_started
 
   microcontroller-listener:
     image: gss.microcontroller-listener
@@ -32,7 +28,10 @@
       - ASPNETCORE_ENVIRONMENT=Production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
-      - web
+      db:
+        condition: service_healthy
+      message-broker:
+        condition: service_healthy
 
   microcontroller-data-handler:
     image: gss.microcontroller-data-handler
@@ -44,8 +43,14 @@
       - ASPNETCORE_ENVIRONMENT=Production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://telemetry-dashboard:18889
     depends_on:
-      - web
-      - email
+      message-broker:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      identity-provider:
+        condition: service_healthy
+      email:
+        condition: service_started
 
   identity-provider:
     image: quay.io/keycloak/keycloak:latest
