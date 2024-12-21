@@ -91,7 +91,6 @@ export default class AuthService {
         }))
         .subscribe({
             next: x => {
-                console.log(this.keycloak);
                 this.isLoggedIn.set(x);
                 this.isAuthOperationInProgress.set(false);
 
