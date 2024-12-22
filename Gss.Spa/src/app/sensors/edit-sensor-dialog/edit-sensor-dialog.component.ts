@@ -137,7 +137,7 @@ export class EditSensorDialogComponent {
 
     onDelete(): void {
         const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-          panelClass: 'w-2/5',
+          panelClass: 'gss-dialog',
           disableClose: true,
           data: {
               title: 'Confirmation Dialog',

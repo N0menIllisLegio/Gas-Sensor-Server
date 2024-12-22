@@ -140,7 +140,7 @@ export class SensorsTableComponent {
         }
 
         const dialogRef = this.dialog.open(EditSensorDialogComponent, {
-            panelClass: 'w-2/5',
+            panelClass: 'gss-dialog',
             data: sensorType,
             disableClose: true
         });
@@ -158,7 +158,7 @@ export class SensorsTableComponent {
 
     onCreateType() {
         const dialogRef = this.dialog.open(EditSensorDialogComponent, {
-            panelClass: 'w-2/5',
+            panelClass: 'gss-dialog',
             data: null,
             disableClose: true
         });

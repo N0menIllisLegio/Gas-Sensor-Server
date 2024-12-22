@@ -100,7 +100,7 @@ export class MicrocontrollerDetailsComponent {
 
     onDelete() {
         const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-            panelClass: 'w-2/5',
+            panelClass: 'gss-dialog',
             disableClose: true,
             data: {
                 title: 'Confirmation Dialog',
@@ -124,7 +124,7 @@ export class MicrocontrollerDetailsComponent {
 
     onSetCriticalValue(sensor: MicrocontrollerSensorModel) {
         const dialogRef = this.dialog.open(EditThresholdDialog, {
-            panelClass: 'w-1/5',
+            panelClass: 'gss-dialog',
             data: {
                 microcontrollerSensorId: sensor.microcontrollerSensorId,
                 criticalValue: sensor.criticalValue
