@@ -12,7 +12,7 @@
 
     <div class="flex flex-col gap-2">
         <mat-form-field class="w-full">
-            <mat-label>Name</mat-label>
+            <mat-label>{{ 'edit-microcontroller.label.name' | translate }}</mat-label>
             <input matInput
                 [formControl]="name"
                 (blur)="updateErrorMessage()">
@@ -24,14 +24,14 @@
         <mat-slide-toggle class="mb-5"
             [formControl]="isPublic"
             (blur)="updateErrorMessage()">
-            Grant public access (people will be able to view data and location of this microcontroller)
+            {{ 'edit-microcontroller.label.public-hint' | translate }}
             @if (errorMessage()['isPublic']?.message) {
                 <mat-error>{{ errorMessage()['isPublic']!.message }}</mat-error>
             }
         </mat-slide-toggle>
 
         <mat-form-field class="w-full">
-            <mat-label>Latitude</mat-label>
+            <mat-label>{{ 'edit-microcontroller.label.latitude' | translate }}</mat-label>
             <input matInput (change)="onLatLngChange()"
                 [formControl]="lat"
                 (blur)="updateErrorMessage()">
@@ -41,7 +41,7 @@
         </mat-form-field>
 
         <mat-form-field class="w-full">
-            <mat-label>Longitude</mat-label>
+            <mat-label>{{ 'edit-microcontroller.label.longitude' | translate }}</mat-label>
             <input matInput (change)="onLatLngChange()"
                 [formControl]="lng"
                 (blur)="updateErrorMessage()">
@@ -52,23 +52,27 @@
 
         <div class="w-full flex gap-4 justify-between">
             <mat-form-field class="flex-grow">
-                <mat-label>Key</mat-label>
+                <mat-label>{{ 'edit-microcontroller.label.key' | translate }}</mat-label>
                 <input matInput
                     [formControl]="key"
                     (blur)="updateErrorMessage()">
                 @if (errorMessage()['key']?.message) {
                     <mat-error>{{ errorMessage()['key']!.message }}</mat-error>
                 }
-                <mat-hint>Entring any value here and saving will overwrite old one or leave it empty to persist old value on update</mat-hint>
+                <mat-hint>{{ 'edit-microcontroller.label.key-hint' | translate }}</mat-hint>
             </mat-form-field>
-            <button mat-flat-button class="mt-2" type="button" (click)="onGenerate()">Generate</button>
+            <button mat-flat-button class="mt-2" type="button" (click)="onGenerate()">
+                {{ 'edit-microcontroller.button.generate' | translate }}
+            </button>
         </div>
     </div>
 
     <div class="flex-grow">
         <sensor-table [isSelectionEnabled]="true" [selection]="selectedSensors" />
         @if (errorMessage()['sensors']?.message) {
-            <mat-hint style="font-size: var(--mat-sys-body-small-size);" class="pl-4 text-red-700">{{ errorMessage()['sensors']!.message }}</mat-hint>
+            <mat-hint style="font-size: var(--mat-sys-body-small-size);" class="pl-4 text-red-700">
+                {{ errorMessage()['sensors']!.message }}
+            </mat-hint>
         }
     </div>
 
@@ -79,7 +83,7 @@
             @if (isSaving()) {
                 <mat-spinner [diameter]="15" />
             }
-            <span>Save</span>
+            <span>{{ 'common.button.save' | translate }}</span>
         </span>
     </button>
 </form>

@@ -20,6 +20,7 @@ import MicrocontrollerModel from '../core/microcontroller.model';
 import { guid } from '../../core/guid';
 import { CoordinatesPipe } from "../../shared/coordinates.pipe";
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'user-microcontrollers',
@@ -36,7 +37,8 @@ import { Router } from '@angular/router';
         MatButtonModule,
         SpinnerComponent,
         FormsModule,
-        CoordinatesPipe
+        CoordinatesPipe,
+        TranslateModule
     ]
 })
 export class UserMicrocontrollersComponent {

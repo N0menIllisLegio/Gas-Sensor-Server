@@ -3,6 +3,11 @@
     <p class="text-lg">{{ data.message }}</p>
 </mat-dialog-content>
 <mat-dialog-actions>
-    <button mat-button [mat-dialog-close]="false">{{ data.cancelButtonText ?? 'Cancel' }}</button>
-    <button mat-button cdkFocusInitial [mat-dialog-close]="true">{{ data.okButtonText ?? 'OK' }}</button>
+    <button mat-button [mat-dialog-close]="false">
+        {{ data.cancelButtonText ?? translate.instant(_('common.button.cancel')) }}
+    </button>
+
+    <button mat-button cdkFocusInitial [mat-dialog-close]="true">
+        {{ data.okButtonText ?? translate.instant(_('common.button.ok')) }}
+    </button>
 </mat-dialog-actions>

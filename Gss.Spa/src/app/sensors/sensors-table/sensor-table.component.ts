@@ -23,6 +23,7 @@ import AuthService from '../../core/auth.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { guid } from '../../core/guid';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'sensor-table',
@@ -39,7 +40,8 @@ import { guid } from '../../core/guid';
         MatButtonModule,
         SpinnerComponent,
         FormsModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        TranslateModule,
     ]
 })
 export class SensorsTableComponent {

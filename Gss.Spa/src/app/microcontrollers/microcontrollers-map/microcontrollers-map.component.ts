@@ -23,6 +23,7 @@ import DisplayableMicrocontrollerModel from "../shared/map/displayable-microcont
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { Router } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
     selector: 'microcontrollers-map',
@@ -41,7 +42,8 @@ import { Router } from "@angular/router";
         MatIconModule,
         SpinnerComponent,
         FormsModule,
-        MapComponent
+        MapComponent,
+        TranslateModule
     ],
 })
 export class MicrocontrollersMapComponent {

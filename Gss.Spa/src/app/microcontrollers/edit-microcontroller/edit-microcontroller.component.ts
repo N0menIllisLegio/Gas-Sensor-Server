@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MapComponent } from '../shared/map/map.component';
 import { BehaviorSubject, merge } from 'rxjs';
@@ -22,6 +22,8 @@ import MicrocontrollerModel from '../core/microcontroller.model';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import dictionary from '../../core/dictionary.type';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'edit-microcontroller',
@@ -36,11 +38,13 @@ import dictionary from '../../core/dictionary.type';
         SensorsTableComponent,
         MatButtonModule,
         MatProgressSpinnerModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        TranslateModule
     ]
 })
 
 export class EditMicrocontrollerComponent {
+    private translate = inject(TranslateService);
     private router = inject(Router);
     private snackBar = inject(MatSnackBar);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
@@ -82,14 +86,15 @@ export class EditMicrocontrollerComponent {
 
         if (this.name.hasError('required')) {
             errors['name'] = {
-                message: 'You must enter a value'
+                message: this.translate.instant(_('common.error.required'))
             };
 
             isValid = false;
         }
         else if (this.name.hasError('maxlength')) {
             errors['name'] = {
-                message: `Max value length: ${this.name.errors!['maxlength'].requiredLength}`
+                message: this.translate.instant(_('common.error.max-length'), {
+                    maxLength: this.name.errors!['maxlength'].requiredLength })
             };
 
             isValid = false;
@@ -97,14 +102,16 @@ export class EditMicrocontrollerComponent {
 
         if (this.lat.hasError('min')) {
             errors['lat'] = {
-                message: `Min value: ${this.lat.errors!['min'].min}`
+                message: this.translate.instant(_('common.error.min-value'), {
+                    minValue: this.lat.errors!['min'].min })
             };
 
             isValid = false;
         }
         else if (this.lat.hasError('max')) {
             errors['lat'] = {
-                message: `Max value: ${this.lat.errors!['max'].max}`
+                message: this.translate.instant(_('common.error.max-value'), {
+                    maxValue: this.lat.errors!['max'].max })
             };
 
             isValid = false;
@@ -112,14 +119,16 @@ export class EditMicrocontrollerComponent {
 
         if (this.lng.hasError('min')) {
             errors['lng'] = {
-                message: `Min value: ${this.lng.errors!['min'].min}`
+                message: this.translate.instant(_('common.error.min-value'), {
+                    minValue: this.lng.errors!['min'].min })
             };
 
             isValid = false;
         }
         else if (this.lng.hasError('max')) {
             errors['lng'] = {
-                message: `Max value: ${this.lng.errors!['max'].max}`
+                message: this.translate.instant(_('common.error.max-value'), {
+                    maxValue: this.lng.errors!['max'].max })
             };
 
             isValid = false;
@@ -127,7 +136,7 @@ export class EditMicrocontrollerComponent {
 
         if (this.key.hasError('required')) {
             errors['key'] = {
-                message: 'You must enter a value'
+                message: this.translate.instant(_('common.error.required'))
             };
 
             isValid = false;
@@ -135,7 +144,8 @@ export class EditMicrocontrollerComponent {
 
         if (this.selectedSensors.selected.length > 5) {
             errors['sensors'] = {
-                message: 'Maximum allowed sensors: 5'
+                message: this.translate.instant(
+                    _('common.error.max-sensors-per-microcontroller'), { count: 5 })
             };
 
             isValid = false;

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -13,6 +13,14 @@ import { ConfirmationDialogComponent } from './shared/confirmation-dialog/confir
 import { GssTitleComponent } from "./shared/gss-title/gss-title.component";
 import { MatMenuModule } from '@angular/material/menu';
 import { ScreenSizeWatcherService } from './core/screen-size-watcher.service';
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { MaterialPaginatorIntl } from './core/material-paginator-internalization.service';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-root',
@@ -28,8 +36,14 @@ import { ScreenSizeWatcherService } from './core/screen-size-watcher.service';
     MatDividerModule,
     GssTitleComponent,
     GssTitleComponent,
-    MatMenuModule
+    MatMenuModule,
+    TranslateModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    FormsModule
   ],
+  providers: [{provide: MatPaginatorIntl, useClass: MaterialPaginatorIntl}],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -38,15 +52,31 @@ export class AppComponent {
   readonly dialog = inject(MatDialog);
   readonly screenSizeWatcher = inject(ScreenSizeWatcherService);
 
+  currentLocale = signal('en');
+
+  public get firstName() : string | undefined {
+    return this.authService.firstName;
+  }
+
+  constructor(private translate: TranslateService) {
+    this.translate.addLangs(['ru', 'en']);
+    this.translate.setDefaultLang('en');
+    this.translate.use('en');
+
+    effect(() => {
+      this.translate.use(this.currentLocale());
+    })
+  }
+
   onLogout() {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       panelClass: 'gss-dialog',
       disableClose: true,
       data: {
-          title: 'Confirmation Dialog',
-          message: 'Are you sure you want to logout?',
-          okButtonText: 'Yes',
-          cancelButtonText: 'No'
+        title: this.translate.instant(_('common.dialog.confirmation-title')),
+        message: this.translate.instant(_('dialog.log-out.message')),
+        okButtonText: this.translate.instant(_('common.yes')),
+        cancelButtonText: this.translate.instant(_('common.no')),
       },
     });
 
@@ -55,5 +85,9 @@ export class AppComponent {
           this.authService.logout();
         }
     });
+  }
+
+  changeLanguage(locale: string) {
+    this.currentLocale.set(locale);
   }
 }

@@ -21,6 +21,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation.dialog';
 import dictionary from '../../core/dictionary.type';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'edit-sensor-type-dialog',
@@ -32,13 +34,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         MatButtonModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        TranslateModule
     ]
 })
 export class EditSensorTypeDialogComponent {
     private snackBar = inject(MatSnackBar);
     private sensorTypesQueryService = inject(SensorTypesQueryService);
     private errorHandlingService = inject(ErrorHandlingService);
+    private translate = inject(TranslateService);
     readonly dialogRef = inject(MatDialogRef<EditSensorTypeDialogComponent>);
     readonly data = inject<SensorTypeModel | null>(MAT_DIALOG_DATA);
     readonly dialog = inject(MatDialog);
@@ -66,14 +70,17 @@ export class EditSensorTypeDialogComponent {
 
         if (this.name.hasError('required')) {
             errors['name'] = {
-                message: 'You must enter a value'
+                message: this.translate.instant(_('common.error.required'))
             };
 
             isValid = false;
         }
         else if (this.name.hasError('maxlength')) {
             errors['name'] = {
-                message: `Max value length: ${this.name.errors!['maxlength'].requiredLength}`
+                message: this.translate.instant(_('common.error.max-length'),
+                {
+                    maxLength: this.name.errors!['maxlength'].requiredLength
+                })
             };
 
             isValid = false;
@@ -81,7 +88,7 @@ export class EditSensorTypeDialogComponent {
 
         if (this.icon.hasError('maxlength')) {
             errors['icon'] = {
-                message: 'Selected icon is too large'
+                message: this.translate.instant(_('common.error.large-icon'))
             };
 
             isValid = false;
@@ -89,7 +96,10 @@ export class EditSensorTypeDialogComponent {
 
         if (this.units.hasError('maxlength')) {
             errors['units'] = {
-                message: `Max value length: ${this.units.errors!['maxlength'].requiredLength}`
+                message: this.translate.instant(_('common.error.max-length'),
+                {
+                    maxLength: this.units.errors!['maxlength'].requiredLength
+                })
             };
 
             isValid = false;
@@ -105,10 +115,10 @@ export class EditSensorTypeDialogComponent {
           panelClass: 'gss-dialog',
           disableClose: true,
           data: {
-              title: 'Confirmation Dialog',
-              message: 'Are you sure you want to delete sensor type?',
-              okButtonText: 'Yes',
-              cancelButtonText: 'No'
+              title: this.translate.instant(_('common.dialog.confirmation-title')),
+              message: this.translate.instant(_('edit-sensor-type.delete-dialog.message')),
+              okButtonText: this.translate.instant(_('common.yes')),
+              cancelButtonText: this.translate.instant(_('common.no'))
           },
         });
 

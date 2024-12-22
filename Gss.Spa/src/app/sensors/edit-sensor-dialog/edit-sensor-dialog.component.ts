@@ -25,6 +25,8 @@ import PagedRequestModel from '../../core/paged-request.model';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation.dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import dictionary from '../../core/dictionary.type';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'edit-sensor-dialog',
@@ -37,7 +39,8 @@ import dictionary from '../../core/dictionary.type';
         MatDialogModule,
         MatProgressSpinnerModule,
         NgSelectModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        TranslateModule,
     ]
 })
 export class EditSensorDialogComponent {
@@ -64,7 +67,7 @@ export class EditSensorDialogComponent {
     readonly errorMessage = signal<dictionary<{ message: string } | undefined>>({});
     readonly isBusy = signal<boolean>(false);
 
-    constructor() {
+    constructor(private translate: TranslateService) {
         merge(
             this.form.controls.name.statusChanges, this.form.controls.name.valueChanges,
             this.form.controls.description.statusChanges, this.form.controls.description.valueChanges,
@@ -82,14 +85,17 @@ export class EditSensorDialogComponent {
 
         if (this.form.controls.name.hasError('required')) {
             errors['name'] = {
-                message: 'You must enter a value'
+                message: this.translate.instant(_('common.error.required'))
             };
 
             isValid = false;
         }
         else if (this.form.controls.name.hasError('maxlength')) {
             errors['name'] = {
-                message: `Max value length: ${this.form.controls.name.errors!['maxlength'].requiredLength}`
+                message: this.translate.instant(_('common.error.max-length'),
+                    {
+                        maxLength: this.form.controls.name.errors!['maxlength'].requiredLength
+                    })
             };
 
             isValid = false;
@@ -97,7 +103,10 @@ export class EditSensorDialogComponent {
 
         if (this.form.controls.description.hasError('maxlength')) {
             errors['description'] = {
-                message: `Max value length: ${this.form.controls.description.errors!['maxlength'].requiredLength}`
+                message: this.translate.instant(_('common.error.max-length'),
+                    {
+                        maxLength: this.form.controls.description.errors!['maxlength'].requiredLength
+                    })
             };
 
             isValid = false;
@@ -105,7 +114,7 @@ export class EditSensorDialogComponent {
 
         if (this.form.controls.type.hasError('required')) {
             errors['type'] = {
-                message: `You must enter a value`
+                message: this.translate.instant(_('common.error.required'))
             };
 
             isValid = false;
@@ -140,10 +149,10 @@ export class EditSensorDialogComponent {
           panelClass: 'gss-dialog',
           disableClose: true,
           data: {
-              title: 'Confirmation Dialog',
-              message: 'Are you sure you want to delete sensor?',
-              okButtonText: 'Yes',
-              cancelButtonText: 'No'
+              title: this.translate.instant(_('common.dialog.confirmation-title')),
+              message: this.translate.instant(_('edit-sensor.delete-dialog.message')),
+              okButtonText: this.translate.instant(_('common.yes')),
+              cancelButtonText: this.translate.instant(_('common.no')),
           },
         });
 

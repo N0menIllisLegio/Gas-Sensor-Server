@@ -16,6 +16,8 @@ import { checkGuid, guid } from '../core/guid';
 import { MicrocontrollersQueryService } from '../microcontrollers/core/microcontrollers-query.service';
 import MicrocontrollerSensorModel from '../microcontrollers/core/microcontroller-sensor.model';
 import { SpinnerComponent } from "../shared/spinner/spinner.component";
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'config-generator',
@@ -33,12 +35,14 @@ import { SpinnerComponent } from "../shared/spinner/spinner.component";
         MatSelectModule,
         MatListModule,
         MatAutocompleteModule,
-        SpinnerComponent
+        SpinnerComponent,
+        TranslateModule
     ]
 })
 
 export class ConfigGeneratorComponent {
     private snackBar = inject(MatSnackBar);
+    private translate = inject(TranslateService);
     private configTextElement = viewChild<ElementRef<HTMLDivElement>>('configurationText');
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
 
@@ -97,12 +101,14 @@ export class ConfigGeneratorComponent {
                     },
                     error: () => {
                         this.loadingMicrocontroller.set(false);
-                        this.snackBar.open('Failed to get microcontrollers data!', undefined, {
-                            verticalPosition: 'bottom',
-                            horizontalPosition: 'right',
-                            duration: 3000,
-                            panelClass: 'whitespace-pre'
-                        })
+                        this.snackBar.open(this.translate.instant(
+                            _('common.error.failed-to-get-microcontroller')),
+                            undefined, {
+                                verticalPosition: 'bottom',
+                                horizontalPosition: 'right',
+                                duration: 3000,
+                                panelClass: 'whitespace-pre'
+                            })
                     }
                 });
         }
@@ -114,18 +120,22 @@ export class ConfigGeneratorComponent {
         }
 
         navigator.clipboard.writeText(this.configTextElement()!.nativeElement.innerText).then(
-            () => this.snackBar.open('Config copied to clipboard!', undefined, {
-                verticalPosition: 'bottom',
-                horizontalPosition: 'right',
-                duration: 3000,
-                panelClass: 'whitespace-pre'
-            }),
-            () => this.snackBar.open('Failed to copy config!', undefined, {
-                verticalPosition: 'bottom',
-                horizontalPosition: 'right',
-                duration: 3000,
-                panelClass: 'whitespace-pre'
-            }));
+            () => this.snackBar.open(this.translate.instant(
+                            _('config-generator.snack-bar.copied-to-clipboard')),
+                            undefined, {
+                                verticalPosition: 'bottom',
+                                horizontalPosition: 'right',
+                                duration: 3000,
+                                panelClass: 'whitespace-pre'
+                            }),
+            () => this.snackBar.open(this.translate.instant(
+                            _('config-generator.snack-bar.copied-to-clipboard-failed')),
+                            undefined, {
+                                verticalPosition: 'bottom',
+                                horizontalPosition: 'right',
+                                duration: 3000,
+                                panelClass: 'whitespace-pre'
+                            }));
     }
 
     onDownload() {
@@ -153,12 +163,14 @@ export class ConfigGeneratorComponent {
         }
 
         if (this.config.microcontrollerSensors.length >= 5) {
-            this.snackBar.open('Maximum allowed sensors per microcontroller: 5', undefined, {
-                verticalPosition: 'bottom',
-                horizontalPosition: 'right',
-                duration: 3000,
-                panelClass: 'whitespace-pre'
-            });
+            this.snackBar.open(this.translate.instant(
+                            _('common.error.max-sensors-per-microcontroller'), { count: 5 }),
+                            undefined, {
+                                verticalPosition: 'bottom',
+                                horizontalPosition: 'right',
+                                duration: 3000,
+                                panelClass: 'whitespace-pre'
+                            });
 
             return;
         }
@@ -169,12 +181,14 @@ export class ConfigGeneratorComponent {
 
         if (checkGuid(insertingMicrocontrollerSensorId)) {
             if (this.config.microcontrollerSensors.includes(insertingMicrocontrollerSensorId)) {
-                this.snackBar.open('Microcontroller Sensor Id already entered!', undefined, {
-                    verticalPosition: 'bottom',
-                    horizontalPosition: 'right',
-                    duration: 3000,
-                    panelClass: 'whitespace-pre'
-                });
+                this.snackBar.open(this.translate.instant(
+                            _('config-generator.snack-bar.microcontroller-sensor-id-already-added')),
+                            undefined, {
+                                verticalPosition: 'bottom',
+                                horizontalPosition: 'right',
+                                duration: 3000,
+                                panelClass: 'whitespace-pre'
+                            });
 
                 return;
             }
@@ -182,12 +196,14 @@ export class ConfigGeneratorComponent {
             this.config.microcontrollerSensors = [...this.config.microcontrollerSensors, insertingMicrocontrollerSensorId];
             this.selectedMicrocontrollerSensorId = undefined;
         } else {
-            this.snackBar.open('Invalid Microcontroller Sensor Id!', undefined, {
-                verticalPosition: 'bottom',
-                horizontalPosition: 'right',
-                duration: 3000,
-                panelClass: 'whitespace-pre'
-            });
+            this.snackBar.open(this.translate.instant(
+                            _('config-generator.snack-bar.microcontroller-sensor-id-invalid')),
+                            undefined, {
+                                verticalPosition: 'bottom',
+                                horizontalPosition: 'right',
+                                duration: 3000,
+                                panelClass: 'whitespace-pre'
+                            });
         }
     }
 

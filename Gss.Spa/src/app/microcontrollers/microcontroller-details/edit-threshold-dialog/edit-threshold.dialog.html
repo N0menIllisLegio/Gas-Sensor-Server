@@ -1,8 +1,10 @@
 <form (ngSubmit)="save()">
   <mat-dialog-content>
-    <p class="mb-4 text-justify">Set threshold for your sensor. You will receive email notification if threshold will be reached.</p>
+    <p class="mb-4 text-justify">
+      {{ 'edit-threshold.label.prompt' | translate }}
+    </p>
     <mat-form-field class="w-full">
-      <mat-label>Threshold</mat-label>
+      <mat-label>{{ 'edit-threshold.label.threshold' | translate }}</mat-label>
       <input matInput
         [disabled]="isBusy()"
         [formControl]="threshold"
@@ -13,13 +15,15 @@
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-button (click)="onNoClick()" type="button" [disabled]="isBusy()">Cancel</button>
+    <button mat-button (click)="onNoClick()" type="button" [disabled]="isBusy()">
+      {{ 'common.button.cancel' | translate }}
+    </button>
     <button mat-button cdkFocusInitial type="submit" [disabled]="isBusy()">
       <span class="flex items-center gap-4">
         @if (isBusy()) {
           <mat-spinner [diameter]="15" />
         }
-        <span>OK</span>
+        <span>{{ 'common.button.ok' | translate }}</span>
       </span>
     </button>
   </mat-dialog-actions>

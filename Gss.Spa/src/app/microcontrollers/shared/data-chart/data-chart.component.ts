@@ -14,12 +14,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { guid } from '../../../core/guid';
 import { HttpClient } from '@angular/common/http';
 import { formatDate } from '@angular/common';
-import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, debounceTime, filter, of, switchMap } from 'rxjs';
 import dictionary from '../../../core/dictionary.type';
 import { ChartOptions } from './chart-options.model';
 import WatchingDateResponseModel from './watching-date-response.model';
 import WatchingDateRequestModel from './watching-date-request.model';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'data-chart',
@@ -35,10 +37,12 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
         MatChipsModule,
         MatIconModule,
         FormsModule,
-        SpinnerComponent
+        SpinnerComponent,
+        TranslateModule
     ]
 })
 export class DataChartComponent {
+    private translate = inject(TranslateService);
     private snackBar = inject(MatSnackBar);
     private httpClient = inject(HttpClient);
     private watchingDateSubject = new BehaviorSubject<WatchingDateRequestModel | null>(null);
@@ -88,7 +92,7 @@ export class DataChartComponent {
                         y: this.criticalValue(),
                         borderColor: 'var(--mat-sys-error)',
                         label: {
-                            text: 'Critical value',
+                            text: this.translate.instant(_('data-chart.label.critical-value')),
                             borderColor: 'var(--mat-sys-error)',
                             style: {
                                 color: 'white',
@@ -134,32 +138,35 @@ export class DataChartComponent {
 
     addWatchingDate() {
         if (!this.selectedDate()) {
-            this.snackBar.open('Please select watching date!', undefined, {
-                duration: 3000,
-                horizontalPosition: 'right',
-                verticalPosition: 'bottom',
-                panelClass: 'whitespace-pre'
-            });
+            this.snackBar.open(this.translate.instant(_('data-chart.snack-bar.select-watching-date')),
+                undefined, {
+                    duration: 3000,
+                    horizontalPosition: 'right',
+                    verticalPosition: 'bottom',
+                    panelClass: 'whitespace-pre'
+                });
             return;
         }
 
         if (this.watchingDates().find(x => x.getTime() === this.selectedDate()!.getTime()) !== undefined) {
-            this.snackBar.open('This date is already added!', undefined, {
-                duration: 3000,
-                horizontalPosition: 'right',
-                verticalPosition: 'bottom',
-                panelClass: 'whitespace-pre'
-            });
+            this.snackBar.open(this.translate.instant(_('data-chart.snack-bar.date-already-added')),
+                undefined, {
+                    duration: 3000,
+                    horizontalPosition: 'right',
+                    verticalPosition: 'bottom',
+                    panelClass: 'whitespace-pre'
+                });
             return;
         }
 
         if (this.watchingDates().length > 4) {
-            this.snackBar.open('You can watch only 5 series at the same time!', undefined, {
-                duration: 3000,
-                horizontalPosition: 'right',
-                verticalPosition: 'bottom',
-                panelClass: 'whitespace-pre'
-            });
+            this.snackBar.open(this.translate.instant(_('data-chart.snack-bar.you-can-watch-only-count-series'), { count: 5 }),
+                undefined, {
+                    duration: 3000,
+                    horizontalPosition: 'right',
+                    verticalPosition: 'bottom',
+                    panelClass: 'whitespace-pre'
+                });
             return;
         }
 

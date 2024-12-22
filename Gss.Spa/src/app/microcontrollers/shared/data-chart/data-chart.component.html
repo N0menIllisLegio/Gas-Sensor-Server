@@ -1,16 +1,16 @@
 <div class="flex flex-col">
     <div class="flex justify-around items-start flex-col xl:flex-row">
         <mat-form-field class="w-full xl:w-auto">
-            <mat-label>Choose a Period</mat-label>
+            <mat-label>{{ 'data-chart.label.choose-period' | translate }}</mat-label>
             <mat-select [(value)]="period" (valueChange)="getData()" [disabled]="isLoadingData()">
-                <mat-option value="Day">Day</mat-option>
-                <mat-option value="Month">Month</mat-option>
-                <mat-option value="Year">Year</mat-option>
+                <mat-option value="Day">{{ 'common.label.day' | translate }}</mat-option>
+                <mat-option value="Month">{{ 'common.label.month' | translate }}</mat-option>
+                <mat-option value="Year">{{ 'common.label.year' | translate }}</mat-option>
             </mat-select>
         </mat-form-field>
 
         <mat-form-field class="w-full xl:w-auto">
-            <mat-label>Choose a Watching Date</mat-label>
+            <mat-label>{{ 'data-chart.label.choose-watching-date' | translate }}</mat-label>
             <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
@@ -20,7 +20,7 @@
             [disabled]="isLoadingData()"
             class="mt-2 mb-4 w-full xl:w-auto"
             (click)="addWatchingDate()">
-            Add Watching Date
+            {{ 'data-chart.label.add-watching-date' | translate }}
         </button>
     </div>
 

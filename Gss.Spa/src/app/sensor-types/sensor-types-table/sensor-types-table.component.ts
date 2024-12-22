@@ -19,6 +19,7 @@ import { EmptyPlaceholderPipe } from '../../shared/empty-placeholder.pipe';
 import { EditSensorTypeDialogComponent } from '../edit-sensor-type-dialog/edit-sensor-type-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import DialogResultModel from '../../core/dialog-result.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'sensor-types-table',
@@ -34,7 +35,8 @@ import DialogResultModel from '../../core/dialog-result.model';
         MatFormFieldModule,
         MatButtonModule,
         SpinnerComponent,
-        FormsModule
+        FormsModule,
+        TranslateModule
     ]
 })
 export class SensorTypesTableComponent {

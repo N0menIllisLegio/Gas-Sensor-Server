@@ -3,21 +3,21 @@
         <mat-card class="example-card" appearance="outlined" style="min-height: 198px;">
             <mat-card-header>
               <mat-card-title-group>
-                <mat-card-title>Microcontroller Info</mat-card-title>
+                <mat-card-title>{{ 'microcontroller-details.label.microcontroller-info' | translate }}</mat-card-title>
               </mat-card-title-group>
             </mat-card-header>
             <mat-card-content class="relative">
                 @if (microcontroller()) {
                     <div class="grid grid-cols-3 mt-4 align-values-bottom">
-                        <div class="font-bold">Id:</div>
+                        <div class="font-bold">{{ 'microcontroller-details.label.id' | translate }}:</div>
                         <div class="col-span-2">{{ microcontroller()!.id }}</div>
-                        <div class="font-bold">Name:</div>
+                        <div class="font-bold">{{ 'microcontroller-details.label.name' | translate }}:</div>
                         <div class="col-span-2">{{ microcontroller()!.name }}</div>
-                        <div class="font-bold">Public:</div>
+                        <div class="font-bold">{{ 'microcontroller-details.label.public' | translate }}:</div>
                         <div class="col-span-2">{{ microcontroller()!.public | boolYesNo }}</div>
-                        <div class="font-bold">Coordinates:</div>
+                        <div class="font-bold">{{ 'microcontroller-details.label.coordinates' | translate }}:</div>
                         <div class="col-span-2">{{ { latitude: microcontroller()!.latitude, longitude: microcontroller()!.longitude } | coordinates | emptyPlaceholder }}</div>
-                        <div class="font-bold">Last Response Time:</div>
+                        <div class="font-bold">{{ 'microcontroller-details.label.last-response-time' | translate }}:</div>
                         <div class="col-span-2">{{ microcontroller()!.latestResponse | dateTime | emptyPlaceholder }}</div>
                     </div>
                 }
@@ -59,14 +59,18 @@
 
                                 @if (sensor.criticalValue) {
                                     <p>
-                                        Critical value:
+                                        {{ 'microcontroller-details.label.critical-value' | translate }}:
                                         <span class="font-medium" style="color: var(--mat-sys-error)">
                                             {{ sensor.criticalValue }} {{ sensor.type.units }}
                                         </span>
                                     </p>
                                 }
 
-                                <p>Microcontroller Sensor Id: <span class="font-medium">{{ sensor.microcontrollerSensorId }}</span></p>
+                                <p>
+                                    {{ 'microcontroller-details.label.microcontroller-sensor-id' | translate }}: <span class="font-medium">
+                                        {{ sensor.microcontrollerSensorId }}
+                                    </span>
+                                </p>
                             </div>
 
                             <button mat-mini-fab class="!shadow-none ml-4" (click)="onSetCriticalValue(sensor)"
@@ -89,7 +93,7 @@
             </mat-accordion>
         }
         @else if (microcontroller() && microcontroller()!.sensors.length === 0) {
-            <div>No sensors connected</div>
+            <div>{{ 'microcontroller-details.label.no-sensors-connected' | translate }}</div>
         }
         @else {
             <div class="col-span-2 h-80 flex items-center justify-center">
@@ -101,20 +105,20 @@
     <div class="fixed bottom-4 right-4">
         @if (microcontroller() && (authService.isAdmin || authService.userId === microcontroller()!.ownerId)) {
             <button mat-fab class="mr-4" (click)="onDelete()"
-                matTooltip="Delete this microcontroller"
+                matTooltip="{{ 'microcontroller-details.tooltip.delete-microcontroller' | translate }}"
                 style="background-color: var(--mat-sys-error);
                         color: var(--mat-sys-on-error)">
                 <mat-icon>delete</mat-icon>
             </button>
             <button mat-fab class="mr-4" (click)="onEdit()"
-                matTooltip="Edit this microcontroller"
+                matTooltip="{{ 'microcontroller-details.tooltip.edit-microcontroller' | translate }}"
                 style="background-color: var(--mat-sys-primary);
                         color: var(--mat-sys-on-primary)">
                 <mat-icon>edit</mat-icon>
             </button>
         }
         <button mat-fab (click)="toConfigGenerator()"
-            matTooltip="Open configuration page with this microcontroller's data"
+            matTooltip="{{ 'microcontroller-details.tooltip.go-to-config' | translate }}"
             style="background-color: var(--mat-sys-primary);
                     color: var(--mat-sys-on-primary)">
             <mat-icon>description</mat-icon>

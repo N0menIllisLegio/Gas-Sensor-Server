@@ -10,13 +10,13 @@
             class="my-2"
             routerLinkActive="active"
             routerLink="/map"
-            [routerLinkActiveOptions]="{ exact: true }">Map</a>
+            [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.map' | translate }}</a>
 
           <a mat-list-item
             class="my-2"
             routerLinkActive="active"
             routerLink="/configuration-generator"
-            [routerLinkActiveOptions]="{ exact: true }">Config Generator</a>
+            [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.config-generator' | translate }}</a>
 
           @if (authService.isLoggedIn()) {
             <mat-divider class="!border-stone-400" />
@@ -25,29 +25,37 @@
               class="my-2"
               routerLinkActive="active"
               [routerLink]="'user-microcontrollers/' + authService.userId"
-              [routerLinkActiveOptions]="{ exact: true }">My Microcontrollers</a>
+              [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.my-microcontrollers' | translate }}</a>
 
             <a mat-list-item
               class="my-2"
               routerLinkActive="active"
               routerLink="/sensors"
-              [routerLinkActiveOptions]="{ exact: true }">Sensors</a>
+              [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.sensors' | translate }}</a>
 
             @if (authService.isAdmin) {
               <a mat-list-item
                 class="my-2"
                 routerLinkActive="active"
                 routerLink="/sensor-types"
-                [routerLinkActiveOptions]="{ exact: true }">Sensor Types</a>
+                [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.sensor-types' | translate }}</a>
             }
           }
         </mat-nav-list>
       </div>
       <div class="p-2">
+        <mat-form-field class="w-full">
+          <mat-label>{{ 'common.label.language' | translate }}</mat-label>
+          <mat-select [(value)]="currentLocale">
+            <mat-option value="en">English</mat-option>
+            <mat-option value="ru">Русский</mat-option>
+          </mat-select>
+        </mat-form-field>
+
         @if (authService.isLoggedIn()) {
-          <div class="font-semibold text-lg mb-2 mx-2">Hi, {{ authService.firstName }}</div>
+          <div class="font-semibold text-lg mb-2 mx-2">{{ 'navbar.label.user-greetings' | translate:{firstName} }}</div>
           <mat-divider class="!border-stone-400" />
-          <button mat-stroked-button class="w-full mt-4" (click)="onLogout()">Log out</button>
+          <button mat-stroked-button class="w-full mt-4" (click)="onLogout()">{{ 'navbar.button.log-out' | translate }}</button>
         }
         @else {
           <button mat-stroked-button class="w-full flex items-center gap-2"
@@ -57,7 +65,7 @@
               @if (authService.isAuthOperationInProgress()) {
                 <mat-spinner [diameter]="15" />
               }
-              <span>Log in / Register</span>
+              <span>{{ 'navbar.button.log-in-register' | translate }}</span>
             </span>
           </button>
         }
@@ -79,32 +87,38 @@
           <mat-menu #menu="matMenu" class="app-menu">
             @if (authService.isLoggedIn()) {
               <div mat-menu-item disabled class="!opacity-100" style="background-color: var(--mat-sys-surface-bright);">
-                <span class="text-lg">Hi, {{ authService.firstName }}</span>
+                <span class="text-lg">{{ 'navbar.label.user-greetings' | translate:{firstName} }}</span>
               </div>
             }
 
+            <button mat-menu-item [matMenuTriggerFor]="languages">
+              {{ 'common.label.language' | translate }}
+            </button>
+
             <a mat-menu-item routerLink="/map">
-              <span>Map</span>
+              {{ 'navbar.button.map' | translate }}
             </a>
             <a mat-menu-item routerLink="/configuration-generator">
-              <span>Config Generator</span>
+              {{ 'navbar.button.config-generator' | translate }}
             </a>
 
             @if (authService.isLoggedIn()) {
               <a mat-menu-item [routerLink]="'user-microcontrollers/' + authService.userId">
-                <span>My Microcontrollers</span>
+                {{ 'navbar.button.my-microcontrollers' | translate }}
               </a>
               <a mat-menu-item routerLink="/sensors">
-                <span>Sensors</span>
+                {{ 'navbar.button.sensors' | translate }}
               </a>
 
               @if (authService.isAdmin) {
                 <a mat-menu-item routerLink="/sensor-types">
-                  <span>Sensor Types</span>
+                  {{ 'navbar.button.sensor-types' | translate }}
                 </a>
               }
 
-              <button mat-menu-item (click)="onLogout()">Log out</button>
+              <button mat-menu-item (click)="onLogout()" class="!text-red-900">
+                {{ 'navbar.button.log-out' | translate }}
+              </button>
             }
             @else {
               <button mat-menu-item (click)="authService.login()"
@@ -113,10 +127,15 @@
                   @if (authService.isAuthOperationInProgress()) {
                     <mat-spinner [diameter]="15" />
                   }
-                  <span>Log in / Register</span>
+                  <span>{{ 'navbar.button.log-in-register' | translate }}</span>
                 </span>
               </button>
             }
+          </mat-menu>
+
+          <mat-menu #languages="matMenu">
+            <button mat-menu-item (click)="changeLanguage('en')">English</button>
+            <button mat-menu-item (click)="changeLanguage('ru')">Русский</button>
           </mat-menu>
         </div>
       </nav>

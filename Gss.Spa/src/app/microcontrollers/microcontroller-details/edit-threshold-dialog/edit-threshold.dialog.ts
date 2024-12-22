@@ -15,6 +15,8 @@ import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import ErrorHandlingService from '../../../core/error-handling.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 export interface EditThresholdDialogData {
     microcontrollerSensorId: guid;
@@ -32,10 +34,12 @@ export interface EditThresholdDialogData {
       MatButtonModule,
       MatDialogContent,
       MatDialogActions,
-      MatProgressSpinnerModule
+      MatProgressSpinnerModule,
+      TranslateModule
     ],
   })
 export class EditThresholdDialog {
+  private translate = inject(TranslateService);
   private microcontrollerQueryService = inject(MicrocontrollersQueryService);
   readonly dialogRef = inject(MatDialogRef<EditThresholdDialog>);
   readonly data = inject<EditThresholdDialogData>(MAT_DIALOG_DATA);
@@ -53,10 +57,12 @@ export class EditThresholdDialog {
 
   updateErrorMessage() {
     if (this.threshold.hasError('min')) {
-      this.errorMessage.set(`Min value: ${this.threshold.errors!['min'].min}`);
+      this.errorMessage.set(this.translate.instant(
+        _('common.error.min-value'), { minValue: this.threshold.errors!['min'].min }));
     }
     else if (this.threshold.hasError('max')) {
-      this.errorMessage.set(`Max value: ${this.threshold.errors!['max'].max}`);
+      this.errorMessage.set(this.translate.instant(
+        _('common.error.max-value'), { maxValue: this.threshold.errors!['max'].max }));
     } else if (this.threshold.hasError('server')) {
       this.errorMessage.set(this.threshold.errors!['server']);
     }

@@ -28,6 +28,8 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/confirmation.dialog";
 import ExtendedMicrocontrollerModel from "../core/extended-microcontroller.model";
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'microcontroller-details',
@@ -49,10 +51,12 @@ import ExtendedMicrocontrollerModel from "../core/extended-microcontroller.model
         MatInputModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
-        DateTimePipe
+        DateTimePipe,
+        TranslateModule
     ]
 })
 export class MicrocontrollerDetailsComponent {
+    private translate = inject(TranslateService);
     private microcontrollerQueryService = inject(MicrocontrollersQueryService);
     private router = inject(Router);
     readonly dialog = inject(MatDialog);
@@ -103,10 +107,10 @@ export class MicrocontrollerDetailsComponent {
             panelClass: 'gss-dialog',
             disableClose: true,
             data: {
-                title: 'Confirmation Dialog',
-                message: 'Are you sure you want to delete microcontroller?',
-                okButtonText: 'Yes',
-                cancelButtonText: 'No'
+                title: this.translate.instant(_('common.dialog.confirmation-title')),
+                message: this.translate.instant(_('microcontroller-details.delete-dialog.message')),
+                okButtonText: this.translate.instant(_('common.yes')),
+                cancelButtonText: this.translate.instant(_('common.no'))
             },
         });
 

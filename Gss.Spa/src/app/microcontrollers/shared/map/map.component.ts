@@ -1,9 +1,11 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { icon, Icon, latLng, latLngBounds, Layer, MapOptions, tileLayer, Map, LatLng, marker, tooltip, LeafletMouseEvent } from 'leaflet';
 import DisplayableMicrocontrollerModel from './displayable-microcontroller.model';
 import { Observable } from 'rxjs';
 import FlyToTargetModel from './fly-to-target.model';
+import { TranslateService } from '@ngx-translate/core';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
     selector: 'map',
@@ -13,6 +15,7 @@ import FlyToTargetModel from './fly-to-target.model';
     ]
 })
 export class MapComponent {
+    private translate = inject(TranslateService);
     private markerIcon = icon({
         ...Icon.Default.prototype.options,
         iconUrl: 'assets/marker-icon.png',
@@ -71,7 +74,7 @@ export class MapComponent {
                 const markerTooltip = tooltip({
                     content: microcontroller.sensorTypeNames.length > 0
                         ? microcontroller.sensorTypeNames.join('<br/>')
-                        : 'No sensors connected',
+                        : this.translate.instant(_('map.label.no-sensors-connected')),
                 });
 
                 mcMarker.bindTooltip(markerTooltip);
@@ -94,7 +97,7 @@ export class MapComponent {
                     const markerTooltip = tooltip({
                         content: microcontroller.sensorTypeNames.length > 0
                             ? microcontroller.sensorTypeNames.join('<br/>')
-                            : 'No sensors connected',
+                            : this.translate.instant(_('map.label.no-sensors-connected')),
                     });
 
                     mcMarker.bindTooltip(markerTooltip);

@@ -6,14 +6,14 @@
 
         <div class="flex gap-2 justify-between">
             <mat-form-field>
-                <mat-label>Initial date</mat-label>
+                <mat-label>{{ 'config-generator.label.initial-date' | translate }}</mat-label>
                 <input matInput [matDatepicker]="datepicker" [(ngModel)]="config.initDateTime">
                 <mat-datepicker #datepicker/>
                 <mat-datepicker-toggle [for]="datepicker" matSuffix/>
             </mat-form-field>
 
             <mat-form-field>
-                <mat-label>Initial time</mat-label>
+                <mat-label>{{ 'config-generator.label.initial-time' | translate }}</mat-label>
                 <input matInput
                     [matTimepicker]="timepicker"
                     [(ngModel)]="config.initDateTime"
@@ -28,47 +28,47 @@
             <input matInput [(ngModel)]="config.ssid">
         </mat-form-field>
         <mat-form-field class="w-full">
-            <mat-label>WiFi Password</mat-label>
+            <mat-label>{{ 'common.label.wifi-password' | translate }}</mat-label>
             <input matInput [(ngModel)]="config.wifiPassword">
         </mat-form-field>
         <mat-form-field class="w-full">
-            <mat-label>WiFi Privacy Mode</mat-label>
+            <mat-label>{{ 'config-generator.label.wifi-privacy-mode' | translate }}</mat-label>
             <mat-select [(value)]="config.wifiPrivacyMode">
-                <mat-option value="0">None</mat-option>
+                <mat-option value="0">{{ 'common.label.none' | translate }}</mat-option>
                 <mat-option value="1">WEP</mat-option>
                 <mat-option value="2">WPA Personal</mat-option>
             </mat-select>
         </mat-form-field>
 
         <mat-form-field class="w-full">
-            <mat-label>Server Address</mat-label>
+            <mat-label>{{ 'config-generator.label.server-address' | translate }}</mat-label>
             <input matInput placeholder="https://server.com, http://127.0.0.1" [(ngModel)]="config.serverAddress">
         </mat-form-field>
         <mat-form-field class="w-full">
-            <mat-label>Server Port</mat-label>
+            <mat-label>{{ 'config-generator.label.server-port' | translate }}</mat-label>
             <input matInput placeholder="5000" [(ngModel)]="config.serverPort">
         </mat-form-field>
 
         <mat-form-field class="w-full">
-            <mat-label>SD card write period (seconds)</mat-label>
+            <mat-label>{{ 'config-generator.label.sd-write-period' | translate }}</mat-label>
             <input matInput [(ngModel)]="config.sdWritePeriodSeconds">
         </mat-form-field>
         <mat-form-field class="w-full">
-            <mat-label>Send data to server every (seconds)</mat-label>
+            <mat-label>{{ 'config-generator.label.send-data-period' | translate }}</mat-label>
             <input matInput [(ngModel)]="config.transmitPeriodSeconds">
         </mat-form-field>
 
         <mat-form-field class="w-full">
-            <mat-label>Microcontroller's ID</mat-label>
+            <mat-label>{{ 'config-generator.label.microcontroller-id' | translate }}</mat-label>
             <input matInput placeholder="97944fd1-0dd5-481b-bcfd-5039ff376584" [(ngModel)]="config.microcontrollerId">
         </mat-form-field>
         <mat-form-field class="w-full">
-            <mat-label>Microcontroller's Key</mat-label>
+            <mat-label>{{ 'config-generator.label.microcontroller-key' | translate }}</mat-label>
             <input matInput [(ngModel)]="config.microcontrollerKey">
         </mat-form-field>
         <div class="flex gap-4">
             <mat-form-field class="w-full">
-                <mat-label>Microcontroller's sensor ID</mat-label>
+                <mat-label>{{ 'config-generator.label.microcontroller-sensor-id' | translate }}</mat-label>
                 @if (avialableMicrocontrollerSensors().length > 0) {
                     <input
                         #inputSensorId
@@ -152,8 +152,5 @@
                 </div>
             </mat-card-content>
         </mat-card>
-        <div class="p-4 text-gray-500">
-            This file needs to be saved in microSD's root directory with <span class="font-bold">config.txt</span> name.
-        </div>
     </div>
 </div>
