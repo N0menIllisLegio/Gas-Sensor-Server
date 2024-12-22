@@ -1,14 +1,17 @@
 <form class="p-4 flex flex-col gap-8" (ngSubmit)="onSave()">
-    <mat-card style="height: 300px;" class="overflow-hidden" appearance="outlined">
-        <mat-card-content class="h-full !p-0">
-            <map [(zoom)]="mapZoom"
-                [(center)]="mapCenter"
-                (leafletDoubleClick)="mapDoubleClick($event)"
-                [microcontrollerAdded]="addMicrocontroller.asObservable()"
-                [flyToTarget]="flyToTarget.asObservable()">
-            </map>
-        </mat-card-content>
-    </mat-card>
+    <div>
+        <mat-card style="height: 300px;" class="overflow-hidden" appearance="outlined">
+            <mat-card-content class="h-full !p-0">
+                <map [(zoom)]="mapZoom"
+                    [(center)]="mapCenter"
+                    (leafletDoubleClick)="mapDoubleClick($event)"
+                    [microcontrollerAdded]="addMicrocontroller.asObservable()"
+                    [flyToTarget]="flyToTarget.asObservable()">
+                </map>
+            </mat-card-content>
+        </mat-card>
+        <div class="p-2 text-gray-500">{{ 'edit-microcontroller.label.double-click-map-hint' | translate }}</div>
+    </div>
 
     <div class="flex flex-col gap-2">
         <mat-form-field class="w-full">

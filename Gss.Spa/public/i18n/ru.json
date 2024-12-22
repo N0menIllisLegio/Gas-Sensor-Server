@@ -51,6 +51,7 @@
 	"data-chart.snack-bar.you-can-watch-only-count-series": "Вы можете смотреть только 5 серий одновременно!",
 	"dialog.log-out.message": "Вы уверены, что хотите выйти?",
 	"edit-microcontroller.button.generate": "Сгенерировать",
+	"edit-microcontroller.label.double-click-map-hint": "Дважды щелкните, чтобы установить координаты",
 	"edit-microcontroller.label.key": "Ключ",
 	"edit-microcontroller.label.key-hint": "Ввод любого значения в это поле и сохранение перезапишет старое значение. Оставьте его пустым, чтобы сохранить старое значение при обновлении",
 	"edit-microcontroller.label.latitude": "Широта",

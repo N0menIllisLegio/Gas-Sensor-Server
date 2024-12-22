@@ -51,6 +51,7 @@
 	"data-chart.snack-bar.you-can-watch-only-count-series": "You can watch only 5 series at the same time!",
 	"dialog.log-out.message": "Are you sure you want to logout?",
 	"edit-microcontroller.button.generate": "Generate",
+	"edit-microcontroller.label.double-click-map-hint": "Double click to set coordinates",
 	"edit-microcontroller.label.key": "Key",
 	"edit-microcontroller.label.key-hint": "Entering any value in this field and saving will overwrite old one. Leave it empty to persist old value on update",
 	"edit-microcontroller.label.latitude": "Latitude",

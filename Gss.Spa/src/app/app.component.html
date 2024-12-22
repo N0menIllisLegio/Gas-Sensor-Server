@@ -55,7 +55,7 @@
         @if (authService.isLoggedIn()) {
           <div class="font-semibold text-lg mb-2 mx-2">{{ 'navbar.label.user-greetings' | translate:{firstName} }}</div>
           <mat-divider class="!border-stone-400" />
-          <button mat-stroked-button class="w-full mt-4" (click)="onLogout()">{{ 'navbar.button.log-out' | translate }}</button>
+          <button mat-stroked-button class="w-full mt-4 !text-red-900" (click)="onLogout()">{{ 'navbar.button.log-out' | translate }}</button>
         }
         @else {
           <button mat-stroked-button class="w-full flex items-center gap-2"
