@@ -14,6 +14,7 @@ import { MicrocontrollersQueryService } from '../../core/microcontrollers-query.
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import ErrorHandlingService from '../../../core/error-handling.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 export interface EditThresholdDialogData {
     microcontrollerSensorId: guid;
@@ -31,6 +32,7 @@ export interface EditThresholdDialogData {
       MatButtonModule,
       MatDialogContent,
       MatDialogActions,
+      MatProgressSpinnerModule
     ],
   })
 export class EditThresholdDialog {
@@ -41,6 +43,7 @@ export class EditThresholdDialog {
 
   readonly threshold = new FormControl(this.data.criticalValue?.toString() ?? '', [Validators.min(-10000), Validators.max(10000)]);
   readonly errorMessage = signal<string>('');
+  readonly isBusy = signal<boolean>(false);
 
   constructor() {
     merge(this.threshold.statusChanges, this.threshold.valueChanges)
@@ -74,10 +77,13 @@ export class EditThresholdDialog {
         return;
     }
 
+    this.isBusy.set(true);
+
     this.microcontrollerQueryService
       .setTreshold(this.data.microcontrollerSensorId, this.threshold.value === '' ? null : enteredValue)
       .subscribe({
         next: () => {
+          this.isBusy.set(false);
           this.dialogRef.close({
             criticalValue: this.threshold.value
           });
@@ -88,6 +94,8 @@ export class EditThresholdDialog {
           this.threshold.setErrors({
             server: error.message
           });
+
+          this.isBusy.set(false);
         }
       });
   }

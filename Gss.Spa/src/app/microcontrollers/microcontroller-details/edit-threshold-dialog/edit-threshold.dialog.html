@@ -4,6 +4,7 @@
     <mat-form-field class="w-full">
       <mat-label>Threshold</mat-label>
       <input matInput
+        [disabled]="isBusy()"
         [formControl]="threshold"
         (blur)="updateErrorMessage()">
       @if (errorMessage()) {
@@ -12,7 +13,14 @@
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-button (click)="onNoClick()" type="button">Cancel</button>
-    <button mat-button cdkFocusInitial type="submit">OK</button>
+    <button mat-button (click)="onNoClick()" type="button" [disabled]="isBusy()">Cancel</button>
+    <button mat-button cdkFocusInitial type="submit" [disabled]="isBusy()">
+      <span class="flex items-center gap-4">
+        @if (isBusy()) {
+          <mat-spinner [diameter]="15" />
+        }
+        <span>OK</span>
+      </span>
+    </button>
   </mat-dialog-actions>
 </form>
