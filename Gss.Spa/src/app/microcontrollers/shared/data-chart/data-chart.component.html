@@ -2,7 +2,7 @@
     <div class="flex justify-around items-start flex-col xl:flex-row">
         <mat-form-field class="w-full xl:w-auto">
             <mat-label>Choose a Period</mat-label>
-            <mat-select [(value)]="period" (valueChange)="getData()">
+            <mat-select [(value)]="period" (valueChange)="getData()" [disabled]="isLoadingData()">
                 <mat-option value="Day">Day</mat-option>
                 <mat-option value="Month">Month</mat-option>
                 <mat-option value="Year">Year</mat-option>
@@ -17,6 +17,7 @@
         </mat-form-field>
 
         <button mat-flat-button
+            [disabled]="isLoadingData()"
             class="mt-2 mb-4 w-full xl:w-auto"
             (click)="addWatchingDate()">
             Add Watching Date
@@ -28,7 +29,7 @@
             @for (watchingDate of watchingDates(); track watchingDate) {
                 <mat-chip-option (removed)="removeWatchingDate(watchingDate)">
                     {{ watchingDate.toDateString() }}
-                    <button matChipRemove>
+                    <button matChipRemove [disabled]="isLoadingData()">
                         <mat-icon>cancel</mat-icon>
                     </button>
                 </mat-chip-option>
@@ -36,14 +37,19 @@
         </mat-chip-set>
     }
 
-    <apx-chart
-        [series]="chartData()"
-        [chart]="chartOptions.chart!"
-        [xaxis]="chartOptions.xaxis!"
-        [stroke]="chartOptions.stroke!"
-        [tooltip]="chartOptions.tooltip!"
-        [dataLabels]="chartOptions.dataLabels!"
-        [annotations]="annotations() ?? {}"
-    ></apx-chart>
+    <div class="relative">
+        @if (isLoadingData()) {
+            <spinner />
+        }
+        <apx-chart
+            [series]="chartData()"
+            [chart]="chartOptions.chart!"
+            [xaxis]="chartOptions.xaxis!"
+            [stroke]="chartOptions.stroke!"
+            [tooltip]="chartOptions.tooltip!"
+            [dataLabels]="chartOptions.dataLabels!"
+            [annotations]="annotations() ?? {}"
+        ></apx-chart>
+    </div>
 </div>
 

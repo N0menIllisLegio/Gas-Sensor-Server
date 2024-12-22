@@ -19,6 +19,7 @@ import dictionary from '../../../core/dictionary.type';
 import { ChartOptions } from './chart-options.model';
 import WatchingDateResponseModel from './watching-date-response.model';
 import WatchingDateRequestModel from './watching-date-request.model';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
     selector: 'data-chart',
@@ -33,13 +34,16 @@ import WatchingDateRequestModel from './watching-date-request.model';
         MatButtonModule,
         MatChipsModule,
         MatIconModule,
-        FormsModule
+        FormsModule,
+        SpinnerComponent
     ]
 })
 export class DataChartComponent {
     private snackBar = inject(MatSnackBar);
     private httpClient = inject(HttpClient);
     private watchingDateSubject = new BehaviorSubject<WatchingDateRequestModel | null>(null);
+
+    readonly isLoadingData = signal(false);
 
     chartOptions: Partial<ChartOptions> = {
         chart: {
@@ -59,7 +63,7 @@ export class DataChartComponent {
             type: "datetime"
         },
         tooltip: {
-            enabled: false,
+            enabled: true,
         },
         dataLabels: {
             enabled: true
@@ -97,14 +101,18 @@ export class DataChartComponent {
 
         this.watchingDateSubject
             .pipe(
-                filter(x => x !== null),
+                filter(x => x !== null && x.watchingDates.length > 0),
                 debounceTime(500),
-                distinctUntilChanged((prev, curr) => prev?.equals(curr) ?? false),
-                switchMap(request => this.httpClient
-                    .post<dictionary<WatchingDateResponseModel[]>>('/api/SensorsData/GetSensorData', request)
-                    .pipe(catchError(() => of(null)))
-                ))
+                switchMap(request => {
+                    this.isLoadingData.set(true);
+
+                    return this.httpClient
+                        .post<dictionary<WatchingDateResponseModel[]>>('/api/SensorsData/GetSensorData', request)
+                        .pipe(catchError(() => of(null)))
+                }))
             .subscribe(response => {
+                this.isLoadingData.set(false);
+
                 if (response === null)
                     return;
 

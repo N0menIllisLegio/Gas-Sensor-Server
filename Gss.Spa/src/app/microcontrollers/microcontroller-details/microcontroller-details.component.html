@@ -8,7 +8,7 @@
             </mat-card-header>
             <mat-card-content class="relative">
                 @if (microcontroller()) {
-                    <div class="grid grid-cols-3 mt-4">
+                    <div class="grid grid-cols-3 mt-4 align-values-bottom">
                         <div class="font-bold">Id:</div>
                         <div class="col-span-2">{{ microcontroller()!.id }}</div>
                         <div class="font-bold">Name:</div>
@@ -49,13 +49,10 @@
 
                                 <span>{{ sensor.name }}</span>
                             </mat-panel-title>
-                            <mat-panel-description class="text-sm font-light">
-                                {{ sensor.microcontrollerSensorId }}
-                            </mat-panel-description>
                         </mat-expansion-panel-header>
 
                         <div class="flex justify-between items-center">
-                            <div>
+                            <div class="flex flex-col gap-2">
                                 @if (sensor.description) {
                                     <p>{{ sensor.description }}</p>
                                 }
@@ -68,6 +65,8 @@
                                         </span>
                                     </p>
                                 }
+
+                                <p>Microcontroller Sensor Id: <span class="font-medium">{{ sensor.microcontrollerSensorId }}</span></p>
                             </div>
 
                             <button mat-mini-fab class="!shadow-none ml-4" (click)="onSetCriticalValue(sensor)"
@@ -122,3 +121,10 @@
         </button>
     </div>
 </div>
+
+<style scoped>
+.align-values-bottom > .col-span-2 {
+    display: flex;
+    align-items: end;
+}
+</style>
