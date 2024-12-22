@@ -1,6 +1,6 @@
 <div class="flex flex-col">
-    <div class="flex justify-around items-start">
-        <mat-form-field>
+    <div class="flex justify-around items-start flex-col xl:flex-row">
+        <mat-form-field class="w-full xl:w-auto">
             <mat-label>Choose a Period</mat-label>
             <mat-select [(value)]="period" (valueChange)="getData()">
                 <mat-option value="Day">Day</mat-option>
@@ -9,7 +9,7 @@
             </mat-select>
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field class="w-full xl:w-auto">
             <mat-label>Choose a Watching Date</mat-label>
             <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -17,7 +17,7 @@
         </mat-form-field>
 
         <button mat-flat-button
-            class="mt-2"
+            class="mt-2 mb-4 w-full xl:w-auto"
             (click)="addWatchingDate()">
             Add Watching Date
         </button>

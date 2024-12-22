@@ -1,5 +1,5 @@
 <div class="grid grid-cols-2 gap-4 p-4 !pb-20">
-    <section class="flex flex-col justify-end">
+    <section class="flex flex-col justify-end col-span-2 xl:col-span-1">
         <mat-card class="example-card" appearance="outlined" style="min-height: 198px;">
             <mat-card-header>
               <mat-card-title-group>
@@ -27,7 +27,7 @@
             </mat-card-content>
         </mat-card>
     </section>
-    <section>
+    <section class="col-span-2 xl:col-span-1">
         <mat-card class="overflow-hidden" appearance="outlined">
             <mat-card-content class="!p-0" style="height: 198px;">
                 <map [microcontrollerAdded]="addMicrocontroller.asObservable()"
@@ -36,8 +36,8 @@
             </mat-card-content>
         </mat-card>
     </section>
-    @if (microcontroller() && microcontroller()!.sensors.length > 0) {
-        <div class="col-span-2">
+    <section class="col-span-2">
+        @if (microcontroller() && microcontroller()!.sensors.length > 0) {
             <mat-accordion>
                 @for (sensor of microcontroller()!.sensors; track sensor.id) {
                     <mat-expansion-panel [expanded]="sensor.id === microcontroller()!.sensors[0].id">
@@ -88,31 +88,31 @@
                     </mat-expansion-panel>
                 }
             </mat-accordion>
-        </div>
-    }
-    @else if (microcontroller() && microcontroller()!.sensors.length === 0) {
-        <div>No sensors connected</div>
-    }
-    @else {
-        <div class="col-span-2 h-80 flex items-center justify-center">
-            <mat-spinner diameter="50" />
-        </div>
-    }
+        }
+        @else if (microcontroller() && microcontroller()!.sensors.length === 0) {
+            <div>No sensors connected</div>
+        }
+        @else {
+            <div class="col-span-2 h-80 flex items-center justify-center">
+                <mat-spinner diameter="50" />
+            </div>
+        }
+    </section>
 
-    <div class="absolute right-4 bottom-4">
-    @if (microcontroller() && (authService.isAdmin || authService.userId === microcontroller()!.ownerId)) {
-        <button mat-fab class="mr-4" (click)="onDelete()"
-            matTooltip="Delete this microcontroller"
-            style="background-color: var(--mat-sys-error);
-                    color: var(--mat-sys-on-error)">
-            <mat-icon>delete</mat-icon>
-        </button>
-        <button mat-fab class="mr-4" (click)="onEdit()"
-            matTooltip="Edit this microcontroller"
-            style="background-color: var(--mat-sys-primary);
-                    color: var(--mat-sys-on-primary)">
-            <mat-icon>edit</mat-icon>
-        </button>
+    <div class="fixed bottom-4 right-4">
+        @if (microcontroller() && (authService.isAdmin || authService.userId === microcontroller()!.ownerId)) {
+            <button mat-fab class="mr-4" (click)="onDelete()"
+                matTooltip="Delete this microcontroller"
+                style="background-color: var(--mat-sys-error);
+                        color: var(--mat-sys-on-error)">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-fab class="mr-4" (click)="onEdit()"
+                matTooltip="Edit this microcontroller"
+                style="background-color: var(--mat-sys-primary);
+                        color: var(--mat-sys-on-primary)">
+                <mat-icon>edit</mat-icon>
+            </button>
         }
         <button mat-fab (click)="toConfigGenerator()"
             matTooltip="Open configuration page with this microcontroller's data"
