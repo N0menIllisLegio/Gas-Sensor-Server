@@ -103,6 +103,7 @@
 	"sensors-table.label.create-sensor": "Create Sensor",
 	"sensors-table.table-header.icon": "Icon",
 	"sensors-table.table-header.name": "Name",
+	"sensors-table.table-header.type": "Type",
 	"sensors-table.table-header.units": "Units",
 	"user-microcontrollers.button.create-microcontroller": "Create Microcontroller",
 	"user-microcontrollers.table-header.coordinates": "Coordinates",

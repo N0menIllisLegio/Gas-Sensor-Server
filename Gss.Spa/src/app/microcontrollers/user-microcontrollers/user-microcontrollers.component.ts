@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, HostBinding, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
@@ -17,7 +17,7 @@ import { EmptyPlaceholderPipe } from '../../shared/empty-placeholder.pipe';
 import AuthService from '../../core/auth.service';
 import { MicrocontrollersQueryService } from '../core/microcontrollers-query.service';
 import MicrocontrollerModel from '../core/microcontroller.model';
-import { guid } from '../../core/guid';
+import { checkGuid, guid } from '../../core/guid';
 import { CoordinatesPipe } from "../../shared/coordinates.pipe";
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,7 +53,7 @@ export class UserMicrocontrollersComponent {
     displayedColumns = ['name', 'coordinates', 'sensorsCount'];
     isTableLoading = signal<boolean>(false);
     dataSource = signal<MicrocontrollerModel[]>([]);
-    userId = input<guid>();
+    userId = input.required<guid>();
 
     totalMicrocontrollers = signal<number>(0);
     pageNumber = 0;
@@ -98,8 +98,8 @@ export class UserMicrocontrollersComponent {
     }
 
     ngOnInit() {
-        if (!this.userId()) {
-            // TODO: 401 handle
+        if (!checkGuid(this.userId())) {
+            this.router.navigateByUrl('/not-found');
             return;
         }
 

@@ -19,7 +19,8 @@ public class SensorsRepository : RepositoryBase<Sensor>, ISensorsRepository
         var pagedResult = await GetPagedResultAsync(
             pagedInfoDto,
             search => search.Name.Contains(pagedInfoDto.SearchString) ||
-                      (search.Description != null && search.Description.Contains(pagedInfoDto.SearchString)),
+                      (search.Description != null && search.Description.Contains(pagedInfoDto.SearchString) ||
+                       search.Type.Name.Contains(pagedInfoDto.SearchString)),
             include => include.Include(sensor => sensor.Type), cancellationToken);
 
         return pagedResult;

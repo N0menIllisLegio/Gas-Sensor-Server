@@ -53,7 +53,7 @@ export class SensorsTableComponent {
     private pagedRequestSubject = new BehaviorSubject<PagedRequestModel | null>(null);
     private sensorTypesQueryService = inject(SensorsQueryService);
 
-    displayedColumns = ['select', 'icon', 'units', 'name'];
+    displayedColumns = ['select', 'icon', 'units', 'name', 'type'];
     isTableLoading = signal<boolean>(false);
     dataSource = signal<SensorModel[]>([]);
 
@@ -105,6 +105,16 @@ export class SensorsTableComponent {
     ngOnInit() {
         if (!this.isSelectionEnabled())
             this.displayedColumns.shift();
+
+        this.authService.initializationPromise.then(x => {
+            this.setCursor(this.authService.isAdmin ?? false);
+        })
+    }
+
+    setCursor(isPointer: boolean): void {
+        document.documentElement.style.setProperty(
+            '--sensor-table-admin-pointer', isPointer ? 'pointer' : 'default'
+        );
     }
 
     loadSensors() {
@@ -135,9 +145,6 @@ export class SensorsTableComponent {
         }
 
         if (!this.authService.isAdmin) {
-            // TODO: handle gracefully
-            console.log('Insuficient permissions!');
-
             return;
         }
 

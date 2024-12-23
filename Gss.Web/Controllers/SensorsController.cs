@@ -20,7 +20,8 @@ public class SensorsController : ControllerBase
     }
 
     [HttpPost]
-    [SwaggerOperation("Authorized", "Gets all sensors.")]
+    [AllowAnonymous]
+    [SwaggerOperation(Description = "Gets all sensors.")]
     [SwaggerResponse(200, type: typeof(PagedResultDto<SensorDto>))]
     [SwaggerResponse(400, type: typeof(ProblemDetails))]
     [SwaggerResponse(401, type: typeof(ProblemDetails))]

@@ -18,20 +18,14 @@
             routerLink="/configuration-generator"
             [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.config-generator' | translate }}</a>
 
-          @if (authService.isLoggedIn()) {
-            <mat-divider class="!border-stone-400" />
+          <mat-divider class="!border-stone-400" />
 
+          @if (authService.isLoggedIn()) {
             <a mat-list-item
               class="my-2"
               routerLinkActive="active"
               [routerLink]="'user-microcontrollers/' + authService.userId"
               [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.my-microcontrollers' | translate }}</a>
-
-            <a mat-list-item
-              class="my-2"
-              routerLinkActive="active"
-              routerLink="/sensors"
-              [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.sensors' | translate }}</a>
 
             @if (authService.isAdmin) {
               <a mat-list-item
@@ -41,6 +35,12 @@
                 [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.sensor-types' | translate }}</a>
             }
           }
+
+          <a mat-list-item
+            class="my-2"
+            routerLinkActive="active"
+            routerLink="/sensors"
+            [routerLinkActiveOptions]="{ exact: true }">{{ 'navbar.button.sensors' | translate }}</a>
         </mat-nav-list>
       </div>
       <div class="p-2">
@@ -121,6 +121,9 @@
               </button>
             }
             @else {
+              <a mat-menu-item routerLink="/sensors">
+                {{ 'navbar.button.sensors' | translate }}
+              </a>
               <button mat-menu-item (click)="authService.login()"
                 [disabled]="authService.isAuthOperationInProgress()">
                 <span class="flex items-center gap-4">

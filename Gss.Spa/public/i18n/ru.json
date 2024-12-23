@@ -103,6 +103,7 @@
 	"sensors-table.label.create-sensor": "Создать датчик",
 	"sensors-table.table-header.icon": "Иконка",
 	"sensors-table.table-header.name": "Имя",
+	"sensors-table.table-header.type": "Тип",
 	"sensors-table.table-header.units": "Единицы",
 	"user-microcontrollers.button.create-microcontroller": "Создать микроконтроллер",
 	"user-microcontrollers.table-header.coordinates": "Координаты",

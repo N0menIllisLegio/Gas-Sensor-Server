@@ -48,6 +48,10 @@
                         <th mat-header-cell *matHeaderCellDef mat-sort-header="Name">{{ 'sensors-table.table-header.name' | translate }}</th>
                         <td mat-cell *matCellDef="let element">{{ element.name }}</td>
                     </ng-container>
+                    <ng-container matColumnDef="type">
+                        <th mat-header-cell *matHeaderCellDef>{{ 'sensors-table.table-header.type' | translate }}</th>
+                        <td mat-cell *matCellDef="let element">{{ element.type.name }}</td>
+                    </ng-container>
                     <ng-container matColumnDef="units">
                         <th mat-header-cell *matHeaderCellDef>{{ 'sensors-table.table-header.units' | translate }}</th>
                         <td mat-cell *matCellDef="let element">{{ element.type.units | emptyPlaceholder }}</td>
@@ -78,7 +82,7 @@
 
 .mat-mdc-row:hover .mat-mdc-cell {
   background-color: var(--mat-sys-surface-container-low);
-  cursor: pointer;
+  cursor: var(--sensor-table-admin-pointer, default);
 }
 
 .mat-column-select {
