@@ -49,6 +49,8 @@
         condition: service_healthy
       message-broker:
         condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
 
   microcontroller-data-handler:
     image: gss.microcontroller-data-handler
@@ -68,6 +70,8 @@
         condition: service_healthy
       email:
         condition: service_started
+      db-migrations:
+        condition: service_completed_successfully
 
   identity-provider:
     image: quay.io/keycloak/keycloak:latest
