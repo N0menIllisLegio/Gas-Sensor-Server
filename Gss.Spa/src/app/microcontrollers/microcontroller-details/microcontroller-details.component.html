@@ -8,10 +8,8 @@
             </mat-card-header>
             <mat-card-content>
                 <div class="relative min-h-32">
-                    @if (!microcontroller()) {
-                        <spinner />
-                    }
-                    @else {
+                    <spinner [class]="[microcontroller() ? 'hidden' : '']" />
+                    @if (microcontroller()) {
                         <div class="grid grid-cols-3 mt-4 align-values-bottom">
                             <div class="font-bold">{{ 'microcontroller-details.label.id' | translate }}:</div>
                             <div class="col-span-2">{{ microcontroller()!.id }}</div>

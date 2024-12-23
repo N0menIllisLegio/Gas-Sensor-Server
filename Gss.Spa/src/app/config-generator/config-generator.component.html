@@ -1,8 +1,6 @@
 <div class="p-4 grid grid-cols-3 gap-4">
     <div class="relative col-span-3 xl:col-span-1">
-        @if (loadingMicrocontroller()) {
-            <spinner />
-        }
+        <spinner [class]="[loadingMicrocontroller() ? '' : 'hidden']" />
 
         <div class="flex gap-2 justify-between">
             <mat-form-field>

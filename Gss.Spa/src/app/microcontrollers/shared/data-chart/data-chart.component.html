@@ -38,9 +38,7 @@
     }
 
     <div class="relative">
-        @if (isLoadingData()) {
-            <spinner />
-        }
+        <spinner [class]="[isLoadingData() ? '' : 'hidden']" />
         <apx-chart
             [series]="chartData()"
             [chart]="chartOptions.chart!"

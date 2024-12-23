@@ -24,6 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import dictionary from '../../core/dictionary.type';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
+import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 
 @Component({
     selector: 'edit-microcontroller',
@@ -39,7 +40,8 @@ import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
         MatButtonModule,
         MatProgressSpinnerModule,
         ReactiveFormsModule,
-        TranslateModule
+        TranslateModule,
+        SpinnerComponent
     ]
 })
 

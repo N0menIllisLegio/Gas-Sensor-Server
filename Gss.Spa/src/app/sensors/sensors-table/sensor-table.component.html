@@ -16,9 +16,7 @@
                 }
             </div>
             <div class="overflow-auto flex-grow relative">
-                @if (isTableLoading()) {
-                    <spinner />
-                }
+                <spinner [class]="[isTableLoading() ? '' : 'hidden']" />
 
                 <table mat-table [dataSource]="dataSource()" matSort (matSortChange)="sortData($event)" style="background-color: inherit">
                     <ng-container matColumnDef="select">
