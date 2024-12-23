@@ -61,6 +61,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseNpgsql(builder.Configuration.GetConnectionString("Database"),
             npgsqlOptionsBuilder => npgsqlOptionsBuilder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)));
 
+builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
+
 builder.Services.AddDataProtection()
     .PersistKeysToDbContext<AppDbContext>();
 
@@ -131,6 +133,9 @@ app.UseSwagger();
 app.UseSwaggerUI(o => o.OAuthClientId("public-client"));
 
 app.UseHttpsRedirection();
+
+app.UseHealthChecks("/_health");
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();

@@ -17,6 +17,11 @@
         condition: service_healthy
       db-migrations:
         condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:8080/_health || exit 1" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   db-migrations:
     image: gss.migrations
