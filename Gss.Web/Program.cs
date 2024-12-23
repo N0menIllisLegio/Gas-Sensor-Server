@@ -6,7 +6,6 @@ using Gss.Core.Interfaces;
 using Gss.Core.Interfaces.Services;
 using Gss.Core.Services;
 using Gss.Infrastructure;
-using Gss.Infrastructure.Extensions;
 using Gss.Web.Configuration;
 using Gss.Web.CurrentUser;
 using Hellang.Middleware.ProblemDetails;
@@ -122,8 +121,6 @@ builder.Services.AddScoped<ICurrentUserDataSetter, CurrentUser>(
     c => (CurrentUser)c.GetRequiredService<ICurrentUser>());
 
 var app = builder.Build();
-
-await app.ApplyMigrationsAsync();
 
 if (!app.Environment.IsDevelopment())
     app.UseHsts();

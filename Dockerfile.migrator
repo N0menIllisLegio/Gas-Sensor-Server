@@ -1,0 +1,18 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /migrations
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+COPY ["Gss.Web/Gss.Web.csproj", "Gss.Web/"]
+COPY ["Gss.Core/Gss.Core.csproj", "Gss.Core/"]
+COPY ["Gss.Infrastructure/Gss.Infrastructure.csproj", "Gss.Infrastructure/"]
+RUN dotnet restore "Gss.Web/Gss.Web.csproj"
+COPY . .
+WORKDIR /migrations/Gss.Web
+RUN dotnet ef migrations bundle --self-contained -r linux-x64
+
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS runtime
+WORKDIR /migrations
+COPY --from=build /migrations/Gss.Web/efbundle ./
+COPY --from=build /migrations/Gss.Web/appsettings*.json ./
+ENTRYPOINT ["./efbundle"]
+

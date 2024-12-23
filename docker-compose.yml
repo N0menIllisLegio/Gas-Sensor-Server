@@ -15,6 +15,18 @@
         condition: service_healthy
       db:
         condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
+
+  db-migrations:
+    image: gss.migrations
+    container_name: Gss.Migrations
+    build:
+      context: .
+      dockerfile: ./Dockerfile.migrator
+    depends_on:
+      db:
+        condition: service_healthy
 
   microcontroller-listener:
     image: gss.microcontroller-listener
