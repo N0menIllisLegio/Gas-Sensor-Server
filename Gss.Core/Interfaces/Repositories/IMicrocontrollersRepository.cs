@@ -22,4 +22,7 @@ public interface IMicrocontrollersRepository : IRepositoryBase<Microcontroller>
 
     Task<Microcontroller?> FindMicrocontrollerByMicrocontrollerSensorIdAsync(Guid microcontrollerSensorId,
         CancellationToken cancellationToken = default);
+
+    Task<int> SetCriticalValueLastNotifiedAsync(Guid microcontrollerSensorId, DateTime notifiedAt,
+        CancellationToken cancellationToken = default);
 }

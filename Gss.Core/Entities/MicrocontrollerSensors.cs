@@ -11,5 +11,6 @@ public sealed class MicrocontrollerSensors : IEntity
     public Sensor Sensor { get; set; } = null!;
 
     public int? CriticalValue { get; set; }
+    public DateTime? CriticalValueLastNotified { get; set; }
     public Guid Id { get; set; }
 }

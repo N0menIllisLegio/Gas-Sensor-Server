@@ -85,7 +85,18 @@ public class MicrocontrollersRepository : RepositoryBase<Microcontroller>, IMicr
             .Where(x => x.Id == microcontrollerSensorId && (x.Microcontroller.Public ||
                                                             x.Microcontroller.OwnerId == currentUser.Id ||
                                                             currentUser.IsAdministrator))
-            .ExecuteUpdateAsync(x => x.SetProperty(p => p.CriticalValue, criticalValue), cancellationToken);
+            .ExecuteUpdateAsync(x => x
+                .SetProperty(p => p.CriticalValue, criticalValue)
+                .SetProperty(p => p.CriticalValueLastNotified, (DateTime?)null), cancellationToken);
+    }
+
+    public async Task<int> SetCriticalValueLastNotifiedAsync(Guid microcontrollerSensorId, DateTime notifiedAt,
+        CancellationToken cancellationToken = default)
+    {
+        return await _appDbContext.MicrocontrollerSensors
+            .Where(x => x.Id == microcontrollerSensorId)
+            .ExecuteUpdateAsync(x => x
+                .SetProperty(p => p.CriticalValueLastNotified, notifiedAt.ToUniversalTime()), cancellationToken);
     }
 
     public async Task<Microcontroller?> FindMicrocontrollerByMicrocontrollerSensorIdAsync(Guid microcontrollerSensorId,

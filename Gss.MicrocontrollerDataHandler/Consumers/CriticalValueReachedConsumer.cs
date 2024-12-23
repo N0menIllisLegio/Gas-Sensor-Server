@@ -86,9 +86,21 @@ internal sealed class CriticalValueReachedConsumer : IConsumer<CriticalValueReac
             return;
         }
 
-        await _emailService.SendCriticalValueEmailAsync(owner.Email, context.Message.Value,
-            microcontrollerSensor.CriticalValue.Value, microcontroller, microcontrollerSensor.Sensor,
-            context.CancellationToken);
+        if (!microcontrollerSensor.CriticalValueLastNotified.HasValue ||
+            DateTime.Now - microcontrollerSensor.CriticalValueLastNotified > TimeSpan.FromHours(1))
+        {
+            await _emailService.SendCriticalValueEmailAsync(owner.Email, context.Message.Value,
+                microcontrollerSensor.CriticalValue.Value, microcontroller, microcontrollerSensor.Sensor,
+                context.CancellationToken);
+
+            await _microcontrollersRepository.SetCriticalValueLastNotifiedAsync(microcontrollerSensor.Id,
+                DateTime.UtcNow, context.CancellationToken);
+        }
+        else
+        {
+            _logger.LogInformation("Email was throttled. Previous was sent at: {LastNotificationTime}",
+                microcontrollerSensor.CriticalValueLastNotified);
+        }
 
         activity?.SetStatus(ActivityStatusCode.Ok);
     }
